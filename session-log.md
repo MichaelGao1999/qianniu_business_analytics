@@ -118,3 +118,33 @@
 - ⏳ 功能迭代：更多 dataType 组合、报告模板多样性、Excel 容错增强
 
 ---
+
+
+---
+
+### 2026-05-22 补全阶段一需求提案 + 母库经验同步 + 品牌名清理
+
+**目标**：
+1. 按用户要求清理项目中所有品牌名（agentone / 瓴羊 / lydaas / AgentOne）
+2. 初始化 Git 仓库并上传 GitHub
+3. 建立母库拉取机制（scripts/pull.py + sync-knowledge.py + config/github-sync.json）
+4. 补全缺失的 SOP 阶段一产出：docs/proposal.md
+
+**实际完成**：
+- ✅ 清理品牌名：agentone_qianniu → qianniu，瓴羊·One → 平台，lydaas → api.example.com，AgentOne → 自包含技能包
+- ✅ 本地文件夹重命名：agentone_qianniu_business_analytics → qianniu_business_analytics
+- ✅ Git 初始化 + 首次提交 + 推送到 https://github.com/MichaelGao1999/qianniu_business_analytics
+- ✅ 添加母库拉取机制（pull.py / sync-knowledge.py / github-sync.json）
+- ✅ 补全 AGENTS.md 3.7 母库经验指令
+- ✅ 同步母库经验：lessons-learned.md 新增 31 条，decisions/troubleshooting 已合并
+- ✅ **生成 docs/proposal.md（阶段一需求提案）← 请查看**
+
+**关键决策**：
+- 选择「方案 A：最小修复」而非完整重构：保留现有代码和核心文档，新增 SOP 骨架文件
+- 母库经验同步采用分发模式（syncFrom: vibe-coding-project-sop），而非聚合模式
+
+**遗留问题 / 下轮开始点**：
+- ⏳ 请查看刚生成的 `docs/proposal.md`（需求提案）
+- ⏳ `docs/design.md` 架构设计文档待补全（已有雏形，需细化数据流和接口契约）
+- ⏳ `prompt.md`（阶段四产出）待生成
+- ⏳ 旧目录 `agentone_qianniu_business_analytics` 可删除（已完整复制到 `qianniu_business_analytics`）

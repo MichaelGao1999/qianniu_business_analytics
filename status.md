@@ -36,7 +36,7 @@
 ### 优先级 3 — 优化与文档
 - [x] 引入 Vibe Coding SOP 文档体系
 - [x] 完善单元测试覆盖（33 条用例全部通过）
-- [x] 补全 `docs/proposal.md` 需求提案
+- [x] 补全 `docs/proposal.md` 需求提案 ← **请查看：https://github.com/MichaelGao1999/qianniu_business_analytics/blob/master/docs/proposal.md**
 - [ ] 补全 `docs/design.md` 架构设计文档
 - [ ] 补全 `docs/brief.md` 决策摘要
 - [ ] 补全 `docs/tasks/*.md` 子任务拆分
