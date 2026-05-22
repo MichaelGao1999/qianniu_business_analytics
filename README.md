@@ -1,6 +1,6 @@
 # 瓴羊·One 淘系店铺经营数据分析技能（本地Excel驱动版）
 
-> **适用范围**：仅覆盖淘系（天猫 / 淘宝 → 生意参谋）单渠道数据分析，**支持单店或多家淘系店铺合并分析（多店横向对比 + 排行）**；暂不支持京东 / 抖音 / 全渠道跨平台合并。若需万相台 / 直通车 / 店铺推广等广告投放分析，请使用 `agentone_qianniu_ad_analytics`。
+> **适用范围**：仅覆盖淘系（天猫 / 淘宝 → 生意参谋）单渠道数据分析，**支持单店或多家淘系店铺合并分析（多店横向对比 + 排行）**；暂不支持京东 / 抖音 / 全渠道跨平台合并。若需万相台 / 直通车 / 店铺推广等广告投放分析，请使用 `qianniu_ad_analytics`。
 >
 > **v5.0.0 更新**：已改为**本地Excel驱动模式**，无需订购瓴羊服务或API权限，直接分析生意参谋导出的Excel。
 
@@ -74,7 +74,7 @@ export FEISHU_WEBHOOK='https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxxxxx
 ## 目录结构
 
 ```
-agentone_qianniu_business_analytics/
+qianniu_business_analytics/
 ├── SKILL.md              # 技能主入口（Agent指令）
 ├── auth.md               # ~~旧版认证流程（已停用）~~
 ├── fetch-data.md         # Excel上传规则

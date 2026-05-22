@@ -1,5 +1,5 @@
 ---
-name: agentone_qianniu_business_analytics
+name: qianniu_business_analytics
 display_name: 千牛店铺经营分析
 description: >-
   淘系店铺（天猫 / 淘宝，数据源为生意参谋）经营数据分析。
@@ -51,7 +51,7 @@ metadata:
 | 全渠道、多渠道、三平台、京东、抖音、拼多多、小红书 | 明确告知用户「本技能仅支持淘系生意参谋」，不执行 | 非淘系场景 |
 | VOC、原声、评论分析 | 转 `jycm-voc-query` / `jycm-voc-report` | VOC 专项 |
 | 直播巡检 | 转 `jycm-live-inspect` | 直播专项 |
-| 万相台 / 直通车 / 店铺推广 / 广告投放 | 转 `agentone_qianniu_ad_analytics` | 广告投放专项 |
+| 万相台 / 直通车 / 店铺推广 / 广告投放 | 转 `qianniu_ad_analytics` | 广告投放专项 |
 
 ---
 
@@ -144,7 +144,7 @@ metadata:
 ## 目录结构
 
 ```
-agentone_qianniu_business_analytics/
+qianniu_business_analytics/
 ├── SKILL.md                          # 本文件（技能主入口）
 ├── auth.md                           # ~~认证流程（已停用）~~
 ├── fetch-data.md                     # Excel 上传规则

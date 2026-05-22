@@ -23,4 +23,4 @@
 
 - **无需认证**：本技能当前版本直接读取本地 Excel，不涉及任何外部 API 调用
 - **无 Cookie 依赖**：所有数据来自用户上传的文件
-- **如需 API 版**：请使用 `agentone_qianniu_business_analytics` v4.x 或联系瓴羊·One 服务
+- **如需 API 版**：请使用 `qianniu_business_analytics` v4.x 或联系瓴羊·One 服务

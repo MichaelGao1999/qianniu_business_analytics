@@ -59,7 +59,7 @@
 > 新会话接手时，若需要改代码，从这里定位文件。
 
 ```
-agentone_qianniu_business_analytics/
+qianniu_business_analytics/
 ├── scripts/
 │   ├── qianniu_analytics_orchestrator.py  # 编排脚本（CLI 入口）
 │   ├── jycm_auto_report.py               # 自动化全流程（定时任务入口）

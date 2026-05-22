@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 淘系生意参谋店铺经营数据取数脚本
-用于 agentone_qianniu_business_analytics 技能调用
+用于 qianniu_business_analytics 技能调用
 范围：仅淘系（天猫淘宝 → 生意参谋），不支持京东 / 抖音 / 全渠道。
 """
 

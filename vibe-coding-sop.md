@@ -24,7 +24,7 @@
    - 架构混乱/缺设计 → 回溯阶段二，先补 `docs/design.md`，再重新进入阶段五
    - 模块边界不清 → 回溯阶段三，先拆任务再开发
 
-> 本项目（agentone_qianniu_business_analytics）属于**半成品项目**：已有成熟代码和 SKILL.md 等文档，但缺少 SOP 文档体系。当前按"场景 C"处理：保留现有代码和核心文档，新增 SOP 骨架文件。
+> 本项目（qianniu_business_analytics）属于**半成品项目**：已有成熟代码和 SKILL.md 等文档，但缺少 SOP 文档体系。当前按"场景 C"处理：保留现有代码和核心文档，新增 SOP 骨架文件。
 
 ---
 

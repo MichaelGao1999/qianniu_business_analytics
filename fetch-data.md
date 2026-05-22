@@ -20,7 +20,7 @@
 用户需将生意参谋导出的 Excel 文件放入项目根目录的 `data/` 文件夹：
 
 ```bash
-agentone_qianniu_business_analytics/
+qianniu_business_analytics/
 ├── data/
 │   ├── XX旗舰店_20260401_20260407.xlsx   # 单店文件
 │   ├── YY官方店_20260401_20260407.xlsx   # 单店文件
