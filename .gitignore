@@ -1,0 +1,27 @@
+# 业务数据（生意参谋 Excel、生成的报告）
+data/
+reports/
+
+# 认证凭证
+auth/
+
+# Vibe Coding SOP 备份
+.backup/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# 虚拟环境
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
