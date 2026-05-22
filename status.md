@@ -7,13 +7,13 @@
 
 ## 当前阶段
 
-**阶段五（执行开发/维护迭代）约 85% 完成 | 下一步：补全 SOP 文档体系 → 持续维护与功能迭代**
+**阶段五（执行开发/维护迭代）约 95% 完成 | 下一步：补全 docs/ 架构设计文档 → 持续维护与功能迭代**
 
 ---
 
 ## 进度总览
 
-`P1 认证管理 ✅ | P1 淘系取数 ✅ | P1 报告分析 ✅ | P1 钉钉推送 ✅ | P2 自动化编排 ✅ | P2 多店合并分析 ✅ | P3 SOP 文档体系 🔄 | P3 跨平台扩展 ⚠️（明确不做）`
+`P1 认证管理 ✅ | P1 淘系取数 ✅ | P1 报告分析 ✅ | P1 钉钉/飞书推送 ✅ | P2 自动化编排 ✅ | P2 多店合并分析 ✅ | P3 单元测试 ✅ | P3 SOP 文档体系 🔄 | P3 跨平台扩展 ⚠️（明确不做）`
 
 > 图例：✅ 已完成 | 🔄 进行中 | ⚠️ 阻塞/待修复
 
@@ -25,7 +25,8 @@
 - [ ] 无当前阻塞项
 
 ### 优先级 1 — 当前进行
-- [ ] **输出《代码评估报告》**（2026-05-21 执行）：评估现有 4 个 Python 脚本的架构现状、已完成模块、缺失模块、技术债务 → 决定后续是继续开发还是回溯补文档
+- [x] **输出《代码评估报告》**（2026-05-22 完成）：评估 6 个 Python 脚本，确定聚焦 Excel 驱动流
+- [x] **巩固 Excel 驱动流**（2026-05-22 完成）：常量抽取、subprocess→import、多店合并分析、单元测试、空壳脚本归档
 
 ### 优先级 2 — 功能迭代
 - [ ] 支持更多 dataType / dataDimension 组合（商品/品类/内容/客户/推荐分析）
@@ -34,10 +35,10 @@
 
 ### 优先级 3 — 优化与文档
 - [x] 引入 Vibe Coding SOP 文档体系
+- [x] 完善单元测试覆盖（33 条用例全部通过）
 - [ ] 补全 `docs/design.md` 架构设计文档
 - [ ] 补全 `docs/brief.md` 决策摘要
 - [ ] 补全 `docs/tasks/*.md` 子任务拆分
-- [ ] 完善单元测试覆盖
 - [ ] 代码注释与类型提示补齐
 
 ---
@@ -45,12 +46,11 @@
 ## 环境备忘
 
 - **语言/框架版本**：Python 3.8+
-- **依赖包**：requests，openpyxl
-- **测试命令**：暂无自动化测试（待补充 pytest）
+- **依赖包**：pandas，openpyxl，requests，pytest
+- **测试命令**：`python -m pytest tests/ -v`（33 条用例）
 - **已知限制**：
   - Windows Git Bash 下文本文件可能触发 `LF will be replaced by CRLF` 警告
-  - `requests` 未在 requirements.txt 中声明
-  - 部分脚本中 `sys.path.insert` 引用了外部技能包路径，需确认是否仍然有效
+  - Windows Git Bash 下 emoji 输出可能触发 `UnicodeEncodeError`，需设置 `PYTHONIOENCODING=utf-8`
 
 ---
 
@@ -61,10 +61,13 @@
 ```
 qianniu_business_analytics/
 ├── scripts/
-│   ├── qianniu_analytics_orchestrator.py  # 编排脚本（CLI 入口）
-│   ├── jycm_auto_report.py               # 自动化全流程（定时任务入口）
+│   ├── analyze_excel_report.py           # Excel 分析 → Markdown 报告（核心）
+│   ├── jycm_auto_report.py               # 自动化全流程（扫描 → 分析 → 推送）
 │   ├── dingtalk_send_markdown.py         # 钉钉推送
-│   └── jycm_fetch_sycm_shop.py           # 淘系生意参谋取数（A→G 接口链）
+│   ├── feishu_send_markdown.py           # 飞书推送
+│   ├── constants.py                      # 公共常量（时区/指标关键词/阈值）
+│   ├── qianniu_analytics_orchestrator.py # 【已归档】API 驱动编排占位代码
+│   └── jycm_fetch_sycm_shop.py           # 【已归档】旧版 API 取数（A→G 接口链）
 ├── auth/                                  # 凭证目录（auth/jycm.json）
 ├── data/                                  # 原始数据目录（Excel 下载）
 └── reports/                               # 分析报告目录（Markdown）
@@ -84,9 +87,10 @@ qianniu_business_analytics/
 
 ## 推荐策略
 
-1. 先补完 SOP 文档体系中缺失的 `docs/design.md`、`docs/brief.md`、`docs/tasks/*.md`
-2. 完善 Python 脚本的错误处理与日志输出
-3. 补充 pytest 单元测试（认证模块、日期计算、钉钉推送模拟）
+1. 补全 `docs/design.md` 架构设计文档（以代码评估报告为蓝本）
+2. 补全 `docs/brief.md` 决策摘要
+3. 补全 `docs/tasks/*.md` 子任务拆分
+4. 完善 Python 脚本的错误处理与日志输出
 
 ---
 
@@ -95,6 +99,7 @@ qianniu_business_analytics/
 | 日期 | 更新内容 |
 |------|---------|
 | 2026-05-20 | 引入 Vibe Coding SOP 文档体系；创建 AGENTS.md、status.md、session-log.md、decisions.md、troubleshooting.md、lessons-learned.md、vibe-coding-sop.md |
+| 2026-05-22 | 输出代码评估报告；巩固 Excel 驱动流：抽取 constants.py、修复 subprocess→import、完善多店合并分析、补充 33 条 pytest 用例、归档空壳脚本 |
 
 ---
 

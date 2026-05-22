@@ -80,3 +80,41 @@
 - [ ] 定稿并追加了 `session-log.md`
 - [ ] Git 提交并推送完成
 ```
+
+---
+
+### 2026-05-22 巩固 Excel 驱动流
+
+**目标**：执行《代码评估报告》路径 A，将 Excel 驱动流打磨到生产级。
+
+**实际完成**：
+- ✅ 抽取公共常量到 `scripts/constants.py`（BJ_TZ、日期格式、推送阈值、METRIC_KEYWORDS）
+- ✅ 修复 `jycm_auto_report.py` subprocess 调用 → 直接 `import analyze_excel_report`
+- ✅ 完善 `analyze_excel_report.py` 多店合并分析：
+  - 新增 `infer_shop_name_from_path()` 文件名推断
+  - 新增 `build_multi_shop_summary()` 合计 + 分店铺汇总小表
+  - 新增 `build_multi_shop_trend()` 日期×店铺日度趋势对比
+  - `generate_insights()` 支持 `multi_shop` 参数，输出头部/尾部/Gap 分析
+- ✅ 创建 `tests/` 目录，4 个测试文件 33 条用例全部通过
+- ✅ 归档空壳脚本：`qianniu_analytics_orchestrator.py`、`jycm_fetch_sycm_shop.py` 标记为已归档，入口抛 `NotImplementedError`
+- ✅ 更新 `requirements.txt` 追加 pytest
+- ✅ 更新 `status.md`、`decisions.md`、`lessons-learned.md`
+
+**关键决策**：
+- ADR-017：聚焦 Excel 驱动流，API 驱动流暂不投入（理由见 decisions.md）
+
+**遇到的阻碍 & 解决路径**：
+- 阻碍：`jycm_auto_report.py` 直接 import `analyze_excel_report` 时，因同目录但不同包导致 `ModuleNotFoundError`
+- 解决：`sys.path.insert(0, str(SCRIPT_DIR))` 临时扩展路径后 import，保持改动最小
+- 阻碍：pytest 测试 `dingtalk_send_markdown.py` 时，`sys.stdin.read()` 触发 `DontReadFromInput`
+- 解决：测试用例改用 `-f __file__` 参数，避免走 stdin 路径
+- 阻碍：Windows Git Bash 下 emoji 输出触发 `UnicodeEncodeError`
+- 解决：运行前设置 `PYTHONIOENCODING=utf-8`
+
+**遗留问题 / 下轮开始点**：
+- ⏳ 补全 `docs/design.md`（以代码评估报告为蓝本绘制数据流图）
+- ⏳ 补全 `docs/brief.md`（记录 Excel 驱动流决策摘要）
+- ⏳ 补全 `docs/tasks/*.md`（将剩余技术债务拆分为可执行任务）
+- ⏳ 功能迭代：更多 dataType 组合、报告模板多样性、Excel 容错增强
+
+---

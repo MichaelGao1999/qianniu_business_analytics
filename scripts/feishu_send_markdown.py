@@ -25,7 +25,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-MAX_TEXT = 15000
+from constants import MAX_TEXT_FEISHU as MAX_TEXT
 
 
 def ensure_title_has_jingying(title: str) -> str:

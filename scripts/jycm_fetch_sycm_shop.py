@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-淘系生意参谋店铺经营数据取数脚本
-用于 qianniu_business_analytics 技能调用
+【已归档】淘系生意参谋店铺经营数据取数脚本
+
+状态：本脚本为早期 API 取数实现，BASE_URL 为占位地址（api.example.com），
+      当前项目主力数据流为「本地 Excel 驱动」（见 jycm_auto_report.py）。
+      在接入真实 API 环境前，禁止直接运行本脚本。
+
 范围：仅淘系（天猫淘宝 → 生意参谋），不支持京东 / 抖音 / 全渠道。
 """
 
@@ -9,12 +13,11 @@ import os
 import sys
 import json
 import requests
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
+from constants import BJ_TZ, DATE_FMT, ISO8601_BJ_START
 
 BASE_URL = "https://api.example.com"
-
-# 北京时间 UTC+8
-BJ_TZ = timezone(timedelta(hours=8))
 
 def get_env_token():
     """从环境变量获取 cookie"""
@@ -197,8 +200,8 @@ def main():
     # 命令行参数支持自定义时间
     # python3 jycm_fetch_sycm_shop.py [channel] [start_date] [end_date]
     # 日期格式: YYYY-MM-DD
-
-    cookie = get_env_token()
+    raise NotImplementedError("本脚本已归档，当前请使用 jycm_auto_report.py（Excel 驱动流）。")
+    cookie = get_env_token()  # noqa: F841
     channel_name = sys.argv[1] if len(sys.argv) > 1 else "天猫淘宝"
     data_platform = sys.argv[2] if len(sys.argv) > 2 else "生意参谋"
     start_date_str = sys.argv[3] if len(sys.argv) > 3 else None
@@ -214,13 +217,13 @@ def main():
     # 禁用 `T23:59:59.999+08:00`：后端实测会多返回次日数据（如 4/20-4/26 会拿到 4/27），导致区间多一天；
     # 禁用 `Z`（UTC）：`23:59:59Z` 会被解释为次日 07:59:59（北京时间），同样导致区间多一天。
     if start_date_str and end_date_str:
-        start_date = start_date_str + "T00:00:00+08:00"
-        end_date = end_date_str + "T00:00:00+08:00"
-        last_monday = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-        last_sunday = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+        start_date = start_date_str + ISO8601_BJ_START
+        end_date = end_date_str + ISO8601_BJ_START
+        last_monday = datetime.strptime(start_date_str, DATE_FMT).date()
+        last_sunday = datetime.strptime(end_date_str, DATE_FMT).date()
     else:
-        start_date = last_monday.strftime("%Y-%m-%d") + "T00:00:00+08:00"
-        end_date = last_sunday.strftime("%Y-%m-%d") + "T00:00:00+08:00"
+        start_date = last_monday.strftime(DATE_FMT) + ISO8601_BJ_START
+        end_date = last_sunday.strftime(DATE_FMT) + ISO8601_BJ_START
 
     print(f"时间范围: {last_monday} 至 {last_sunday}")
     print(f"开始日期: {start_date}")

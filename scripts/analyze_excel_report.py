@@ -13,30 +13,13 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-BJ_TZ = timezone(timedelta(hours=8))
-
-# 核心指标关键词映射
-METRIC_KEYWORDS: Dict[str, List[str]] = {
-    "日期": ["日期", "时间", "date", "day"],
-    "店铺": ["店铺", "店铺名称", "店铺名", "shop"],
-    "商品": ["商品", "商品名称", "商品名", "item"],
-    "访客数": ["访客数", "浏览量", "uv", "访客", "流量"],
-    "支付金额": ["支付金额", "成交金额", "gmv", "交易额", "成交金额(元)", "支付金额(元)"],
-    "支付转化率": ["支付转化率", "转化率", "成交转化率", "下单转化率"],
-    "加购人数": ["加购人数", "加入购物车人数", "加购", "购物车人数"],
-    "支付买家数": ["支付买家数", "支付人数", "成交人数", "买家数", "付款人数"],
-    "客单价": ["客单价", "人均客单价", "笔单价"],
-    "退款金额": ["退款金额", "退款", "退货金额"],
-    "搜索访客数": ["搜索访客数", "搜索流量", "搜索uv"],
-    "直通车花费": ["直通车花费", "直通车", "ppc花费"],
-    "钻展花费": ["钻展花费", "钻展"],
-}
+from constants import BJ_TZ, DATE_FMT, DATETIME_FMT, METRIC_KEYWORDS
 
 
 def find_column(df: pd.DataFrame, keywords: List[str]) -> Optional[str]:
@@ -205,7 +188,7 @@ def build_trend_table(df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[str]
     rows = []
     for _, row in df.iterrows():
         d = row[date_col]
-        date_str = d.strftime("%Y-%m-%d") if hasattr(d, "strftime") else str(d)[:10]
+        date_str = d.strftime(DATE_FMT) if hasattr(d, "strftime") else str(d)[:10]
         vals = [smart_fmt(col, row[col]) for col in numeric_cols]
         rows.append([date_str] + vals)
 
@@ -240,7 +223,8 @@ def build_top_table(df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[Optional[st
     for _, row in grouped.iterrows():
         rows.append([str(row[dim_col])[:30], smart_fmt(amount_col, row[amount_col])])
 
-    return dim_col, headers, rows
+    display_dim = "店铺" if dim_col == "_shop_name" else dim_col
+    return display_dim, headers, rows
 
 
 def generate_insights(
@@ -249,6 +233,7 @@ def generate_insights(
     trend_rows: List[List[str]],
     top_dim: Optional[str],
     top_rows: List[List[str]],
+    multi_shop: bool = False,
 ) -> List[str]:
     """基于数据自动生成分析总结（3~6条量化要点）。"""
     insights = []
@@ -261,12 +246,19 @@ def generate_insights(
         if "访客" in label:
             visitor_val = val
 
-    if amount_val:
-        insights.append(f"统计周期内店铺支付金额达 **{amount_val}**，整体经营规模可观。")
-    if visitor_val:
-        insights.append(f"全周期访客数为 **{visitor_val}**，流量基础稳固。")
+    if multi_shop:
+        if amount_val:
+            insights.append(f"统计周期内 {len(top_rows)} 家店铺支付金额合计达 **{amount_val}**，整体经营规模可观。")
+        if visitor_val:
+            insights.append(f"全周期访客数合计为 **{visitor_val}**，流量基础稳固。")
+    else:
+        if amount_val:
+            insights.append(f"统计周期内店铺支付金额达 **{amount_val}**，整体经营规模可观。")
+        if visitor_val:
+            insights.append(f"全周期访客数为 **{visitor_val}**，流量基础稳固。")
 
-    if len(trend_rows) >= 2:
+    # 多店场景跳过单店首尾对比（trend_rows 含多家店铺，逻辑不适用）
+    if not multi_shop and len(trend_rows) >= 2:
         amount_idx = None
         for i, h in enumerate(headers):
             if any(k in h for k in ["金额", "成交", "gmv"]):
@@ -287,12 +279,28 @@ def generate_insights(
                 pass
 
     if len(trend_rows) >= 3:
-        insights.append(f"统计周期共 **{len(trend_rows)} 天**，日度数据完整，可用于进一步做同比/环比分析。")
+        insights.append(f"统计周期共覆盖 **{len(trend_rows)} 条日度记录**，可用于进一步做同比/环比分析。")
 
     if top_rows:
         top_name = top_rows[0][0] if top_rows else ""
         top_val = top_rows[0][1] if top_rows else ""
-        insights.append(f"{top_dim or '商品'}维度排行中，**{top_name}** 以 **{top_val}** 位居首位，是核心贡献项。")
+        if multi_shop:
+            insights.append(f"店铺支付金额排行中，**{top_name}** 以 **{top_val}** 位居首位，是核心贡献店铺。")
+            if len(top_rows) >= 2:
+                last_name = top_rows[-1][0]
+                last_val = top_rows[-1][1]
+                insights.append(f"尾部店铺 **{last_name}** 支付金额为 **{last_val}**，建议关注增长空间或资源倾斜。")
+            if len(top_rows) >= 2:
+                try:
+                    first_num = float(top_rows[0][1].replace("¥", "").replace(",", ""))
+                    last_num = float(top_rows[-1][1].replace("¥", "").replace(",", ""))
+                    if last_num > 0:
+                        gap = (first_num - last_num) / last_num * 100
+                        insights.append(f"头部与尾部店铺支付金额差距约 **{gap:.0f}%**，店铺间经营差异显著，可进一步诊断 Gap 成因。")
+                except Exception:
+                    pass
+        else:
+            insights.append(f"{top_dim or '商品'}维度排行中，**{top_name}** 以 **{top_val}** 位居首位，是核心贡献项。")
 
     for label, val in summary_rows:
         if "转化率" in label and val != "-":
@@ -309,18 +317,86 @@ def generate_insights(
     return unique[:6]
 
 
+def infer_shop_name_from_path(path: Path) -> str:
+    """从文件名推断店铺名，如 '测试旗舰店_20260401_20260407.xlsx' -> '测试旗舰店'"""
+    fname = path.stem
+    m = re.match(r"(.+?)_\d{8}(_\d{8})?", fname)
+    return m.group(1) if m else fname
+
+
+def build_multi_shop_summary(merged_df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str, str]]]:
+    """多店场景：返回 (合计指标, 分店铺汇总表数据)。"""
+    metrics = info["metrics"]
+    priority = ["支付金额", "访客数", "支付买家数", "支付转化率", "客单价", "加购人数"]
+    total_rows: List[Tuple[str, str]] = []
+    for metric in priority:
+        col = metrics.get(metric)
+        if col and col in merged_df.columns:
+            val = merged_df[col].mean() if metric == "支付转化率" else merged_df[col].sum()
+            total_rows.append((metric, smart_fmt(col, val)))
+
+    shop_col = "_shop_name"
+    shop_rows: List[Tuple[str, str, str]] = []
+    if shop_col in merged_df.columns:
+        amount_col = metrics.get("支付金额")
+        visitor_col = metrics.get("访客数")
+        group_cols = [c for c in [amount_col, visitor_col] if c and c in merged_df.columns]
+        if amount_col and group_cols:
+            grouped = merged_df.groupby(shop_col)[group_cols].sum().reset_index()
+            grouped = grouped.sort_values(by=amount_col, ascending=False)
+            for _, row in grouped.iterrows():
+                shop_name_val = str(row[shop_col])[:20]
+                amount_val = smart_fmt(amount_col, row[amount_col])
+                visitor_val = smart_fmt(visitor_col, row[visitor_col]) if visitor_col and visitor_col in row else "-"
+                shop_rows.append((shop_name_val, amount_val, visitor_val))
+    return total_rows, shop_rows
+
+
+def build_multi_shop_trend(df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[str], List[List[str]]]:
+    """多店场景：日度趋势按日期×店铺展示。"""
+    date_col = info["date_col"]
+    shop_col = "_shop_name"
+    if not date_col or shop_col not in df.columns:
+        return [], []
+
+    df = df.copy()
+    df[date_col] = parse_date_column(df[date_col])
+    df = df.dropna(subset=[date_col])
+
+    metrics = info["metrics"]
+    amount_col = metrics.get("支付金额")
+    visitor_col = metrics.get("访客数")
+    numeric_cols = [c for c in [amount_col, visitor_col] if c and c in df.columns and pd.api.types.is_numeric_dtype(df[c])]
+    if not numeric_cols:
+        return [], []
+
+    grouped = df[[date_col, shop_col] + numeric_cols].groupby([date_col, shop_col]).sum().reset_index()
+    headers = ["日期", "店铺"] + numeric_cols
+    rows = []
+    for _, row in grouped.iterrows():
+        d = row[date_col]
+        date_str = d.strftime(DATE_FMT) if hasattr(d, "strftime") else str(d)[:10]
+        vals = [smart_fmt(col, row[col]) for col in numeric_cols]
+        rows.append([date_str, str(row[shop_col])[:20]] + vals)
+    return headers, rows
+
+
 def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, output_path: Optional[Path] = None) -> Path:
-    """生成四段式 Markdown 经营分析报告。"""
+    """生成四段式 Markdown 经营分析报告（支持单店/多店）。"""
     if not excel_paths:
         raise ValueError("未提供 Excel 文件")
 
     # 读取并分析所有 Excel
     all_sheets = {}
     all_analysis = []
+    shop_names = []
     for path in excel_paths:
         sheets = read_excel_file(path)
         all_sheets[str(path)] = sheets
         all_analysis.append(analyze_sheets(sheets))
+        shop_names.append(infer_shop_name_from_path(path))
+
+    is_multi_shop = len(excel_paths) > 1
 
     primary_sheets = list(all_sheets.values())[0]
     primary_analysis = all_analysis[0]
@@ -329,11 +405,36 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
     top_detail = primary_analysis["top_sheet"]
     top_df = primary_sheets[top_detail["name"]] if top_detail else None
 
-    # 推断店铺名称
+    # 多店合并：将所有 detail_sheet 合并，添加 _shop_name 列
+    if is_multi_shop:
+        merged_frames = []
+        for i, path in enumerate(excel_paths):
+            sheets = all_sheets[str(path)]
+            analysis = all_analysis[i]
+            detail = analysis["detail_sheet"]
+            if detail:
+                df = sheets[detail["name"]].copy()
+                df["_shop_name"] = shop_names[i]
+                merged_frames.append(df)
+        if merged_frames:
+            merged_df = pd.concat(merged_frames, ignore_index=True)
+            merged_detail = {
+                "name": "merged",
+                "shape": merged_df.shape,
+                "columns": list(merged_df.columns),
+                "date_col": primary_detail["date_col"] if primary_detail else None,
+                "shop_col": "_shop_name",
+                "item_col": None,
+                "metrics": primary_detail["metrics"] if primary_detail else {},
+            }
+            primary_df = merged_df
+            primary_detail = merged_detail
+            top_df = merged_df
+            top_detail = merged_detail
+
+    # 推断报告标题
     if not shop_name:
-        fname = excel_paths[0].stem
-        m = re.match(r"(.+?)_\d{8}(_\d{8})?", fname)
-        shop_name = m.group(1) if m else fname
+        shop_name = "淘系多店" if is_multi_shop else shop_names[0]
 
     # 推断日期范围
     date_range_str = ""
@@ -343,13 +444,13 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
         if len(dates) > 0:
             date_range_str = f"{dates.min().strftime('%Y%m%d')}_{dates.max().strftime('%Y%m%d')}"
     if not date_range_str:
-        date_range_str = datetime.now(BJ_TZ).strftime("%Y%m%d")
+        date_range_str = datetime.now(BJ_TZ).strftime(DATE_FMT_COMPACT)
 
     # 构建报告
     lines = []
     lines.append(f"# {shop_name} 经营分析报告")
     lines.append("")
-    lines.append(f"> 统计周期：{date_range_str.replace('_', ' 至 ')} ｜ 数据来源：生意参谋导出Excel ｜ 生成时间：{datetime.now(BJ_TZ).strftime('%Y-%m-%d %H:%M')}")
+    lines.append(f"> 统计周期：{date_range_str.replace('_', ' 至 ')} ｜ 数据来源：生意参谋导出Excel ｜ 生成时间：{datetime.now(BJ_TZ).strftime(DATETIME_FMT)}")
 
     lines.append("")
 
@@ -357,8 +458,12 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
     lines.append("## 一、整体指标")
     lines.append("")
     summary_rows = []
+    shop_summary_rows = []
     if primary_df is not None and primary_detail:
-        summary_rows = build_summary_table(primary_df, primary_detail)
+        if is_multi_shop and "_shop_name" in primary_df.columns:
+            summary_rows, shop_summary_rows = build_multi_shop_summary(primary_df, primary_detail)
+        else:
+            summary_rows = build_summary_table(primary_df, primary_detail)
 
     if summary_rows:
         lines.append("| 指标 | 数值 |")
@@ -367,6 +472,16 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
             lines.append(f"| {label} | {val} |")
     else:
         lines.append("> 未能自动识别汇总指标，请检查 Excel 列名是否包含常见指标（如访客数、支付金额、转化率等）。")
+
+    # 多店分店铺汇总小表
+    if is_multi_shop and shop_summary_rows:
+        lines.append("")
+        lines.append("**分店铺汇总**")
+        lines.append("")
+        lines.append("| 店铺 | 支付金额 | 访客数 |")
+        lines.append("|------|----------|--------|")
+        for sname, amount, visitor in shop_summary_rows:
+            lines.append(f"| {sname} | {amount} | {visitor} |")
     lines.append("")
 
     # 二、日度趋势
@@ -374,7 +489,10 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
     lines.append("")
     trend_headers, trend_rows = [], []
     if primary_df is not None and primary_detail:
-        trend_headers, trend_rows = build_trend_table(primary_df, primary_detail)
+        if is_multi_shop and "_shop_name" in primary_df.columns:
+            trend_headers, trend_rows = build_multi_shop_trend(primary_df, primary_detail)
+        else:
+            trend_headers, trend_rows = build_trend_table(primary_df, primary_detail)
 
     if trend_rows:
         lines.append("| " + " | ".join(trend_headers) + " |")
@@ -389,16 +507,16 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
     lines.append("## 三、TOP 排行")
     lines.append("")
     top_dim, top_headers, top_rows = None, [], []
-    # 优先用 top_sheet（含商品/店铺维度的sheet）生成排行
     if top_df is not None and top_detail:
         top_dim, top_headers, top_rows = build_top_table(top_df, top_detail)
-    # 兜底：用明细sheet尝试提取
     elif primary_df is not None and primary_detail:
         top_dim, top_headers, top_rows = build_top_table(primary_df, primary_detail)
 
     if top_rows:
-        lines.append("| " + " | ".join(top_headers) + " |")
-        lines.append("|" + "|".join([":---"] * len(top_headers)) + "|")
+        # 多店内部列名替换为友好名称
+        display_headers = [h if h != "_shop_name" else "店铺" for h in top_headers]
+        lines.append("| " + " | ".join(display_headers) + " |")
+        lines.append("|" + "|".join([":---"] * len(display_headers)) + "|")
         for row in top_rows:
             lines.append("| " + " | ".join(row) + " |")
     else:
@@ -408,7 +526,7 @@ def generate_report(excel_paths: List[Path], shop_name: Optional[str] = None, ou
     # 四、分析总结
     lines.append("## 四、分析总结")
     lines.append("")
-    insights = generate_insights(summary_rows, trend_headers, trend_rows, top_dim, top_rows)
+    insights = generate_insights(summary_rows, trend_headers, trend_rows, top_dim, top_rows, is_multi_shop)
     if insights:
         for i, ins in enumerate(insights, 1):
             lines.append(f"{i}. {ins}")

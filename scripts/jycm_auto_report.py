@@ -27,14 +27,18 @@
 
 import os
 import sys
-import subprocess
 import argparse
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
 
-BJ_TZ = timezone(timedelta(hours=8))
+from constants import BJ_TZ
+
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
+
+# 允许直接 import 同目录下的分析模块
+sys.path.insert(0, str(SCRIPT_DIR))
+import analyze_excel_report
 
 
 def scan_excel_files(data_dir: Path) -> list[Path]:
@@ -50,32 +54,18 @@ def scan_excel_files(data_dir: Path) -> list[Path]:
 
 
 def run_analysis(excel_paths: list[Path], shop_name: str | None = None, output_path: Path | None = None) -> Path | None:
-    """调用分析脚本生成报告。"""
-    analyze_script = SCRIPT_DIR / "analyze_excel_report.py"
-    if not analyze_script.exists():
-        print(f"❌ 分析脚本不存在：{analyze_script}")
-        return None
-
-    cmd = [sys.executable, str(analyze_script)] + [str(p) for p in excel_paths]
-    if shop_name:
-        cmd += ["--shop", shop_name]
-    if output_path:
-        cmd += ["--output", str(output_path)]
-
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8')
-    if result.returncode != 0:
-        print(f"报告生成失败：{result.stderr}")
-        return None
-
-    # 最后一行是输出文件路径
-    lines = result.stdout.strip().split("\n")
-    report_path = lines[-1] if lines else None
-    if report_path and Path(report_path).exists():
+    """调用分析模块生成报告（直接 import，避免 subprocess 开销）。"""
+    try:
+        report_path = analyze_excel_report.generate_report(
+            excel_paths=excel_paths,
+            shop_name=shop_name,
+            output_path=output_path,
+        )
         print(f"报告生成成功：{report_path}")
-        return Path(report_path)
-
-    print(f"无法确定报告路径，输出：{result.stdout}")
-    return None
+        return report_path
+    except Exception as e:
+        print(f"报告生成失败：{e}")
+        return None
 
 
 def send_feishu(report_path: Path, title: str) -> bool:

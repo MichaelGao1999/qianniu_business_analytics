@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-千牛店铺经营数据分析编排脚本
+【已归档】千牛店铺经营数据分析编排脚本
 
-用途：自动化执行 技能包的「业务编排层」流程
+状态：本脚本为早期 API 驱动流的编排占位代码，内含大量 TODO 与模拟数据，
+      当前项目主力数据流为「本地 Excel 驱动」（见 jycm_auto_report.py）。
+      在 API 驱动流重建完成前，禁止直接运行本脚本。
+
+原用途：自动化执行 技能包的「业务编排层」流程
 - 检查前置条件（授权、店铺绑定）
 - 调用 jycm-openapi-token 获取有效 Cookie
 - 调用 jycm-fetch-report-nl 获取生意参谋数据
 - 调用 jycm-fetch-report-analyze 生成分析报告
-
-依赖：
-- Python 3.8+
-- requests
-- json
-
-使用示例：
-    python qianniu_analytics_orchestrator.py --shop "XX 旗舰店" --data_type "生意参谋 - 店铺 - 整体 - 日" --date_range "近 7 天"
 """
 
 import json
@@ -322,8 +318,9 @@ class QianniuAnalyticsOrchestrator:
 
 
 def main():
-    """主函数"""
-    import argparse
+    """主函数（已归档，禁止直接运行）"""
+    raise NotImplementedError("本脚本已归档，当前请使用 jycm_auto_report.py（Excel 驱动流）。")
+    import argparse  # noqa: F401
 
     parser = argparse.ArgumentParser(
         description="千牛店铺经营数据分析编排脚本",
