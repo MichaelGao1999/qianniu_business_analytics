@@ -3,7 +3,7 @@
 """
 千牛店铺经营数据分析编排脚本
 
-用途：自动化执行瓴羊 One 技能包的「业务编排层」流程
+用途：自动化执行 技能包的「业务编排层」流程
 - 检查前置条件（授权、店铺绑定）
 - 调用 jycm-openapi-token 获取有效 Cookie
 - 调用 jycm-fetch-report-nl 获取生意参谋数据
@@ -151,7 +151,7 @@ class QianniuAnalyticsOrchestrator:
 
         if not self.jycm_cookie:
             print("❌ Cookie 无效，请重新获取认证凭证")
-            print("📖 获取请求码：https://jycm.lydaas.com/manage/account/update")
+            print("📖 获取请求码：https://api.example.com/manage/account/update")
             return None
 
         # TODO: 调用 jycm-openapi-token 技能验证并刷新 Cookie

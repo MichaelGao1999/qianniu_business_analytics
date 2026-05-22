@@ -11,16 +11,16 @@ import json
 import requests
 from datetime import datetime, timedelta, timezone
 
-BASE_URL = "https://jycm.lydaas.com"
+BASE_URL = "https://api.example.com"
 
 # 北京时间 UTC+8
 BJ_TZ = timezone(timedelta(hours=8))
 
 def get_env_token():
     """从环境变量获取 cookie"""
-    cookie = os.environ.get("LYDAAS_COOKIE")
+    cookie = os.environ.get("PLATFORM_COOKIE")
     if not cookie:
-        raise ValueError("LYDAAS_COOKIE environment variable not set")
+        raise ValueError("PLATFORM_COOKIE environment variable not set")
     return cookie
 
 def fetch_with_session(endpoint, method="GET", params=None, json_data=None, cookie=None):

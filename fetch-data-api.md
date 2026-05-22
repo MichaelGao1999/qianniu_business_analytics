@@ -2,7 +2,7 @@
 document_type: api_reference
 audience: llm_agent
 topic: jycm_fetch_data_config_chain
-base_url: https://jycm.lydaas.com
+base_url: https://api.example.com
 auth: session_cookie
 ---
 
@@ -76,7 +76,7 @@ auth: session_cookie
 | S₂ | `getBrandListByDataPlatform` | GET | `/fetchData/getBrandListByDataPlatform.json` | **`B.type=brand`**：按品牌名 → `brandId` |
 | G | `createAndDownload` | POST | `/fetchData/createAndDownload.json` | 新建报表；`shopIds` 或 `brandId` 或 `itemIds` 见 §10 |
 
-**前缀**：`BASE = https://jycm.lydaas.com`
+**前缀**：`BASE = https://api.example.com`
 
 ---
 
@@ -296,7 +296,7 @@ auth: session_cookie
 **请求示例**
 
 ```bash
-curl 'https://jycm.lydaas.com/fetchData/getBrandListByDataPlatform.json?dataPlatform=%E8%A7%82%E6%98%9F%E5%8F%B0'
+curl 'https://api.example.com/fetchData/getBrandListByDataPlatform.json?dataPlatform=%E8%A7%82%E6%98%9F%E5%8F%B0'
 ```
 
 **响应示例**

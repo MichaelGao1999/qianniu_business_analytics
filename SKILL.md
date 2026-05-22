@@ -7,7 +7,7 @@ description: >-
   触发词：「千牛」「生意参谋」「店铺经营」「销售分析」「天猫店铺」「淘宝店铺」「XX 店铺上周数据」。
   **本技能仅覆盖淘系（天猫淘宝 → 生意参谋）单渠道，支持单店或多家淘系店铺合并分析；暂不涉及京东 / 抖音 / 全渠道跨平台合并分析。**
   流程：用户上传Excel → Agent分析 → 生成 Markdown 报告 →（可选）飞书推送。
-homepage: https://jycm.lydaas.com
+homepage: https://api.example.com
 category: analytics
 version: 5.0.0
 icon: https://img.alicdn.com/imgextra/i3/O1CN01FY2IsH1ro7E6Klx7K_!!6000000005677-2-tps-64-64.png
