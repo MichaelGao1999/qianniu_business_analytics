@@ -36,9 +36,11 @@
 ### 优先级 3 — 优化与文档
 - [x] 引入 Vibe Coding SOP 文档体系
 - [x] 完善单元测试覆盖（33 条用例全部通过）
+- [x] 补全 `docs/proposal.md` 需求提案
 - [ ] 补全 `docs/design.md` 架构设计文档
 - [ ] 补全 `docs/brief.md` 决策摘要
 - [ ] 补全 `docs/tasks/*.md` 子任务拆分
+- [ ] 生成 `prompt.md`（阶段四产出）← **用户提醒：后续需补**
 - [ ] 代码注释与类型提示补齐
 
 ---
