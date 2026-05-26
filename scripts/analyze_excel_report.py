@@ -142,7 +142,10 @@ def build_summary_table(df: pd.DataFrame, info: Dict[str, Any]) -> List[Tuple[st
     """从整体指标 sheet 中提取关键指标表格数据。"""
     rows = []
     metrics = info["metrics"]
-    priority = ["访客数", "支付金额", "支付买家数", "支付转化率", "客单价", "加购人数"]
+    priority = [
+        "访客数", "浏览量", "支付金额", "支付买家数", "支付转化率", 
+        "客单价", "加购人数", "收藏人数", "订单数", "退款金额", "退款率"
+    ]
     for metric in priority:
         col = metrics.get(metric)
         if col and col in df.columns:
@@ -170,7 +173,11 @@ def build_trend_table(df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[str]
     df = df.dropna(subset=[date_col]).sort_values(by=date_col)
 
     numeric_cols = []
-    priority = ["访客数", "支付金额", "支付转化率", "支付买家数", "客单价", "加购人数"]
+    priority = [
+        "访客数", "浏览量", "支付金额", "支付买家数", "支付转化率", 
+        "客单价", "加购人数", "收藏人数", "订单数", "退款金额", "退款率",
+        "手淘搜索访客", "手淘首页访客", "淘内免费访客", "直播访客"
+    ]
     metrics = info["metrics"]
     for metric in priority:
         col = metrics.get(metric)
@@ -183,7 +190,7 @@ def build_trend_table(df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[str]
         if pd.api.types.is_numeric_dtype(df[col]):
             numeric_cols.append(col)
 
-    numeric_cols = numeric_cols[:6]
+    numeric_cols = numeric_cols[:8]
     headers = ["日期"] + numeric_cols
     rows = []
     for _, row in df.iterrows():
@@ -327,12 +334,18 @@ def infer_shop_name_from_path(path: Path) -> str:
 def build_multi_shop_summary(merged_df: pd.DataFrame, info: Dict[str, Any]) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str, str]]]:
     """多店场景：返回 (合计指标, 分店铺汇总表数据)。"""
     metrics = info["metrics"]
-    priority = ["支付金额", "访客数", "支付买家数", "支付转化率", "客单价", "加购人数"]
+    priority = [
+        "支付金额", "访客数", "浏览量", "支付买家数", "支付转化率", 
+        "客单价", "加购人数", "收藏人数", "订单数", "退款金额", "退款率"
+    ]
     total_rows: List[Tuple[str, str]] = []
     for metric in priority:
         col = metrics.get(metric)
         if col and col in merged_df.columns:
-            val = merged_df[col].mean() if metric == "支付转化率" else merged_df[col].sum()
+            if metric in ["支付转化率", "退款率", "复购率"]:
+                val = merged_df[col].mean()
+            else:
+                val = merged_df[col].sum()
             total_rows.append((metric, smart_fmt(col, val)))
 
     shop_col = "_shop_name"
