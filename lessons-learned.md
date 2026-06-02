@@ -112,6 +112,49 @@
 | 7 | **subprocess → direct import 重构**：`subprocess.run` 调用同目录脚本虽然解耦，但 stdout 解析脆弱、异常传递困难。改为 `sys.path.insert(0, SCRIPT_DIR) + import module` 后直接调用函数，错误栈清晰且可测试 | jycm_auto_report.py |
 | 8 | **多店 DataFrame 合并模式**：为每个店铺 DataFrame 添加内部标识列（如 `_shop_name`），再用 `pd.concat` 合并，可使单店/多店共用同一套分析函数，只需在报告生成层判断 `is_multi_shop` 切换展示逻辑 | analyze_excel_report.py |
 | 9 | **pytest stdin 捕获陷阱**：pytest 默认捕获 stdout/stderr，也会替换 `sys.stdin` 为 `DontReadFromInput`。测试 CLI 脚本中从 stdin 读取的逻辑时，必须用 `-f` 参数或 mock `sys.stdin.read` | test_dingtalk_send_markdown.py |
-| 10 | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档」+ `main()` 抛 `NotImplementedError`，既防止误用又保留未来重建的参考 | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py |
+| 10 | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档」+ `main()` 抛 `NotImplementedError`，既防止误用又保留未来重建的参考 | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py | | **UI 布局/样式不要猜测用户意图**：候选走法开关经历了 5 次位置/样式反复（设置面板 → header 图标 → 滑动开关 → 圆形按钮+标签 → 纯文字 → 下移），每次修改后用户都不满意；应在设计阶段出草图或描述供用户确认，再编码 [来源:vibe-coding-project-sop @2026-06-02] | BlindfoldModule UI |
+| | **引擎候选走法的调用时机决定产品逻辑正确性**：用户走完后立即 `goMultiPv` 分析的是对手（黑方）局面，展示的是"对手会怎么走"；若要提示用户，必须在引擎执行完走法后、轮到白方时再调用 `goMultiPv` [来源:vibe-coding-project-sop @2026-06-02] | EngineModule / BlindfoldModule |
+| | **引擎返回 UCI（e2e4），用户界面必须用 SAN（e4）**：`goMultiPv` 回调中的 `move` 是 UCI 坐标格式，展示前需通过 `_game.moves({verbose:true})` 映射为 SAN，否则用户无法阅读 [来源:vibe-coding-project-sop @2026-06-02] | BlindfoldModule |
+| | **静态 HTML 结构与动态渲染模块的 DOM 冲突**：`index.html` 中预置了完整棋盘结构（含行/列标注），而 `BoardRenderer.create()` 会在容器内重新创建完整结构，导致两组行标注同时存在；应只保留空容器让渲染器全权负责 [来源:vibe-coding-project-sop @2026-06-02] | BoardRenderer / index.html |
+| | **删除功能必须同步删除对应测试**：移除 `showHints` / `multiPvSetting` 后，`test-settings-node.js` 中相关测试会立即失败；功能清理和测试清理应视为同一任务 [来源:vibe-coding-project-sop @2026-06-02] | 测试维护 |
+| | **焦点管理是盲棋产品的核心体验**：进入对局自动 `input.focus()`、引擎走完后恢复焦点、全局 Enter 键将焦点拉回输入框——三者缺一不可，否则用户被迫频繁使用鼠标 [来源:vibe-coding-project-sop @2026-06-02] | BlindfoldModule UX |
+| | **JS 中的硬编码人类可读字符串是翻译遗漏的重灾区**：HTML 中的 `data-i18n` 至少能被肉眼扫描到，但 JS 逻辑里直接写的 `"Time Up!"`、`"✓ 已复制"` 没有显式标记，切换语言时完全失效 [来源:vibe-coding-project-sop @2026-06-02] | common.js / coordinate.js / blindfold.js |
+| | **复制粘贴是 i18n 错误的常见来源**：将中文值直接粘贴进英文字典（如 `boardToggle: "显示棋盘"`），或反之，属于低级但高频的疏忽 [来源:vibe-coding-project-sop @2026-06-02] | common.js |
+| | **已删除的 JS 文件若不从 index.html 移除引用，会导致 404**：game.js 删除后 index.html 仍 `<script src="js/game.js">`，浏览器控制台会报错。功能清理和引用清理必须是同一任务 [来源:vibe-coding-project-sop @2026-06-02] | 代码清理 |
+| | **Node 测试不对 UI 文本做断言，无法捕获翻译错误**：`test-stats-node.js` 和 `test-replay-node.js` 只测 API 形状和数值，不检查按钮文字、提示语等人类可读内容。翻译质量必须靠人工检查或专门的 UI 测试覆盖 [来源:vibe-coding-project-sop @2026-06-02] | 测试策略 |
+| | **删除生产代码的 fallback 函数前，必须先评估测试环境是否提供了该依赖**：`blindfold.js`/`coordinate.js` 的 `_t()` fallback 在测试中默默提供英文文本，删除后所有相关测试立即 `ReferenceError: t is not defined`。架构统一重构必须同时改代码+测试，只改一边会导致测试雪崩 [来源:vibe-coding-project-sop @2026-06-02] | 全站 i18n |
+| | **`localStorage` mock 必须支持 `setItem` 持久化**：测试中 `global.localStorage = { getItem: () => null }` 会让 `t()` 永远读取默认语言，导致语言切换测试失效。可写的 localStorage mock 是 i18n 测试的前提 [来源:vibe-coding-project-sop @2026-06-02] | 测试基础设施 |
+| | **全局 `updateTexts()` 与模块私有 `_updateXxx()` 可能存在 DOM 竞争**：`settings.js` 的 `_updateLangValue()` 显示"当前语言"，common.js 的 `updateTexts()` 显示"目标语言"，两者操作同一 DOM 元素。测试必须验证最终渲染结果，而非中间状态 [来源:vibe-coding-project-sop @2026-06-02] | settings.js / common.js |
+| | **配置类设置项用「弹窗选择」优于「循环切换」**：循环切换隐藏了全部选项，用户不知道有哪些风格、当前在第几个；弹窗一次展示所有选项+预览，认知负荷更低，操作确定性更强 [来源:vibe-coding-project-sop @2026-06-02] | SettingsModule UI |
+| | **`cloneNode(true)` 无法移除旧事件监听器，它只是复制了 DOM 结构**：`_rebind()` 用 clone+replace 来"换绑"事件，但如果匿名监听器无法被引用，clone 后的新元素上旧的监听器仍然通过作用域链引用着旧变量。真正安全的解绑是 `removeEventListener` + 保存引用 [来源:vibe-coding-project-sop @2026-06-02] | settings.js |
+| | **UI 风格不一致的根因通常是「硬编码颜色」**：盲棋练习和坐标练习的棋盘颜色不一致，是因为两者各自硬编码了不同色值。引入统一的「棋盘风格配置源」后，所有棋盘自动同步，消除了不一致的根因 [来源:vibe-coding-project-sop @2026-06-02] | BoardRenderer / coordinate.js |
+| | **功能入口迁移需要同步更新「正向路径」和「反向路径」**：将复盘从首页移到设置面板，不仅要添加新入口（设置面板点击），还要移除旧入口（首页卡片 + welcome.js 绑定），否则用户会在两个地方看到同一功能，或测试断言旧路径仍然有效 [来源:vibe-coding-project-sop @2026-06-02] | WelcomeModule / index.html |
+| | **数据层的双语字段与代码层的硬编码分支是两个问题**：`games.js` 的 `titleZh/titleEn` 是数据内容，保留双语字段合理；但 `replay.js` 中的三元组 `lang === 'en' ? game.titleEn : game.titleZh` 是代码硬编码分支，应通过数据结构改造消除。区分"数据双语"和"代码分支"可避免过度重构 [来源:vibe-coding-project-sop @2026-06-02] | replay.js / data/games.js |
+| | **测试中断言的具体文本值是重构的敏感点**：当翻译源从"模块内联字典"切换到"全局字典"时，即使语义相同，具体字符串也可能不同（如 `"再来一局"` → `"再玩一局"`）。重构前应先审计测试中的文本断言，预估需要调整的范围 [来源:vibe-coding-project-sop @2026-06-02] | 测试维护 |
+| | **数据文件中的引号嵌套是极易被忽视的语法陷阱**：`data/games.js` 中的 `'Rubinstein's Immortal'` 在 Node 测试环境中不会触发（因为该文件仅被浏览器加载），但在真实浏览器中会抛出 `SyntaxError` 并阻断后续脚本执行 [来源:vibe-coding-project-sop @2026-06-02] | data/games.js |
+| | **Node 测试全过 ≠ 浏览器表现正常**：`data/games.js` 的语法错误在 Node 测试中被完全绕过（Node 测试不加载该文件），必须用 headless 浏览器（playwright）才能捕获 [来源:vibe-coding-project-sop @2026-06-02] | 测试策略 |
+| | **通用配置层设计能降低新增模式的边际成本**：将"选择阵营 + 难度"抽象为 `gameSetupScreen`，由 `WelcomeModule` 维护 `_pendingMode`，新增对局模式时只需加一行 `else if` 分发逻辑，无需重复造 DOM/CSS [来源:vibe-coding-project-sop @2026-06-02] | 架构设计 |
+| | **向后兼容接口设计能减少重构的连锁反应**：`BlindfoldModule.init('medium')` 继续工作，内部映射为 `{side:'w', elo:1400}`，所有旧测试和外部调用点无需改动 [来源:vibe-coding-project-sop @2026-06-02] | API 设计 |
+| | `AGENTS.md` 定义触发词和行为约束，`STATE.md`（现 status.md）记录动态进度，分工明确 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **手工构建100条结构化数据不现实**：经典棋局的 PGN 分散在各网站，无统一免费 API；手动录入100盘完整 PGN 工作量巨大且易出错 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **翻译检查必须是独立任务，不能依赖"开发时顺手做"**：本次检查发现 25+ 处遗漏，分布在 HTML、JS 字典、硬编码三个层面。分批迭代时，每新增一个 `data-i18n` 或用户可见字符串，必须同步到唯一字典源，否则必然遗漏。 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **涉及 7+ 文件读改测的架构重构，应新开会话执行**：当前会话在查漏补缺后已承载大量上下文，继续塞进系统性重构容易触发窗口压缩，导致信息丢失。 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **横跨工具层和应用层的词汇必须确认语境**。用户问"一个项目多个终端能否实现同步处理进度"——"终端"可以指 French Exit 的并行 executor、Kimi CLI 的多窗口、或 ai-project-skeleton 的多会话。我默认跳到了代码层面分析并行化，结果完全偏题。 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **工具硬性限制不要绕圈分析可行性**。Kimi CLI 多窗口无 IPC、无共享内存、无实时同步——这不是"有难度"，是"设计上就不支持"。回答应直接给结论 + 风险 + 替代方案，省掉技术可行性分析 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **从 SOP 模板采纳更新时，必须逐字核对关键字段，不要凭记忆改写**。本轮将 `vibe-coding-project-sop/AGENTS.md` 中的触发词「存档」错误抄写为「存储」，原因是未逐字比对就按直觉填写。SOP 模板中的占位符（如 `[项目名]`）在实际项目中需替换，但硬规则（触发词、流程步骤）应原样保留。 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **`tauri::AppHandle` 出现在 `async fn` 签名中 + MinGW = `STATUS_ENTRYPOINT_NOT_FOUND`**。原因未知（PE 导入表生成 bug？），但 workaround 明确：把这些函数拆到子模块，用 `#[cfg(not(test))]` 条件编译，测试模式下不链接 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | `/c` 执行完关闭窗口；`/k` 保持窗口打开 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | `-WindowStyle Minimized` 最小化不干扰工作 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **根因**：CSS `fixed` + `z-50` 的元素默认接收鼠标事件，即使视觉上看起来透明也会拦截点击 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **修复**：给所有非交互性的 `fixed` 装饰元素统一添加 `pointer-events-none` [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **教训**：任何使用 `fixed`/`absolute` + 高 `z-index` 的纯展示元素，必须默认视为点击拦截器 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **教训**：E2E 测试不是写一次就完，它是前端契约测试。UI 迭代时必须同步评估对 selector、交互流程、状态断言的影响 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **方案**：`ScannerRegistry::scan_impl` 的 `progress_cb` 在每次上报进度前 `while *pause_rx.borrow() { sleep(100ms) }` [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **局限**：如果 scanner 长时间不调用 `progress`（如读取超大文件），暂停会有延迟 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | **教训**：对于已成型的大型 trait 实现体系，优先在调度层（registry）而非实现层（scanner）插入横切关注点 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | 7 个 Scanner 并行，权重分配：fs 50% + browser 15% + system 15% + 其他各 5% [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | 修改范围：Rust `ScanProgress` / `ProgressEvent` 结构 → `ScannerRegistry::scan_impl` 加权计算 → 前端 `ScanPage.tsx` 优先使用 [来源:vibe-coding-project-sop @2026-06-02] |  |
+| | 测试：后端 129 测、前端 51 测全绿 [来源:vibe-coding-project-sop @2026-06-02] |  |
+|
 
 *最后更新：2026-05-22*

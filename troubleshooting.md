@@ -343,3 +343,194 @@
 ## 存档提示
 
 **用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
+
+### AI 重复实现已有组件（棋盘/网格类 UI） [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 待修复 |
+| **现象** | 新增模块（如坐标练习 coordinate.js）手写棋盘网格创建、高亮、抖动、坐标标注等逻辑，而不是复用已有的 `BoardRenderer` 组件。guide.js 的 mini-board 也是部分重复实现 |
+| **原因** | AI 没有在写代码前搜索项目中已有的同类组件；lessons-learned 中的描述粒度太粗（只提颜色统一，没提组件复用） |
+| **解决** | 1. 新增模块前，先用 grep/搜索 `experience-index.md` 查找可复用的 UI 组件<br>2. 棋盘/网格类 UI 必须通过 `BoardRenderer.create()` 创建，禁止手写<br>3. 如需不同尺寸，在 `BoardRenderer` 中增加 `squareSize` 参数，不要另起炉灶<br>4. `BoardRenderer` 已支持：网格创建、高亮、清除高亮、抖动动画、坐标标注、样式切换、点击回调 |
+
+---
+
+### PowerShell 执行中文脚本报 "UnexpectedToken" [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **现象** | .\start-llm-server.ps1 执行时报错：表达式或语句中包含意外的标记"}"，行号指向 `}` |
+| **原因** | PowerShell 5.1 默认以 Windows-1252 编码读取无 BOM 的 UTF-8 文件，中文字符被错误解码后破坏了字符串引号匹配，导致解析器认为 `}` 位置不对 |
+| **解决** | 给脚本文件添加 UTF-8 BOM（文件头添加字节 EF BB BF）：`printf '\xef\xbb\xbf' > file.ps1 && cat original.ps1 >> file.ps1` |
+| **注意** | PowerShell 7+ 默认支持 UTF-8 无 BOM，但 Windows 10 自带的 PowerShell 5.1 仍受此限制 |
+
+
+---
+
+### GitHub push 报错 `Permission denied (publickey)` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `git push` 失败，`ssh -T git@github.com` 返回 `Permission denied (publickey)` |
+| **原因** | 1. SSH agent 未加载私钥（`ssh-add -l` 显示 `no identities`）<br>2. GitHub 账户未添加对应公钥 |
+| **解决** | 方案 A（SSH）：`ssh-add ~/.ssh/id_ed25519`，将公钥添加到 GitHub Settings → SSH Keys<br>方案 B（推荐）：改用 HTTPS + GitHub CLI 管理凭证（见下方 `gh auth login` 条目） |
+
+### `gh auth login` 超时：`read tcp ... operation timed out` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `gh auth login` 报错 `Post "https://github.com/login/device/code": read tcp ...: read: operation timed out` |
+| **原因** | `gh` 底层是 Go 程序，默认直连 GitHub API，不走系统代理。国内网络环境下 GitHub API 可能超时 |
+| **解决** | 设置环境变量后运行：`HTTPS_PROXY=http://127.0.0.1:7897 HTTP_PROXY=http://127.0.0.1:7897 gh auth login` |
+
+### HuggingFace 模型下载连接超时 `curl: (28) Could not connect to server` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已解决 |
+| **现象** | `curl https://huggingface.co/.../resolve/main/...gguf` 长时间无响应后报错 `Failed to connect to huggingface.co port 443 after 21073 ms` |
+| **原因** | 国内网络环境下 HuggingFace 主站被墙或 DNS 污染 |
+| **解决** | 改用国内镜像源：ModelScope（`https://modelscope.cn/models/<namespace>/<model>/resolve/master/<file>.gguf`），实测速度 2.5MB/s+ |
+
+### PowerShell 添加防火墙规则权限不足 `Access is denied` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已知限制 |
+| **现象** | 非管理员身份运行 `start-llm-server.ps1` 时，`New-NetFirewallRule` 报错 `Access is denied` |
+| **原因** | Windows 防火墙规则修改需要管理员权限 |
+| **解决** | 1. 以管理员身份运行一次 PowerShell 执行脚本，添加规则后后续无需管理员<br>2. 或手动在 Windows 防火墙高级设置中添加 11434 TCP 入站规则 |
+---
+
+### PowerShell 执行中文脚本报 "UnexpectedToken" [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **现象** | .\start-llm-server.ps1 执行时报错：表达式或语句中包含意外的标记"}"，行号指向 `}` |
+| **原因** | PowerShell 5.1 默认以 Windows-1252 编码读取无 BOM 的 UTF-8 文件，中文字符被错误解码后破坏了字符串引号匹配，导致解析器认为 `}` 位置不对 |
+| **解决** | 给脚本文件添加 UTF-8 BOM（文件头添加字节 EF BB BF）：`printf '\xef\xbb\xbf' > file.ps1 && cat original.ps1 >> file.ps1` |
+| **注意** | PowerShell 7+ 默认支持 UTF-8 无 BOM，但 Windows 10 自带的 PowerShell 5.1 仍受此限制 |
+
+
+---
+
+### GitHub push 报错 `Permission denied (publickey)` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `git push` 失败，`ssh -T git@github.com` 返回 `Permission denied (publickey)` |
+| **原因** | 1. SSH agent 未加载私钥（`ssh-add -l` 显示 `no identities`）<br>2. GitHub 账户未添加对应公钥 |
+| **解决** | 方案 A（SSH）：`ssh-add ~/.ssh/id_ed25519`，将公钥添加到 GitHub Settings → SSH Keys<br>方案 B（推荐）：改用 HTTPS + GitHub CLI 管理凭证（见下方 `gh auth login` 条目） |
+
+### `gh auth login` 超时：`read tcp ... operation timed out` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `gh auth login` 报错 `Post "https://github.com/login/device/code": read tcp ...: read: operation timed out` |
+| **原因** | `gh` 底层是 Go 程序，默认直连 GitHub API，不走系统代理。国内网络环境下 GitHub API 可能超时 |
+| **解决** | 设置环境变量后运行：`HTTPS_PROXY=http://127.0.0.1:7897 HTTP_PROXY=http://127.0.0.1:7897 gh auth login` |
+
+### HuggingFace 模型下载连接超时 `curl: (28) Could not connect to server` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已解决 |
+| **现象** | `curl https://huggingface.co/.../resolve/main/...gguf` 长时间无响应后报错 `Failed to connect to huggingface.co port 443 after 21073 ms` |
+| **原因** | 国内网络环境下 HuggingFace 主站被墙或 DNS 污染 |
+| **解决** | 改用国内镜像源：ModelScope（`https://modelscope.cn/models/<namespace>/<model>/resolve/master/<file>.gguf`），实测速度 2.5MB/s+ |
+
+### PowerShell 添加防火墙规则权限不足 `Access is denied` [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已知限制 |
+| **现象** | 非管理员身份运行 `start-llm-server.ps1` 时，`New-NetFirewallRule` 报错 `Access is denied` |
+| **原因** | Windows 防火墙规则修改需要管理员权限 |
+| **解决** | 1. 以管理员身份运行一次 PowerShell 执行脚本，添加规则后后续无需管理员<br>2. 或手动在 Windows 防火墙高级设置中添加 11434 TCP 入站规则 |
+
+### Node.js 报 SyntaxError: Unexpected identifier（i18n 中文字符串） [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已解决 |
+| **现象** | `node -e "require('./js/common.js')"` 报错 `SyntaxError: Unexpected identifier '日'` 或 `Invalid or unexpected token`，指向中文 i18n 字符串 |
+| **原因** | 中文全角引号 `""`（U+201C/U+201D）在某些编辑器/环境下被存储为 ASCII 双引号 `"`（U+0022），导致 JS 字符串被意外截断。如 `"走"日"字形"` 被解析为 `"走"` + `日` + `"字形"` |
+| **解决** | 将中文引号替换为其他标点（如 `「」`），或使用 Unicode 转义 `\u201c\u201d` |
+---
+
+### sed 批量修改误改结构体定义 [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **现象** | `cargo tauri build` 报错 `missing field global_percent in initializer of ScanProgress`，但 `scanner/mod.rs` 中并未主动添加该字段 |
+| **原因** | 使用 `sed -i '/ScanProgress {/...'` 批量给所有 `ScanProgress` 实例添加字段时，也匹配到了 `pub struct ScanProgress {` 结构体定义行，在定义中插入了 `global_percent: None,` |
+| **解决** | 1. `git checkout mod.rs` 还原结构体定义<br>2. 改用更精确的匹配条件，或手动逐个文件修改 |
+| **注意** | 批量文本替换时，结构体定义和实例化共用同一关键字，需额外排除定义行 |
+
+### French Exit 进程锁定 exe 导致复制失败 [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **现象** | `cp` 报错 `cannot create regular file: Device or resource busy` |
+| **原因** | French Exit 正在运行，Windows 锁定 exe 文件句柄 |
+| **解决** | 1. `taskkill //F //IM french-exit.exe` 强制终止进程<br>2. `rm -f release/french-exit.exe` 强制删除旧文件<br>3. 重新复制新构建的 exe |
+| **注意** | Tauri 构建时的 bundle patching 步骤也会因文件锁定而报 `os error 32`，不影响 exe 本身 |
+
+*新增条目时复制上方模板，按"错误关键词"作为标题，便于快速搜索。*
+
+---
+
+### Hermes Agent Git 合并冲突导致 SyntaxError [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `hermes --version` 报错 `SyntaxError: invalid syntax`，指向 `hermes_cli/__init__.py` 第 17 行 `<<<<<<< HEAD` |
+| **原因** | pipx 安装 hermes-agent 时，Git pull 更新源代码产生了 50+ 个未解决的合并冲突。`~/.hermes/hermes-agent/` 目录被重命名为 `hermes-agent.bak`，导致原路径失效 |
+| **解决** | 1. 将 `hermes-agent.bak` 重命名回 `hermes-agent`<br>2. 手动修复 `__init__.py` 中的冲突（保留最新版本 0.15.1）<br>3. 发现 50+ 个冲突文件后，改用 `pipx uninstall hermes-agent && pipx install hermes-agent` 重新安装<br>4. 修复 `~/.local/bin/hermes` 符号链接指向新的 pipx venv 路径 |
+| **预防** | 不要在 hermes-agent 源码目录中执行 `git pull`，除非确认没有本地修改；优先使用 `pipx reinstall` 更新 |
+
+---
+
+### Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `npm install -g xxx` 安装到 `~/.hermes/node/` 目录，与 Hermes 内部环境混在一起 |
+| **原因** | 1. `~/.zshrc` 中有 `export PATH="$HOME/.hermes/node/bin:$PATH"`<br>2. `~/.local/bin/` 中有指向 Hermes Node.js 的符号链接（node、npm、npx）<br>3. npm prefix 被设置为 `~/.hermes/node` |
+| **解决** | 1. 安装 nvm（Node Version Manager）管理用户独立的 Node.js<br>2. 使用 nvm 安装 Node.js 22（`nvm install 22`）<br>3. 从 `~/.zshrc` 移除 `export PATH="$HOME/.hermes/node/bin:$PATH"`<br>4. 删除 `~/.local/bin/` 中指向 Hermes 的 node/npm/npx 符号链接<br>5. 重新安装 CodeBuddy（`npm install -g @tencent-ai/codebuddy-code`） |
+| **验证** | `which node` → `~/.nvm/versions/node/v22.22.3/bin/node`；`which codebuddy` → `~/.nvm/versions/node/v22.22.3/bin/codebuddy` |
+| **教训** | Hermes 自带完整的 Node.js 环境，安装时会污染用户 PATH。必须手动清理或使用 nvm 隔离 |
+
+---
+
+## 存档提示
+
+**用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
+---
+
+### CodeBuddy 安装后 package.json 丢失导致命令不可用 [来源:vibe-coding-project-sop @2026-06-02]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | `codebuddy` 和 `cbc` 命令提示 `zsh: command not found`；手动运行 bin 目录下的 codebuddy 文件提示 `no such file or directory` |
+| **原因** | npm 全局安装路径在 `~/.hermes/node/lib/` 下（Hermes 自带 Node.js 环境），安装过程中 package.json 丢失，导致 npm 无法识别已安装的包，bin 链接未创建 |
+| **解决** | 1. 删除损坏的安装目录：`rm -rf ~/.hermes/node/lib/node_modules/@tencent-ai/codebuddy-code`<br>2. 重新安装：`npm install -g @tencent-ai/codebuddy-code`<br>3. 验证：`which codebuddy` 和 `codebuddy --version` |
+
+---
+
+*新增条目时复制上方模板，按"错误关键词"作为标题，便于快速搜索。*
+
+---
+
+## 存档提示
+
+**用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
+---
+
