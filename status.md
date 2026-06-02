@@ -7,13 +7,13 @@
 
 ## 当前阶段
 
-**阶段五（执行开发/维护迭代）约 95% 完成 | 下一步：补全 docs/ 架构设计文档 → 持续维护与功能迭代**
+**阶段五（执行开发/维护迭代）约 95% 完成 | 下一步：重写 docs/design.md → 生成 prompt.md → 功能迭代**
 
 ---
 
 ## 进度总览
 
-`P1 认证管理 ✅ | P1 淘系取数 ✅ | P1 报告分析 ✅ | P1 钉钉/飞书推送 ✅ | P2 自动化编排 ✅ | P2 多店合并分析 ✅ | P3 单元测试 ✅ | P3 SOP 文档体系 🔄 | P3 跨平台扩展 ⚠️（明确不做）`
+`P1 认证管理 ✅ | P1 淘系取数 ✅ | P1 报告分析 ✅ | P1 钉钉/飞书推送 ✅ | P2 自动化编排 ✅ | P2 多店合并分析 ✅ | P3 单元测试 ✅ | P3 SOP 文档体系 ✅（docs/brief.md/tasks/*.md 均已完成） | P3 跨平台扩展 ⚠️（明确不做）`
 
 > 图例：✅ 已完成 | 🔄 进行中 | ⚠️ 阻塞/待修复
 
@@ -24,23 +24,16 @@
 ### 优先级 1 — 阻塞项
 - [ ] 无当前阻塞项
 
-### 优先级 1 — 当前进行
-- [x] **输出《代码评估报告》**（2026-05-22 完成）：评估 6 个 Python 脚本，确定聚焦 Excel 驱动流
-- [x] **巩固 Excel 驱动流**（2026-05-22 完成）：常量抽取、subprocess→import、多店合并分析、单元测试、空壳脚本归档
-
 ### 优先级 2 — 功能迭代
 - [ ] 支持更多 dataType / dataDimension 组合（商品/品类/内容/客户/推荐分析）
 - [ ] 增加报告模板多样性（简洁版/高管版/运营版）
 - [ ] Excel 分析容错增强（列名变化/空值处理）
+- [ ] 评估移植 `ecommerce-report-code` 的快照/仪表盘/Excel 报表模块
 
 ### 优先级 3 — 优化与文档
-- [x] 引入 Vibe Coding SOP 文档体系
-- [x] 完善单元测试覆盖（33 条用例全部通过）
-- [x] 补全 `docs/proposal.md` 需求提案 ← **请查看：https://github.com/MichaelGao1999/qianniu_business_analytics/blob/master/docs/proposal.md**
-- [ ] 补全 `docs/design.md` 架构设计文档
-- [ ] 补全 `docs/brief.md` 决策摘要
-- [ ] 补全 `docs/tasks/*.md` 子任务拆分
-- [ ] 生成 `prompt.md`（阶段四产出）← **用户提醒：后续需补**
+- [ ] 重写 `docs/design.md`（现有版本描述已归档的 API 驱动架构，需改为 Excel 驱动流）
+- [ ] 生成 `prompt.md`（阶段四产出）
+- [ ] 更新 `docs/tasks/task-progress.md`（滞后于当前状态）
 - [ ] 代码注释与类型提示补齐
 
 ---
@@ -89,10 +82,10 @@ qianniu_business_analytics/
 
 ## 推荐策略
 
-1. 补全 `docs/design.md` 架构设计文档（以代码评估报告为蓝本）
-2. 补全 `docs/brief.md` 决策摘要
-3. 补全 `docs/tasks/*.md` 子任务拆分
-4. 完善 Python 脚本的错误处理与日志输出
+1. 重写 `docs/design.md`（以当前 Excel 驱动架构为准）
+2. 生成 `prompt.md`（阶段四产出）
+3. 更新 `docs/tasks/task-progress.md`（同步当前状态）
+4. 评估 `ecommerce-report-code` 的快照/仪表盘/Excel 报表模块移植
 
 ---
 
@@ -102,6 +95,7 @@ qianniu_business_analytics/
 |------|---------|
 | 2026-05-20 | 引入 Vibe Coding SOP 文档体系；创建 AGENTS.md、status.md、session-log.md、decisions.md、troubleshooting.md、lessons-learned.md、vibe-coding-sop.md |
 | 2026-05-22 | 输出代码评估报告；巩固 Excel 驱动流：抽取 constants.py、修复 subprocess→import、完善多店合并分析、补充 33 条 pytest 用例、归档空壳脚本 |
+| 2026-06-02 | 全貌评估：对比 ecommerce-report-code，确认文档缺口；解决 Git 冲突；清理 status.md 已完成待办（RULE-06）；更新 docs/brief.md/tasks/*.md 状态 |
 
 ---
 

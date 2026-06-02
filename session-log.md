@@ -148,3 +148,35 @@
 - ⏳ `docs/design.md` 架构设计文档待补全（已有雏形，需细化数据流和接口契约）
 - ⏳ `prompt.md`（阶段四产出）待生成
 - ⏳ 旧目录 `agentone_qianniu_business_analytics` 可删除（已完整复制到 `qianniu_business_analytics`）
+
+---
+
+### 2026-06-02 全貌评估：对比 ecommerce-report-code，确认文档缺口 + 解决 Git 冲突
+
+**目标**：
+1. 评估当前项目剩余工作是否必须继续
+2. 评估外部项目 `ecommerce-report-code` 是否能替代或解决问题
+3. 执行存档
+
+**实际完成**：
+- ✅ 全面评估当前项目剩余工作：确认 `docs/design.md`（描述已归档 API 架构）、`prompt.md`（不存在）、status.md RULE-06 违规（含 5 条已完成待办）为三大核心缺口
+- ✅ 全面评估 `ecommerce-report-code`：确认本质不同（单店自动化流水线 vs 多店灵活分析技能包），不能替代；可摘取 4 个模块（snapshot/dashboard/excel report/utils）
+- ✅ 记录 ADR-022：保持两个项目独立
+- ✅ 更新 `status.md`：清理已完成待办（RULE-06）、修正 docs/brief.md/tasks/*.md 状态、更新推荐策略
+- ✅ 更新 `AGENTS.md`：合并冲突规则（保留项目专用规则 + 补充 RULE-09/RULE-10）
+- ✅ 追加 `decisions.md`：ADR-022
+- ✅ 解决 Git 冲突（3 个文件）
+
+**关键决策**：
+- ADR-022：保持 `qianniu_business_analytics` 与 `ecommerce-report-code` 独立，按需摘取模块
+
+**遇到的阻碍 & 解决路径**：
+- 阻碍：Git 冲突（AGENTS.md / lessons-learned.md / troubleshooting.md 因母库同步产生分歧）
+- 解决：保留项目专用规则（remote）+ 补充过程规则 RULE-09/RULE-10（local）；lessons-learned.md 和 troubleshooting.md 合并双方内容
+
+**遗留问题 / 下轮开始点**：
+- ⏳ 重写 `docs/design.md`（以当前 Excel 驱动架构为准，放弃已归档的 API 驱动描述）
+- ⏳ 生成 `prompt.md`（阶段四产出）
+- ⏳ 更新 `docs/tasks/task-progress.md`（滞后于当前状态）
+- ⏳ 评估移植 `ecommerce-report-code` 的快照/仪表盘/Excel 报表模块
+- ⏳ P2 功能迭代：更多 dataType 组合、报告模板多样性、Excel 容错增强
