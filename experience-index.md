@@ -3,7 +3,7 @@
 > 本文件由 `scripts/build-experience-index.py` 自动生成。
 > 覆盖 troubleshooting / lessons-learned / decisions，统一搜索入口。
 
-> 当前收录 **248** 条记录（问题 109 + 经验 98 + 决策 41）。
+> 当前收录 **268** 条记录（问题 129 + 经验 98 + 决策 41）。
 
 ---
 
@@ -120,6 +120,26 @@
 | Hermes Agent Git 合并冲突导致 SyntaxError | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1133 |
 | Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1145 |
 | CodeBuddy 安装后 package.json 丢失导致命令不可用 | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1163 |
+| AI 重复实现已有组件（棋盘/网格类 UI） | 问题 | 存档提示 | vibe-coding-project-sop | 待修复 | troubleshooting.md#L1183 |
+| PowerShell 执行中文脚本报 "UnexpectedToken" | 问题 | 存档提示 | vibe-coding-project-sop | — | troubleshooting.md#L1194 |
+| GitHub push 报错 `Permission denied (publickey)` | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1206 |
+| `gh auth login` 超时：`read tcp ... operation timed out` | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1215 |
+| HuggingFace 模型下载连接超时 `curl: (28) Could not connect to server... | 问题 | 存档提示 | vibe-coding-project-sop | 已解决 | troubleshooting.md#L1224 |
+| PowerShell 添加防火墙规则权限不足 `Access is denied` | 问题 | 存档提示 | vibe-coding-project-sop | 已知限制 | troubleshooting.md#L1233 |
+| PowerShell 执行中文脚本报 "UnexpectedToken" | 问题 | 存档提示 | vibe-coding-project-sop | — | troubleshooting.md#L1243 |
+| GitHub push 报错 `Permission denied (publickey)` | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1255 |
+| `gh auth login` 超时：`read tcp ... operation timed out` | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1264 |
+| HuggingFace 模型下载连接超时 `curl: (28) Could not connect to server... | 问题 | 存档提示 | vibe-coding-project-sop | 已解决 | troubleshooting.md#L1273 |
+| PowerShell 添加防火墙规则权限不足 `Access is denied` | 问题 | 存档提示 | vibe-coding-project-sop | 已知限制 | troubleshooting.md#L1282 |
+| Node.js 报 SyntaxError: Unexpected identifier（i18n 中文字符串） | 问题 | 存档提示 | vibe-coding-project-sop | 已解决 | troubleshooting.md#L1291 |
+| sed 批量修改误改结构体定义 | 问题 | 存档提示 | vibe-coding-project-sop | — | troubleshooting.md#L1301 |
+| French Exit 进程锁定 exe 导致复制失败 | 问题 | 存档提示 | vibe-coding-project-sop | — | troubleshooting.md#L1310 |
+| Hermes Agent Git 合并冲突导致 SyntaxError | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1323 |
+| Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1335 |
+| CodeBuddy 安装后 package.json 丢失导致命令不可用 | 问题 | 存档提示 | vibe-coding-project-sop | 已修复 | troubleshooting.md#L1353 |
+| 条目状态流转 | 问题 | 存档提示 | agent-coding-skeleton | 含义 | troubleshooting.md#L1373 |
+| 新增条目模板 | 问题 | 存档提示 | agent-coding-skeleton | — | troubleshooting.md#L1391 |
+| [错误关键词] | 问题 | 存档提示 | agent-coding-skeleton | pending | troubleshooting.md#L1395 |
 | 纯 HTML+CSS+JS 项目无需 npm，双击 `index.html` 即可预览，但涉及 Web Worker（如... | 经验 | build-env / testing | blindfold-chess | INFO | lessons-learned.md#L14 |
 | 手写 IIFE 模块时，用 `window.ModuleName = Module` 暴露 API，内部私有变量用下划线... | 经验 | dom / api-design | blindfold-chess | WARNING | lessons-learned.md#L15 |
 | 浏览器集成测试用 TestRunner（自定义极简框架），保持与 Node 测试同一套断言 API，降低切换成本 | 经验 | testing | blindfold-chess | INFO | lessons-learned.md#L16 |
@@ -214,10 +234,10 @@
 | **原实现**：ConfirmPage 遍历 `state.scanResults`，过滤出选中的项 → 分页未加载的项... | 经验 | pagination / state-management | french-exit | WARNING | lessons-learned.md#L105 |
 | **修复**：遍历 `state.decisions`，每项在 `scanResults` 中查找详细信息，找不到时用 ... | 经验 | pagination / state-management | french-exit | INFO | lessons-learned.md#L106 |
 | **教训**：在分页/懒加载架构中，**用户操作集合（decisions）是主数据源，展示数据（scanResults）... | 经验 | pagination / architecture | french-exit | WARNING | lessons-learned.md#L107 |
-| Git for Windows 的 bash `/tmp` 与 PowerShell `$env:TEMP` 指向同一物... | 经验 | build-env |  | INFO | lessons-learned.md#L170 |
-| 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的 fallback（后... | 经验 | build-env |  | INFO | lessons-learned.md#L171 |
-| Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule` 会失败，但 `l... | 经验 | build-env |  | WARNING | lessons-learned.md#L172 |
-| `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, ...]`（每页一... | 经验 | api-design |  | WARNING | lessons-learned.md#L204 |
+| Git for Windows 的 bash `/tmp` 与 PowerShell `$env:TEMP` 指向同一物... | 经验 | build-env |  | INFO | lessons-learned.md#L174 |
+| 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的 fallback（后... | 经验 | build-env |  | INFO | lessons-learned.md#L175 |
+| Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule` 会失败，但 `l... | 经验 | build-env |  | WARNING | lessons-learned.md#L176 |
+| `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, ...]`（每页一... | 经验 | api-design |  | WARNING | lessons-learned.md#L208 |
 | ADR-001：前端技术栈选型 | 决策 | 架构决策 | blindfold-chess | — | decisions.md#L8 |
 | ADR-002：测试框架选型 | 决策 | 架构决策 | blindfold-chess | — | decisions.md#L22 |
 | ADR-003：AI 开发方式与批次划分 | 决策 | 架构决策 | blindfold-chess | — | decisions.md#L36 |
@@ -258,7 +278,7 @@
 | ADR-017：聚焦 Excel 驱动流，API 驱动流暂不投入 [来源:qianniu_business_analyt... | 决策 | 架构决策 | qianniu_business_analytics | — | decisions.md#L584 |
 | ADR-019：Node.js 环境隔离方案（nvm + 双 Node.js） [母库 @2026-05-30] | 决策 | 架构决策 | vibe-coding-project-sop | — | decisions.md#L598 |
 | ADR-020：状态文档机制重构（待办清理 + 技术债务表格化） [母库 @2026-05-30] | 决策 | 架构决策 | vibe-coding-project-sop | — | decisions.md#L612 |
-| ADR-021：分发逻辑从覆盖文件改为按条目合并 [母库 @2026-05-31] | 决策 | 架构决策 | vibe-coding-project-sop | — | decisions.md#L624 |
+| ADR-022：保持 `qianniu_business_analytics` 与 `ecommerce-report-... | 决策 | 架构决策 | qianniu_business_analytics | — | decisions.md#L626 |
 
 ---
 
@@ -334,6 +354,8 @@
 - [问题] vitest 报错：`act is not a function` — `测试错误` → troubleshooting.md#L967
 - [问题] vitest 报错：React 警告 `Cannot update a component whil — `测试错误` → troubleshooting.md#L975
 - [问题] Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH — `存档提示` → troubleshooting.md#L1145
+- [问题] Node.js 报 SyntaxError: Unexpected identifier（i18n  — `存档提示` → troubleshooting.md#L1291
+- [问题] Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH — `存档提示` → troubleshooting.md#L1335
 - [经验] 纯 HTML+CSS+JS 项目无需 npm，双击 `index.html` 即可预览，但涉及 We — `build-env / testing` → lessons-learned.md#L14
 - [经验] 手写 IIFE 模块时，用 `window.ModuleName = Module` 暴露 API， — `dom / api-design` → lessons-learned.md#L15
 - [经验] 浏览器集成测试用 TestRunner（自定义极简框架），保持与 Node 测试同一套断言 API， — `testing` → lessons-learned.md#L16
@@ -375,8 +397,10 @@
 
 - [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L283
 - [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L647
-- [经验] 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的  — `build-env` → lessons-learned.md#L171
-- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L172
+- [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L1224
+- [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L1273
+- [经验] 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的  — `build-env` → lessons-learned.md#L175
+- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L176
 
 ### Git / GitHub
 
@@ -391,10 +415,15 @@
 - [问题] GitHub Pages 国内打不开 — `运行时` → troubleshooting.md#L804
 - [问题] Windows Git Bash LF/CRLF 警告 — `环境相关` → troubleshooting.md#L1113
 - [问题] Hermes Agent Git 合并冲突导致 SyntaxError — `存档提示` → troubleshooting.md#L1133
+- [问题] GitHub push 报错 `Permission denied (publickey)` — `存档提示` → troubleshooting.md#L1206
+- [问题] `gh auth login` 超时：`read tcp ... operation timed o — `存档提示` → troubleshooting.md#L1215
+- [问题] GitHub push 报错 `Permission denied (publickey)` — `存档提示` → troubleshooting.md#L1255
+- [问题] `gh auth login` 超时：`read tcp ... operation timed o — `存档提示` → troubleshooting.md#L1264
+- [问题] Hermes Agent Git 合并冲突导致 SyntaxError — `存档提示` → troubleshooting.md#L1323
 - [经验] **Shell here-document 在 Windows git bash 中不可靠**：含引 — `cross-platform / ai-workflow` → lessons-learned.md#L58
 - [经验] GitHub Pages 国内访问需代理；unpkg CDN 加载 Stockfish 可能超时，需 — `build-env` → lessons-learned.md#L61
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `cross-platform` → lessons-learned.md#L62
-- [经验] Git for Windows 的 bash `/tmp` 与 PowerShell `$env:T — `build-env` → lessons-learned.md#L170
+- [经验] Git for Windows 的 bash `/tmp` 与 PowerShell `$env:T — `build-env` → lessons-learned.md#L174
 - [决策] ADR-017：GitHub 认证从 SSH 切换到 GitHub CLI + HTTPS — `架构决策` → decisions.md#L132
 
 ### 网络 / 环境 / 权限
@@ -412,6 +441,11 @@
 - [问题] GitHub Pages 国内打不开 — `运行时` → troubleshooting.md#L804
 - [问题] 中文路径下编译失败 — `环境问题` → troubleshooting.md#L997
 - [问题] Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH — `存档提示` → troubleshooting.md#L1145
+- [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L1224
+- [问题] PowerShell 添加防火墙规则权限不足 `Access is denied` — `存档提示` → troubleshooting.md#L1233
+- [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L1273
+- [问题] PowerShell 添加防火墙规则权限不足 `Access is denied` — `存档提示` → troubleshooting.md#L1282
+- [问题] Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH — `存档提示` → troubleshooting.md#L1335
 - [经验] SVG path 中密集参数（如 `a2 2 0 0 1-2.83 0`）在某些浏览器中可能解析异常 — `dom` → lessons-learned.md#L22
 - [经验] **UI 布局/样式不要猜测用户意图**：候选走法开关经历了 5 次位置/样式反复，每次修改后用户都 — `ux` → lessons-learned.md#L25
 - [经验] **i18n 分散架构必然导致翻译遗漏**：当项目同时存在"全局字典 + 模块私有字典 + 硬编码" — `i18n` → lessons-learned.md#L31
@@ -423,8 +457,8 @@
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `cross-platform` → lessons-learned.md#L62
 - [经验] 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径（如 `/c/fren — `cross-platform / build-env` → lessons-learned.md#L83
 - [经验] `cargo check --lib` 不需要链接，可以在中文路径直接跑；`cargo test - — `cross-platform / build-env` → lessons-learned.md#L84
-- [经验] 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的  — `build-env` → lessons-learned.md#L171
-- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L172
+- [经验] 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的  — `build-env` → lessons-learned.md#L175
+- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L176
 
 ### Windows / PowerShell
 
@@ -443,6 +477,11 @@
 - [问题] 运行 `french-exit.exe` 报错：`Could not find the WebVie — `运行时错误` → troubleshooting.md#L932
 - [问题] 运行 `french-exit.exe` 报错：`找不到 WebView2Loader.dll` — `运行时错误` → troubleshooting.md#L940
 - [问题] Windows Git Bash LF/CRLF 警告 — `环境相关` → troubleshooting.md#L1113
+- [问题] PowerShell 执行中文脚本报 "UnexpectedToken" — `存档提示` → troubleshooting.md#L1194
+- [问题] PowerShell 添加防火墙规则权限不足 `Access is denied` — `存档提示` → troubleshooting.md#L1233
+- [问题] PowerShell 执行中文脚本报 "UnexpectedToken" — `存档提示` → troubleshooting.md#L1243
+- [问题] PowerShell 添加防火墙规则权限不足 `Access is denied` — `存档提示` → troubleshooting.md#L1282
+- [问题] French Exit 进程锁定 exe 导致复制失败 — `存档提示` → troubleshooting.md#L1310
 - [经验] **Shell here-document 在 Windows git bash 中不可靠**：含引 — `cross-platform / ai-workflow` → lessons-learned.md#L58
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `cross-platform` → lessons-learned.md#L62
 - [经验] `windows-rs` 0.61 的错误处理统一用 `.map_err( — `api-design` → lessons-learned.md#L63
@@ -452,8 +491,8 @@
 - [经验] **`tauri::AppHandle` 出现在 `async fn` 签名中 + MinGW =  — `cross-platform / build-env` → lessons-learned.md#L88
 - [经验] `cargo tauri dev` 必须在**交互式 Windows 桌面会话**中运行，无法通过远 — `build-env` → lessons-learned.md#L93
 - [经验] **完整功能验证**：仍需本地运行 `cargo tauri dev` 或双击 release `. — `build-env` → lessons-learned.md#L95
-- [经验] Git for Windows 的 bash `/tmp` 与 PowerShell `$env:T — `build-env` → lessons-learned.md#L170
-- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L172
+- [经验] Git for Windows 的 bash `/tmp` 与 PowerShell `$env:T — `build-env` → lessons-learned.md#L174
+- [经验] Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule — `build-env` → lessons-learned.md#L176
 - [决策] ADR-007：WebView2 分发策略——放弃 NSIS bootstrapper，改用携带 D — `架构决策` → decisions.md#L228
 
 ### Chess / 引擎
@@ -518,6 +557,12 @@
 - [问题] openpyxl 未安装 — `报告相关` → troubleshooting.md#L1091
 - [问题] 钉钉推送失败 — `报告相关` → troubleshooting.md#L1100
 - [问题] CodeBuddy 安装后 package.json 丢失导致命令不可用 — `存档提示` → troubleshooting.md#L1163
+- [问题] AI 重复实现已有组件（棋盘/网格类 UI） — `存档提示` → troubleshooting.md#L1183
+- [问题] sed 批量修改误改结构体定义 — `存档提示` → troubleshooting.md#L1301
+- [问题] CodeBuddy 安装后 package.json 丢失导致命令不可用 — `存档提示` → troubleshooting.md#L1353
+- [问题] 条目状态流转 — `存档提示` → troubleshooting.md#L1373
+- [问题] 新增条目模板 — `存档提示` → troubleshooting.md#L1391
+- [问题] [错误关键词] — `存档提示` → troubleshooting.md#L1395
 - [经验] 项目文档结构会随时间进化，"存档"或"恢复"操作前应先 `ls`/`glob` 确认当前文件系统现状 — `ai-workflow` → lessons-learned.md#L24
 - [经验] **删除功能必须同步删除对应测试**：移除 `showHints` / `multiPvSettin — `testing` → lessons-learned.md#L29
 - [经验] **焦点管理是盲棋产品的核心体验**：进入对局自动 `input.focus()`、引擎走完后恢复焦 — `ux` → lessons-learned.md#L30
@@ -560,7 +605,7 @@
 - [经验] **原实现**：ConfirmPage 遍历 `state.scanResults`，过滤出选中的项 — `pagination / state-management` → lessons-learned.md#L105
 - [经验] **修复**：遍历 `state.decisions`，每项在 `scanResults` 中查找详 — `pagination / state-management` → lessons-learned.md#L106
 - [经验] **教训**：在分页/懒加载架构中，**用户操作集合（decisions）是主数据源，展示数据（sc — `pagination / architecture` → lessons-learned.md#L107
-- [经验] `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, — `api-design` → lessons-learned.md#L204
+- [经验] `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, — `api-design` → lessons-learned.md#L208
 - [决策] ADR-001：前端技术栈选型 — `架构决策` → decisions.md#L8
 - [决策] ADR-002：测试框架选型 — `架构决策` → decisions.md#L22
 - [决策] ADR-003：AI 开发方式与批次划分 — `架构决策` → decisions.md#L36
@@ -592,13 +637,13 @@
 - [决策] ADR-005：报告形态（Markdown 四段式，单店/多店统一） — `架构决策` → decisions.md#L566
 - [决策] ADR-017：聚焦 Excel 驱动流，API 驱动流暂不投入 [来源:qianniu_busin — `架构决策` → decisions.md#L584
 - [决策] ADR-020：状态文档机制重构（待办清理 + 技术债务表格化） [母库 @2026-05-30] — `架构决策` → decisions.md#L612
-- [决策] ADR-021：分发逻辑从覆盖文件改为按条目合并 [母库 @2026-05-31] — `架构决策` → decisions.md#L624
+- [决策] ADR-022：保持 `qianniu_business_analytics` 与 `ecommer — `架构决策` → decisions.md#L626
 
 ---
 
 ## 按类型分组
 
-### 问题（109 条）
+### 问题（129 条）
 
 - AI 重复实现已有组件（棋盘/网格类 UI） → troubleshooting.md#L8
 - Stockfish 加载超时 / 引擎不启动 → troubleshooting.md#L19
@@ -620,7 +665,7 @@
 - vitest 报错：`Failed to resolve import "@tauri-apps/api/fs... → troubleshooting.md#L182
 - vitest 报错：`act is not a function` → troubleshooting.md#L191
 - vitest 报错：React 警告 `Cannot update a component while ren... → troubleshooting.md#L199
-- ... 还有 89 条
+- ... 还有 109 条
 
 ### 经验（98 条）
 

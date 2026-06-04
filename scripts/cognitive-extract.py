@@ -22,9 +22,14 @@
 import argparse
 import json
 import os
-import subprocess
 import sys
 from pathlib import Path
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 
 DEFAULT_NTFY_TOPIC = "cognitive-extract"
@@ -69,12 +74,13 @@ def get_backend(args: argparse.Namespace) -> str:
     return backend
 
 
-def send_obsidian_ntfy(entries: list[dict]) -> bool:
+def send_obsidian_ntfy(entries: list[dict], topic_override: str = "") -> bool:
     key = os.environ.get("OBSIDIAN_NTFY_KEY")
     if not key:
         error("obsidian-ntfy 后端需要 OBSIDIAN_NTFY_KEY 环境变量")
         return False
-    topic = os.environ.get("NTFY_TOPIC", DEFAULT_NTFY_TOPIC)
+    topic = topic_override or os.environ.get("NTFY_TOPIC", DEFAULT_NTFY_TOPIC)
+    url = f"https://ntfy.sh/{topic}"
     all_ok = True
     for entry in entries:
         title = entry.get("title", "")
@@ -83,19 +89,31 @@ def send_obsidian_ntfy(entries: list[dict]) -> bool:
         cat_part = f"[{category}] " if category else ""
         payload = f"[{key}] obsidian {cat_part}{title}\n\n{body}"
         try:
-            curl_cmd = ["curl", "-sL", "-d", payload, f"https://ntfy.sh/{topic}"]
-            r = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=15)
-            if r.returncode == 0:
-                log(f"已发送: {title}")
+            if HAS_REQUESTS:
+                r = requests.post(url, data=payload.encode("utf-8"),
+                                  headers={"Content-Type": "text/plain; charset=utf-8"},
+                                  timeout=15)
+                if r.ok:
+                    log(f"已发送: {title}")
+                else:
+                    error(f"发送失败 ({title}): HTTP {r.status_code} {r.text.strip()}")
+                    all_ok = False
             else:
-                error(f"发送失败 ({title}): {r.stderr.strip()}")
-                all_ok = False
-        except subprocess.TimeoutExpired:
-            error(f"发送超时 ({title})")
+                import urllib.request
+                req = urllib.request.Request(
+                    url, data=payload.encode("utf-8"),
+                    headers={"Content-Type": "text/plain; charset=utf-8"},
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    if resp.status == 200:
+                        log(f"已发送: {title}")
+                    else:
+                        error(f"发送失败 ({title}): HTTP {resp.status}")
+                        all_ok = False
+        except Exception as e:
+            error(f"发送失败 ({title}): {e}")
             all_ok = False
-        except FileNotFoundError:
-            error("未找到 curl 命令，请安装 curl")
-            return False
     return all_ok
 
 
@@ -115,7 +133,6 @@ def send_markdown(entries: list[dict]) -> bool:
 
 
 SENDERS = {
-    "obsidian-ntfy": send_obsidian_ntfy,
     "markdown": send_markdown,
     "none": lambda entries: (log(f"模拟模式: 将发送 {len(entries)} 条"), True),
 }
@@ -127,6 +144,7 @@ def main() -> int:
     parser.add_argument("--title", help="条目标题")
     parser.add_argument("--body", help="条目正文")
     parser.add_argument("--file", help="JSON 文件路径（包含条目列表或单条目）")
+    parser.add_argument("--topic", help="ntfy.sh 主题（仅 obsidian-ntfy 后端，优先级高于 NTFY_TOPIC 环境变量）")
     args = parser.parse_args()
 
     entries = read_input(args)
@@ -135,7 +153,10 @@ def main() -> int:
     log(f"后端: {backend}, 条目数: {len(entries)}")
 
     sender = SENDERS.get(backend)
-    ok = sender(entries)
+    if backend == "obsidian-ntfy":
+        ok = send_obsidian_ntfy(entries, topic_override=args.topic or "")
+    else:
+        ok = sender(entries)
 
     if ok:
         result(True, f"已发送 {len(entries)} 条")

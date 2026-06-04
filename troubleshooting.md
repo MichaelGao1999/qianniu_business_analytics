@@ -1370,3 +1370,38 @@
 **用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
 ---
 
+### 条目状态流转 [来源:agent-coding-skeleton @2026-06-04]
+
+```
+pending → resolved → promoted
+   │         │
+   └─→ wont_fix    └─→ known_limitation（已知限制，不计划修复）
+```
+
+| 状态 | 含义 |
+|------|------|
+| `pending` | 已记录，待排查/修复 |
+| `resolved` | 已修复，解决方案已验证 |
+| `promoted` | 已提升到 `lessons-learned.md` 或 `AGENTS.md` 作为永久规则 |
+| `wont_fix` | 不计划修复（成本过高/非核心功能） |
+| `known_limitation` | 已知限制，文档化但不修复 |
+
+> **旧状态映射**："已修复"/"已解决" → `resolved`；"已知限制" → `known_limitation`；"已知未修复" → `wont_fix`；"待修复" → `pending`。
+
+### 新增条目模板 [来源:agent-coding-skeleton @2026-06-04]
+
+```markdown
+
+### [错误关键词] [来源:agent-coding-skeleton @2026-06-04]
+
+| | 内容 |
+|---|---|
+| **状态** | pending |
+| **现象** |  |
+| **原因** |  |
+| **解决** |  |
+| **预防** | （可选） |
+```
+
+---
+
