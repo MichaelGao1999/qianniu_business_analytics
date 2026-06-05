@@ -3,7 +3,7 @@
 > 本文件由 `scripts/build-experience-index.py` 自动生成。
 > 覆盖 troubleshooting / lessons-learned / decisions，统一搜索入口。
 
-> 当前收录 **268** 条记录（问题 129 + 经验 98 + 决策 41）。
+> 当前收录 **269** 条记录（问题 130 + 经验 98 + 决策 41）。
 
 ---
 
@@ -140,6 +140,7 @@
 | 条目状态流转 | 问题 | 存档提示 | agent-coding-skeleton | 含义 | troubleshooting.md#L1373 |
 | 新增条目模板 | 问题 | 存档提示 | agent-coding-skeleton | — | troubleshooting.md#L1391 |
 | [错误关键词] | 问题 | 存档提示 | agent-coding-skeleton | pending | troubleshooting.md#L1395 |
+| distribute.py 子进程 GBK 编码错误 | 问题 | 存档提示 | agent-coding-skeleton | known_limitation | troubleshooting.md#L1408 |
 | 纯 HTML+CSS+JS 项目无需 npm，双击 `index.html` 即可预览，但涉及 Web Worker（如... | 经验 | build-env / testing | blindfold-chess | INFO | lessons-learned.md#L14 |
 | 手写 IIFE 模块时，用 `window.ModuleName = Module` 暴露 API，内部私有变量用下划线... | 经验 | dom / api-design | blindfold-chess | WARNING | lessons-learned.md#L15 |
 | 浏览器集成测试用 TestRunner（自定义极简框架），保持与 Node 测试同一套断言 API，降低切换成本 | 经验 | testing | blindfold-chess | INFO | lessons-learned.md#L16 |
@@ -446,6 +447,7 @@
 - [问题] HuggingFace 模型下载连接超时 `curl: (28) Could not connect — `存档提示` → troubleshooting.md#L1273
 - [问题] PowerShell 添加防火墙规则权限不足 `Access is denied` — `存档提示` → troubleshooting.md#L1282
 - [问题] Node.js 环境污染：Hermes Node.js 泄漏到用户 PATH — `存档提示` → troubleshooting.md#L1335
+- [问题] distribute.py 子进程 GBK 编码错误 — `存档提示` → troubleshooting.md#L1408
 - [经验] SVG path 中密集参数（如 `a2 2 0 0 1-2.83 0`）在某些浏览器中可能解析异常 — `dom` → lessons-learned.md#L22
 - [经验] **UI 布局/样式不要猜测用户意图**：候选走法开关经历了 5 次位置/样式反复，每次修改后用户都 — `ux` → lessons-learned.md#L25
 - [经验] **i18n 分散架构必然导致翻译遗漏**：当项目同时存在"全局字典 + 模块私有字典 + 硬编码" — `i18n` → lessons-learned.md#L31
@@ -643,7 +645,7 @@
 
 ## 按类型分组
 
-### 问题（129 条）
+### 问题（130 条）
 
 - AI 重复实现已有组件（棋盘/网格类 UI） → troubleshooting.md#L8
 - Stockfish 加载超时 / 引擎不启动 → troubleshooting.md#L19
@@ -665,7 +667,7 @@
 - vitest 报错：`Failed to resolve import "@tauri-apps/api/fs... → troubleshooting.md#L182
 - vitest 报错：`act is not a function` → troubleshooting.md#L191
 - vitest 报错：React 警告 `Cannot update a component while ren... → troubleshooting.md#L199
-- ... 还有 109 条
+- ... 还有 110 条
 
 ### 经验（98 条）
 

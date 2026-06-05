@@ -1405,3 +1405,20 @@ pending → resolved → promoted
 
 ---
 
+### distribute.py 子进程 GBK 编码错误 [来源:agent-coding-skeleton @2026-06-05]
+
+| | 内容 |
+|---|---|
+| **状态** | known_limitation |
+| **现象** | 运行 `python scripts/distribute.py` 时输出大量 `UnicodeDecodeError: 'gbk' codec can't decode byte 0xad` 线程异常，但分发结果成功 |
+| **原因** | Python 3.12 在 Windows 上 `subprocess.Popen` 的 `_readerthread` 默认使用 GBK 解码 stdout/stderr。当并发的 git 命令输出包含非 GBK 字符（如 UTF-8 中文）时，解码失败抛出异常。此异常在线程中抛出，不会阻断主流程 |
+| **解决** | 设置 `PYTHONUTF8=1` 环境变量或在 `subprocess.run`/`Popen` 调用中传入 `encoding='utf-8'` |
+| **预防** | （可选）在 distribute.py 中统一添加 `encoding='utf-8'` 参数 |
+
+---
+
+## 存档提示
+
+**用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
+---
+
