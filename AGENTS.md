@@ -90,7 +90,7 @@
    > **辅助工具**：`bash scripts/error-detector.sh "输出文本"` 可检测命令输出中的常见错误模式。
 
 8. 定稿并追加 `session-log.md`
-   - 如步骤 2 有选中认知候选，运行 `python scripts/cognitive-extract.py --backend obsidian-ntfy --title "..." --body "..."` 发送
+   - 如步骤 2 有选中认知候选，运行 `python scripts/cognitive-extract.py --title "..." --body "..."` 发送
    - 无论成功/失败，继续后续步骤（不阻断存档）
 8. Git 全量提交：`git add -A` → `git commit -m "[session] 摘要"` → `git push`
 9. 汇报完成
