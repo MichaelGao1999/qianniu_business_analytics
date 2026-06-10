@@ -239,7 +239,7 @@
 | 阶段 | 产出文件 |
 |------|---------|
 | 阶段一 | `docs/proposal.md` |
-| 阶段二 | `docs/design.md`、`docs/brief.md`、`docs/frontend.md`（条件性，T-05②） |
+| 阶段二 | `docs/design.md`、`docs/brief.md`、`docs/database.md`（条件性，T-01②/③）、`docs/frontend.md`（条件性，T-05②） |
 | 阶段三 | `docs/tasks/task-{module}.md` |
 | 阶段四 | `prompt.md` |
 | 阶段五 | `src/`、`tests/`、各模块源码 |
