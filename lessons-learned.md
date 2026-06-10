@@ -206,4 +206,6 @@
 | | [ ] `openpyxl` 是否已在所有运行环境中安装 — 计划补充 `requirements.txt` 并验证 [来源:qianniu_business_analytics @2026-05-29] |  |
 | | [ ] 多店合并取数时（`shopIds` 含多个 id），`createAndDownload` 返回的 Excel 列结构是否与单店一致 — 计划通过实测验证 [来源:qianniu_business_analytics @2026-05-29] |  |
 | 107 | TAG:api-design | WARNING | `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, ...]`（每页一个子数组），而非展平的单层数组。调用方需手动展平，否则 `repos[0]` 取到的是第一页列表而非第一个仓库 [母库 @2026-05-29] | sync-knowledge.py |
+| | TAG:board [来源:agent-coding-skeleton @2026-06-10] | INFO | `BoardFactory.highlight()` 需要同时支持 `data-square`（8×8 棋盘，如 `e2`）和 `data-pos`（6×6 棋盘，如 `2,3`）两种格子标识。非 8×8 棋盘调 `board.highlight('行,列', 'dot')`，8×8 棋盘调 `board.highlight('e2', 'dot')`。调用前必须先确认棋盘是什么尺寸 [blindfold-chess @2026-05-30] | guide.js + board-factory.js |
+
 >>>>>>> a42c4631445d398afbe7fa82a415d6ca5f444186

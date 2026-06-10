@@ -345,8 +345,9 @@ def parse_decisions(path: str) -> list[dict]:
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 匹配 ## ADR-xxx: 标题 [来源:...]
-    pattern = r"^## (ADR-\d+[:：]\s*.+?)(?:\s*\[来源:([^\]]+)\])?\s*\n"
+    # 匹配 ## ADR-xxx: 标题 [来源:...] 或 ### ADR-xxx: 标题 [来源:...]
+    # 兼容项目分组下的三级标题结构（## 项目: xxx / ### ADR-xxx）
+    pattern = r"^#{2,3}\s+(ADR-\d+[:：]\s*.+?)(?:\s*\[来源:([^\]]+)\])?\s*\n"
     for m in re.finditer(pattern, content, re.MULTILINE):
         adr_title = m.group(1).strip()
         source = m.group(2).strip() if m.group(2) else ""
