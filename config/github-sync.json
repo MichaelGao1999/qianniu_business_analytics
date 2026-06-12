@@ -1,6 +1,6 @@
 {
   "_comment": "由 pull.py 自动创建。修改后运行 python scripts/pull.py 同步更新。",
-  "username": "MichaelGao1999",
+  "username": "your-github-username",
   "token": "",
   "includeRepos": [],
   "excludeRepos": [],

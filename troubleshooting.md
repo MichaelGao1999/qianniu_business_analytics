@@ -223,7 +223,7 @@
 | | 内容 |
 |---|---|
 | **现象** | MinGW 链接器报错，无法生成 `.exe` |
-| **原因** | 工作目录含中文（如 `E:/工作文件/...`），MinGW 工具链对 Unicode 路径支持差 |
+| **原因** | 工作目录含中文，MinGW 工具链对 Unicode 路径支持差 |
 | **解决** | 1. `rm -rf /c/french-exit && cp -r "/e/工作文件/vs-code/french-exit" /c/french-exit`<br>2. `cd /c/french-exit/src-tauri && cargo check --lib` |
 | **注意** | `cargo check --lib` 和 `cargo test --no-run` 不需要链接，可在中文路径直接运行 |
 
@@ -587,7 +587,7 @@
 | | 内容 |
 |---|---|
 | **现象** | MinGW 链接器报错，无法生成 `.exe` |
-| **原因** | 工作目录含中文（如 `E:/工作文件/...`），MinGW 工具链对 Unicode 路径支持差 |
+| **原因** | 工作目录含中文，MinGW 工具链对 Unicode 路径支持差 |
 | **解决** | 1. `rm -rf /c/french-exit && cp -r "/e/工作文件/vs-code/french-exit" /c/french-exit`<br>2. `cd /c/french-exit/src-tauri && cargo check --lib` |
 | **注意** | `cargo check --lib` 和 `cargo test --no-run` 不需要链接，可在中文路径直接运行 |
 
@@ -999,7 +999,7 @@
 | | 内容 |
 |---|---|
 | **现象** | MinGW 链接器报错，无法生成 `.exe` |
-| **原因** | 工作目录含中文（如 `E:/工作文件/...`），MinGW 工具链对 Unicode 路径支持差 |
+| **原因** | 工作目录含中文，MinGW 工具链对 Unicode 路径支持差 |
 | **解决** | 1. `rm -rf /c/french-exit && cp -r "/e/工作文件/vs-code/french-exit" /c/french-exit`<br>2. `cd /c/french-exit/src-tauri && cargo check --lib` |
 | **注意** | `cargo check --lib` 和 `cargo test --no-run` 不需要链接，可在中文路径直接运行 |
 
