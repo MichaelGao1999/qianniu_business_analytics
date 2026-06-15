@@ -161,6 +161,19 @@
 - prompt 要让主 Agent 和 subAgent 都知道该干嘛
 - **本阶段交付完成后即结束**：不要建议用户继续下一阶段，用户会自行开启新会话进入阶段五
 
+**Prompt 结构规范（借鉴 iOS 27 四段式）**：
+
+每份 `prompt.md` 必须按以下四段组织，缺一不可：
+
+```
+[1. 角色声明]  单行定义：You are a [role].
+[2. 任务定义]  单行定义：Your task is to [single specific task].
+[3. 约束规则]  必做清单 + 禁止清单，每条一行
+[4. 输出格式]  JSON schema / 文本格式 / 纯数字 等硬约束 + few-shot 示例
+```
+
+四段式之下的详细内容按下方「Prompt 必须包含的内容」填充。
+
 **Prompt 必须包含的内容**：
 1. **项目架构**：模块列表、依赖顺序、接口规范
 2. **现有代码评估**：哪些保留、哪些重构、哪些新建
@@ -199,6 +212,9 @@
 - **拆成多轮接力**：每轮有明确交付物，超时也不怕，下轮接着干
 - **Orchestrator 先读后派**：每轮开始前检查"前人留下了什么"，再生成精确接力指令
 - **争议时引用 brief.md 纠偏**：如果 subAgent 输出与已定决策矛盾，Orchestrator 直接引用 docs/brief.md 第 X 条，不需要重新解释理由
+
+**可用辅助工具**：
+- **设计 Token 调试**：如需可视化验证 CSS 变量，将 `starter/theme-debug.html` 放入 `frontend/public/`，访问 `http://localhost:5173/theme-debug.html` 即可预览所有颜色、字体、圆角、阴影、动画
 
 **接力轮次模板**（参考）：
 

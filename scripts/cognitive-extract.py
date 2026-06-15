@@ -164,6 +164,37 @@ SENDERS = {
 }
 
 
+def rebuild_index() -> int:
+    """Rebuild cognitive-log.md index from existing entries without adding new ones."""
+    path = Path("cognitive-log.md")
+    if not path.exists():
+        log("cognitive-log.md 不存在，无需重建")
+        return 0
+
+    existing = parse_entries(path.read_text("utf-8"))
+    if not existing:
+        log("cognitive-log.md 中未找到条目")
+        return 0
+
+    existing.sort(key=lambda e: e["date"], reverse=True)
+
+    header = [
+        "# 认知收获日志",
+        "",
+        "> 存档时从工程实践中提取的个人认知，与项目知识分离。",
+        "> 分类：架构原则 | 设计哲学 | 技术选型 | 工程方法 | 模型心智",
+        "",
+    ]
+    parts = header + build_index(existing)
+    for e in existing:
+        parts += build_entry_block(e)
+    parts.append("")
+
+    path.write_text("\n".join(parts), encoding="utf-8")
+    log(f"索引已重建（共 {len(existing)} 条）")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="认知提取 — 将认知收获保存到 cognitive-log.md")
     parser.add_argument("--backend", choices=BACKENDS, default=DEFAULT_BACKEND,
@@ -174,7 +205,11 @@ def main() -> int:
     parser.add_argument("--tags", help="标签，逗号分隔（如: 架构, 设计）")
     parser.add_argument("--date", help="日期，ISO 格式（默认: 今天）")
     parser.add_argument("--file", help="JSON 文件路径（包含条目列表或单条目）")
+    parser.add_argument("--rebuild-index", action="store_true", help="仅重建现有 cognitive-log.md 的索引")
     args = parser.parse_args()
+
+    if args.rebuild_index:
+        return rebuild_index()
 
     entries = read_input(args)
     backend = args.backend
