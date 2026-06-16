@@ -105,6 +105,12 @@
 - `docs/brief.md`：已确认决策的大白话摘要（编号 + 决策内容 + 来源），用于阶段三~五的纠偏和验收
 - `docs/frontend.md`（条件性）：界面层设计文档，与 `design.md` 互补——`design.md` 描述模块划分和接口契约（前后端通用），`frontend.md` 描述界面层设计（组件/页面/交互）。AI 按标准章节结构生成（界面选型 → 页面清单 → 组件树 → 路由 → 状态管理 → 交互 → 视觉 tokens → 图标 → 响应式 → §10 决策检查点），未定项标记 `TODO: 阶段五前确认`
 
+  → **可选增强 — Open Design 工具链**：可同步安装 `od` CLI（`od mcp install opencode`），在生成 frontend.md 时引用：
+    ① `od search-files "design-system"` — 检索 150 套品牌设计系统，直接填入视觉 tokens（color / typography / spacing / motion）
+    ② 用 `od` 生成交互原型 — 验证组件树和路由设计，提前发现结构问题
+    ③ 借助 DESIGN.md 的完整 schema 关闭 §10 中「主题色/图标」等 TODO，避免延迟到阶段五
+    本增强适用于有 UI 界面的项目，无界面项目忽略。
+
 ---
 
 ## 阶段三：划分任务

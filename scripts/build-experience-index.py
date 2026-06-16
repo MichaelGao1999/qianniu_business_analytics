@@ -111,12 +111,21 @@ def infer_domain(source: str, tags: list[str], category: str = "") -> str:
 # ── Troubleshooting 解析 ──
 
 def extract_source_tag(text: str) -> tuple[str, str]:
-    """从文本中提取 [来源:xxx] 或 [母库 @date] 标签（支持多个）"""
-    sources = re.findall(r"\[来源:([^\]]+)\]", text)
-    mothers = re.findall(r"\[母库[^\]]*\]", text)
+    """
+    从文本中提取 [来源:xxx] 或 [母库 @date] 标签（支持多个）。
+    返回 (清洁正文, 来源字符串)。
+    保持与旧版输出格式一致（来源字符串不含 \"来源:\" 前缀）。
+    """
+    # 提取 [来源:xxx] 和 [母库 @date] 标签
+    source_tags = re.findall(r"\[来源:([^\]]+)\]", text)
+    mother_tags = re.findall(r"\[母库[^\]]*\]", text)
+
+    # 清洗正文：去掉 [来源:xxx] 和 [母库 @date]
     clean = re.sub(r"\s*\[来源:[^\]]+\]", "", text)
     clean = re.sub(r"\s*\[母库[^\]]*\]", "", clean).strip()
-    all_sources = [s.strip() for s in sources] + [m.strip("[]") for m in mothers]
+
+    # 来源字符串：保留旧格式（无 "来源:" 前缀，保留 [] 标记）
+    all_sources = [t.strip() for t in source_tags] + [m.strip("[]") for m in mother_tags]
     source_str = " | ".join(all_sources) if all_sources else ""
     return clean, source_str
 
