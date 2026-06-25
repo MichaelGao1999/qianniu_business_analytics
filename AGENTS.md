@@ -325,7 +325,36 @@ Step 5: 确认后，按 agent-coding-workflow.md 对应章节执行
 
 <!-- /@sync -->
 
+
+
 ---
+
+<!-- @sync:id=cleanup -->
+## 4.4 清理指令（「清理」）
+
+**触发词**：`清理`（去除标点后精确等于这两个字）
+
+**防误触**：
+- 消息精确匹配「清理」→ 执行清理流程
+- 消息包含「清理」但还有其他内容 → 视为正常对话，不触发
+
+**作用范围**：本项目的知识文件（`troubleshooting.md`、`lessons-learned.md`、`ADR.md`）和 `AGENTS.md` 结构。
+
+**5 步管线**：
+
+| 步 | 检查项 | 命令 |
+|----|--------|------|
+| 1 | ADR 重复/冲突分析 + AI 语义复查 | `analyze-duplicates.py` |
+| 2 | ADR 结构校验 | `adr-restructure.py --verify` |
+| 3 | 索引新鲜度 + 重建 | `self-repair index [--dry-run]` |
+| 4 | 敏感信息扫描 | `sensitivity-check.py --dir .` |
+| 5 | **全量自修复**（章节 / 知识文件 / 索引） | `self-repair all [--dry-run]` |
+
+- 先输出检查清单，等待用户 `y` 确认
+- 每步完成后输出可视化报告，全部完成后输出审核决策面板
+- **限制**：不自动合并/修改/操作 Git，索引重建需二次确认
+- 步 5 支持 `--dry-run`（仅报告不修改），执行前自动备份 `.backup/`
+<!-- /@sync -->---
 
 <!-- @sync:id=todo-rules -->
 ## 4.5 待办写入规则（「计入待办」）
