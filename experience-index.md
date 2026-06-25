@@ -3,7 +3,7 @@
 > 本文件由 `scripts/build-experience-index.py` 自动生成。
 > 覆盖 troubleshooting / lessons-learned / ADR，统一搜索入口。
 
-> 当前收录 **483** 条记录（问题 49 + 经验 393 + 决策 41）。
+> 当前收录 **488** 条记录（问题 49 + 经验 398 + 决策 41）。
 
 ---
 
@@ -217,7 +217,7 @@
 | python-data | **subprocess → direct import 重构**：`subprocess.run` 调用同目录脚本虽然... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L195 |
 | python-data | **多店 DataFrame 合并模式**：为每个店铺 DataFrame 添加内部标识列（如 `_shop_name`... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L196 |
 | python-data | **pytest stdin 捕获陷阱**：pytest 默认捕获 stdout/stderr，也会替换 `sys.st... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L197 |
-| python-data | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L198 |
+| python-data | ~~归档而非删除空壳代码~~ → **已逆转**：2026-06-25 经确认空壳代码无实际价值后直接 `git rm`... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L198 |
 | python-data | 日期区间多一天的问题是通过**后端实测**发现的（请求 4/20-4/26 返回了 4/27），而非文档说明。API 对... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L199 |
 | python-data | Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 [来源:qiann... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L200 |
 | python-data | 技能包的核心约束（如时区规则、渠道范围）应在 `SKILL.md` 和 `AGENTS.md` 中**双重声明**：`S... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L201 |
@@ -447,6 +447,11 @@
 | general | `transition: all` 是前端性能陷阱。浏览器无法预测哪些属性会变化，每帧都执行 layout 检查。应始终... | 经验 | 未分类 | [来源:open-personality | INFO | lessons-learned.md#L426 |
 | general | **零 layout 动画三板斧**：①元素始终占位（不用 `v-if`/`v-show` 插入 DOM）；②视觉展开用... | 经验 | 未分类 | [来源:open-personality | INFO | lessons-learned.md#L427 |
 | general | **项目半路转平台不可行**：项目开发大半后才想切换目标平台（如 Xcode/iOS → 微信小程序），发现两套工具链、... | 经验 | 未分类 | [来源:AI Workbench | INFO | lessons-learned.md#L428 |
+| python-data | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L430 |
+| python-data | 调用链是分层传递的，WebChannel 桥接后 JS 拦不住 Native。通达OA 点击图片走 JS → WebCh... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L431 |
+| python-data | 32 位进程在 64 位 Windows 上的 WOW64 文件系统重定向会静默转换路径：System32 → SysW... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L432 |
+| python-data | 注册表 WOW6432Node 是 32 位视图的逻辑别名，不是物理路径。用 64 位工具写 WOW6432Node →... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L433 |
+| python-data | 被沙箱禁掉 reg.exe、PowerShell Set-ItemProperty、反射 Assembly.LoadFi... | 经验 | 未分类 | [来源:qianniu_business_analytics | INFO | lessons-learned.md#L434 |
 | general | 测试驱动开发能在手工测试无法触及的边界条件下发现 bug（如"恰好取消所有勾选"触发死循环）[来源:french-exi... | 经验 | 未分类 | [来源:french-exit | INFO | lessons-learned.md#L114 |
 | general | `AGENTS.md` 定义触发词和行为约束，`status.md` 记录动态进度，两者分工明确，新会话读 2 份文件即... | 经验 | 未分类 | [来源:french-exit | INFO | lessons-learned.md#L117 |
 | general | 涉及 7+ 文件读改测的架构重构，应新开会话执行，避免上下文压缩导致信息丢失 [来源:blindfold-chess @... | 经验 | 未分类 | [来源:blindfold-chess | INFO | lessons-learned.md#L118 |
@@ -629,6 +634,7 @@
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L405
 - [经验] **修复**：给所有非交互性的 `fixed` 装饰元素统一添加 `pointer-events-n — `未分类` → lessons-learned.md#L417
 - [经验] **零 layout 动画三板斧**：①元素始终占位（不用 `v-if`/`v-show` 插入 D — `未分类` → lessons-learned.md#L427
+- [经验] 注册表 WOW6432Node 是 32 位视图的逻辑别名，不是物理路径。用 64 位工具写 WOW — `未分类` → lessons-learned.md#L433
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L123
 - [决策] ADR-002: 为什么前端用 React（而非 Vue/Svelte）？ — `架构决策` → ADR.md#L160
 - [决策] ADR-019: Node.js 环境隔离方案（nvm + 双 Node.js） [母库 @2026 — `架构决策` → ADR.md#L598
@@ -641,6 +647,7 @@
 - [经验] 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改 — `未分类` → lessons-learned.md#L212
 - [经验] 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改 — `未分类` → lessons-learned.md#L255
 - [经验] **WriteFile 不适合超大特殊字符内容**：含大量引号/换行的长文本会因 JSON 转义失败 — `未分类` → lessons-learned.md#L339
+- [经验] 被沙箱禁掉 reg.exe、PowerShell Set-ItemProperty、反射 Assem — `未分类` → lessons-learned.md#L434
 - [决策] ADR-017: init-skeleton.py 保持 Python 3.9 兼容 — `架构决策` → ADR.md#L416
 - [决策] ADR-001: 技术栈选型（Python 3 + requests） — `架构决策` → ADR.md#L510
 
@@ -665,6 +672,7 @@
 - [经验] GitHub Pages 国内访问需代理；unpkg CDN 加载 Stockfish 可能超时，需 — `build-env` → lessons-learned.md#L61
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `cross-platform` → lessons-learned.md#L62
 - [经验] Git for Windows 的 bash `/tmp` 与 PowerShell `$env:T — `build-env` → lessons-learned.md#L174
+- [经验] ~~归档而非删除空壳代码~~ → **已逆转**：2026-06-25 经确认空壳代码无实际价值后直 — `未分类` → lessons-learned.md#L198
 - [经验] Windows Git Bash 下执行 `git init` 时，所有文本文件会触发 `LF wi — `未分类` → lessons-learned.md#L203
 - [经验] 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改 — `未分类` → lessons-learned.md#L212
 - [经验] 隐私泄露的修复成本远高于预防成本。本案例事后清理：40 处替换 × 8 个项目 ≈ 80 次 git — `未分类` → lessons-learned.md#L232
@@ -784,6 +792,8 @@
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L405
 - [经验] Windows 7 兼容性更好 [来源:french-exit @2026-06-18] [来源:A — `未分类` → lessons-learned.md#L408
 - [经验] **`tauri::AppHandle` 出现在 `async fn` 签名中 + MinGW =  — `未分类` → lessons-learned.md#L415
+- [经验] 32 位进程在 64 位 Windows 上的 WOW64 文件系统重定向会静默转换路径：Syste — `未分类` → lessons-learned.md#L432
+- [经验] 被沙箱禁掉 reg.exe、PowerShell Set-ItemProperty、反射 Assem — `未分类` → lessons-learned.md#L434
 - [经验] 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:fre — `未分类` → lessons-learned.md#L121
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L123
 - [决策] ADR-007: WebView2 分发策略——放弃 NSIS bootstrapper，改用携带  — `架构决策` → ADR.md#L228
@@ -942,7 +952,6 @@
 - [经验] **Markdown 一源多用**：对话交付和钉钉推送使用同一套 Markdown 正文，避免"对话 — `未分类` → lessons-learned.md#L193
 - [经验] **subprocess → direct import 重构**：`subprocess.run` — `未分类` → lessons-learned.md#L195
 - [经验] **多店 DataFrame 合并模式**：为每个店铺 DataFrame 添加内部标识列（如 `_ — `未分类` → lessons-learned.md#L196
-- [经验] **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改 — `未分类` → lessons-learned.md#L198
 - [经验] 日期区间多一天的问题是通过**后端实测**发现的（请求 4/20-4/26 返回了 4/27），而非 — `未分类` → lessons-learned.md#L199
 - [经验] Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 — `未分类` → lessons-learned.md#L200
 - [经验] 技能包的核心约束（如时区规则、渠道范围）应在 `SKILL.md` 和 `AGENTS.md` 中* — `未分类` → lessons-learned.md#L201
@@ -1070,6 +1079,8 @@
 - [经验] **信任优先原则**：用户直接告知的内容（行号范围、文件摘要、决策信息等），AI 应直接信任并消化， — `未分类` → lessons-learned.md#L423
 - [经验] `transition: all` 是前端性能陷阱。浏览器无法预测哪些属性会变化，每帧都执行 lay — `未分类` → lessons-learned.md#L426
 - [经验] **项目半路转平台不可行**：项目开发大半后才想切换目标平台（如 Xcode/iOS → 微信小程序 — `未分类` → lessons-learned.md#L428
+- [经验] **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改 — `未分类` → lessons-learned.md#L430
+- [经验] 调用链是分层传递的，WebChannel 桥接后 JS 拦不住 Native。通达OA 点击图片走  — `未分类` → lessons-learned.md#L431
 - [经验] 测试驱动开发能在手工测试无法触及的边界条件下发现 bug（如"恰好取消所有勾选"触发死循环）[来源: — `未分类` → lessons-learned.md#L114
 - [经验] `AGENTS.md` 定义触发词和行为约束，`status.md` 记录动态进度，两者分工明确，新 — `未分类` → lessons-learned.md#L117
 - [决策] ADR-001: 前端技术栈选型 — `架构决策` → ADR.md#L8
@@ -1202,7 +1213,7 @@
 - vitest 报错：React 警告 `Cannot update a component while ren... → troubleshooting.md#L199
 - ... 还有 29 条
 
-### 经验（393 条）
+### 经验（398 条）
 
 - 纯 HTML+CSS+JS 项目无需 npm，双击 `index.html` 即可预览，但涉及 Web Wor... → lessons-learned.md#L14
 - 手写 IIFE 模块时，用 `window.ModuleName = Module` 暴露 API，内部私有变... → lessons-learned.md#L15
@@ -1224,7 +1235,7 @@
 - **i18n 分散架构必然导致翻译遗漏**：当项目同时存在"全局字典 + 模块私有字典 + 硬编码"三种翻译方... → lessons-learned.md#L31
 - **JS 中的硬编码人类可读字符串是翻译遗漏的重灾区**：HTML 中的 `data-i18n` 至少能被肉眼... → lessons-learned.md#L32
 - **复制粘贴是 i18n 错误的常见来源**：将中文值直接粘贴进英文字典，或反之，属于低级但高频的疏忽 [来源... → lessons-learned.md#L33
-- ... 还有 373 条
+- ... 还有 378 条
 
 ### 决策（41 条）
 

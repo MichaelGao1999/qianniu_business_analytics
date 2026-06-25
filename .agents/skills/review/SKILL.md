@@ -1,7 +1,7 @@
 ---
 name: review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
-description_zh: 沿两个维度审查变更：编码标准合规性和需求规格匹配度
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards? Primary: AGENTS.md, experience-index.md) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description_zh: 沿两个维度审查变更：编码标准合规性（主参照 AGENTS.md + experience-index.md）和需求规格匹配度
 ---
 
 # Review
@@ -34,16 +34,19 @@ Look for the originating spec, in this order:
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written. Common locations:
+Anything in the repo that documents how code should be written. For **this project (AI Workbench)**, the authoritative sources are:
 
-- `CLAUDE.md`, `AGENTS.md`
+- **`AGENTS.md`** — primary: hard rules, instruction specs, phase workflows, trigger words
+- **`experience-index.md`** — secondary: aggregated cross-project experience patterns, troubleshooting references
+
+Other common locations that may supplement:
+- `CLAUDE.md`
 - `CONTRIBUTING.md`
-- `CONTEXT.md`, `CONTEXT-MAP.md`, per-context `CONTEXT.md` files
 - `docs/adr/` (architectural decisions are standards)
-- `.editorconfig`, `eslint.config.*`, `biome.json`, `prettier.config.*`, `tsconfig.json` (machine-enforced standards — note them but don't re-check what tooling already checks)
-- Any `STYLE.md`, `STANDARDS.md`, `STYLEGUIDE.md`, or similar at the repo root or under `docs/`
+- `.editorconfig`, `mypy.ini`, `pyproject.toml` (machine-enforced standards — note them but don't re-check what tooling already checks)
+- Any `STYLE.md`, `STANDARDS.md`, or similar at the repo root or under `docs/`
 
-Collect the list of files. The **Standards** sub-agent will read them.
+Collect the list of files. The **Standards** sub-agent will read them. **Always include `AGENTS.md` and `experience-index.md`** for reviews in this project.
 
 ### 4. Spawn both sub-agents in parallel
 
@@ -52,8 +55,8 @@ Send a single message with two `Agent` tool calls. Use the `general-purpose` sub
 **Standards sub-agent prompt** — include:
 
 - The full diff command and commit list.
-- The list of standards-source files you found in step 3.
-- The brief: "Read the standards docs. Then read the diff. Report — per file/hunk where relevant — every place the diff violates a documented standard. Cite the standard (file + the rule). Distinguish hard violations from judgement calls. Skip anything tooling enforces. Under 400 words."
+- The list of standards-source files you found in step 3. **For this project, `AGENTS.md` is the primary source of truth — treat its rules (§3 hard rules, §4 trigger-word instructions, §6 phase commands) as non-negotiable.** Use `experience-index.md` to cross-reference patterns and common pitfalls.
+- The brief: "Read the standards docs, starting with `AGENTS.md` and `experience-index.md`. Then read the diff. Report — per file/hunk where relevant — every place the diff violates a documented standard. Cite the standard (file + the rule). Distinguish hard violations from judgement calls. Skip anything tooling enforces. Under 400 words."
 
 **Spec sub-agent prompt** — include:
 
