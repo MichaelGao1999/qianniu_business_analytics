@@ -180,3 +180,31 @@
 - ⏳ 更新 `docs/tasks/task-progress.md`（滞后于当前状态）
 - ⏳ 评估移植 `ecommerce-report-code` 的快照/仪表盘/Excel 报表模块
 - ⏳ P2 功能迭代：更多 dataType 组合、报告模板多样性、Excel 容错增强
+
+---
+
+### 2026-06-25 清理管线 + AGENTS.md 章节重排
+
+**目标**：执行清理管线，修复母库分发引入的知识文件结构问题。
+
+**实际完成**：
+- ✅ 执行清理管线 5 步：ADR 重复分析、ADR 结构校验、索引新鲜度、敏感信息扫描、全量自修复（dry-run）
+- ✅ AGENTS.md 章节重排：0 → 1 → 2 → 3 → 4 → 4.1~4.7 → 5 → 5.1 → 6 编号顺序
+- ✅ troubleshooting.md 去重 1 处重复来源标签
+- ✅ 报告路径脱敏（reports/*.md 中绝对路径 → 相对路径）
+- ✅ 新增 `config/repo-ids.json`（清理管线工具 adr-restructure.py 依赖）
+- ✅ 认知提取 1 条：清理管线工具链隐式依赖
+- 🔄 清理发现：ADR.md 跨项目编号冲突、troubleshooting.md 跨项目重复条目均为母库分发机制预期行为，非 bug
+
+**关键决策**：
+- 清理管线发现的跨项目重复和编号冲突不予修改（母库分发机制设计行为）
+- 敏感信息扫描 20 处命中多为示例/占位符，仅修复报告中真实本地路径
+
+**遇到的阻碍 & 解决路径**：
+- 阻碍：`adr-restructure.py --verify` 缺少 `config/repo-ids.json` → 从 ADR 中解析项目名创建映射
+- 阻碍：`self-repair.py all` 需要 `starter/AGENTS.md` → 临时复制后清理
+
+**遗留问题 / 下轮开始点**：
+- ⏳ 生成 `prompt.md`（阶段四产出）
+- ⏳ 更新 `docs/tasks/task-progress.md`（滞后于当前状态）
+- ⏳ P2 功能迭代：更多 dataType 组合、报告模板多样性、Excel 容错增强

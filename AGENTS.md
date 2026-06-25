@@ -4,6 +4,39 @@
 > 本文件供 AI 开发助手读取。接手本项目时，**必须先读完下面列出的上下文文件**，再开始任何代码操作。
 >
 > 本项目为 **自包含技能包**，自包含认证、取数、分析、报告生成、钉钉推送全流程。
+## 0. ⚠️ 骨架消费协议（硬规则）
+
+**本骨架不是静态模板，禁止无脑全盘复制。**
+
+> **目录结构**：根目录只保留规则文件（`AGENTS.md`、`README.md`）。所有模板文件在 `starter/` 子目录下，消费时按需复制，禁止直接复制整个目录。
+
+### 基础设施层
+
+| 文件 | 职责 |
+|------|------|
+| `AGENTS.md` | 项目硬规则 + 模块速查 |
+| `agent-coding-workflow.md` | 五阶段 workflow 参考 |
+| `status.md` | 当前进度、待办清单 | AI 发现遗留事项时主动写入 `- [ ]` 待办；存档时清理并补遗 |
+| `session-log.md` | 会话历史记录 |
+| `ADR.md` | 关键决策记录 |
+| `troubleshooting.md` | 问题索引 |
+| `lessons-learned.md` | 跨项目经验沉淀 |
+| `.gitattributes` | 统一换行符(LF) + 标记二进制文件 |
+| `config/github-sync.json` | 跨项目知识同步配置 |
+
+### 阶段产出层（按 SOP 五阶段逐步创建）
+
+| 阶段 | 产出文件 |
+|------|---------|
+| 阶段一 | `docs/proposal.md` |
+| 阶段二 | `docs/design.md`、`docs/brief.md`、`docs/database.md`（条件性，T-01②/③）、`docs/frontend.md`（条件性，T-05②） |
+| 阶段三 | `docs/tasks/task-{module}.md` |
+| 阶段四 | `prompt.md` |
+| 阶段五 | `src/`、`tests/`、各模块源码 |
+
+<!-- /@sync -->
+---
+<!-- @sync:id=archive -->
 ## 1. 项目定位
 
  淘系（天猫 / 淘宝 → 生意参谋）店铺经营数据分析技能。支持单店或多家淘系店铺合并分析（多店横向对比 + 排行）。
@@ -54,34 +87,6 @@
 <!-- /@sync -->
 ---
 <!-- @sync:id=recovery -->
-## 4.2 恢复指令（「恢复」）
-
-**触发词**：`恢复`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「恢复」→ 执行恢复流程
-- 消息包含「恢复」但还有其他内容 → 视为正常对话，不触发
-
-**核心原则**：
-> **恢复摘要以 `status.md` 为主，`session-log.md` 为辅。**
-> **不要复述上轮历史。**
-
-**标准动作序列**：
-1. **Git 同步（三层安全闸）**：
-   a. `git fetch origin`
-   b. `python scripts/pre-merge-check.py origin/main` — 预检远端文件名兼容性
-   c. 如通过（exit 0）→ `git pull`；如不通过（exit 1）→ 按 merge-tree 方案执行合并
-   d. 检查 pull 是否有变化（对比 `git rev-parse HEAD@{1}` 与 HEAD）；无变化则跳过下一步
-   e. `python scripts/check-merge-integrity.py` — 后检是否有意外丢失文件
-   f. 如丢失 → 按脚本输出恢复；如通过 → 继续
-2. 读取 `status.md`（主数据源）：阶段、进度、待办、阻塞项
-3. 读取 `session-log.md` 最后一条（辅数据源）：只取「遗留问题/下轮开始点」
-4. **分析 + 汇报**：用户有报错 → 搜索 troubleshooting；检查 status 字段有效性；综合判断后输出恢复摘要（当前状态 + 建议下一步）
-5. 等待用户下一步指令
-
-<!-- /@sync -->
----
-
 ## 4. 模块速查表
 
 | ID | 模块名 | 职责 | 技术要点 |
@@ -95,56 +100,6 @@
 
 ---
 
-## 5. 环境备忘索引
-
-> 编译命令、PATH、已知限制见 `status.md` → 环境备忘
-
----
-
-## 6. 常见陷阱
-
-1. **日期时区陷阱** — `T23:59:59.999+08:00` 会导致后端多返回一天数据；必须使用 `T00:00:00+08:00`
-2. **Cookie 格式陷阱** — `requestCode` 本身不是 Cookie，必须拼接为 `jycm_open_api_token=<requestCode>`
-3. **多店 ID 类型陷阱** — `shopIds` 必须为 `List<String>`（JSON 字符串数组），禁止数字数组
-4. **Digest 方法陷阱** — `authToken.json` 必须用 **POST**，禁止用 GET
-5. **AK/SK 回写陷阱** — 刷新 token 时只更新 `jycmOpenApiCookie`，保留 AK/SK，否则后续刷新永久失败
-6. **渠道范围陷阱** — 用户说「千牛/天猫/淘宝/生意参谋」都映射到 `channelName=天猫淘宝`；其他平台明确拒绝
-
----
-<!-- @sync:id=skeleton-protocol -->
-## 0. ⚠️ 骨架消费协议（硬规则）
-
-**本骨架不是静态模板，禁止无脑全盘复制。**
-
-> **目录结构**：根目录只保留规则文件（`AGENTS.md`、`README.md`）。所有模板文件在 `starter/` 子目录下，消费时按需复制，禁止直接复制整个目录。
-
-### 基础设施层
-
-| 文件 | 职责 |
-|------|------|
-| `AGENTS.md` | 项目硬规则 + 模块速查 |
-| `agent-coding-workflow.md` | 五阶段 workflow 参考 |
-| `status.md` | 当前进度、待办清单 | AI 发现遗留事项时主动写入 `- [ ]` 待办；存档时清理并补遗 |
-| `session-log.md` | 会话历史记录 |
-| `ADR.md` | 关键决策记录 |
-| `troubleshooting.md` | 问题索引 |
-| `lessons-learned.md` | 跨项目经验沉淀 |
-| `.gitattributes` | 统一换行符(LF) + 标记二进制文件 |
-| `config/github-sync.json` | 跨项目知识同步配置 |
-
-### 阶段产出层（按 SOP 五阶段逐步创建）
-
-| 阶段 | 产出文件 |
-|------|---------|
-| 阶段一 | `docs/proposal.md` |
-| 阶段二 | `docs/design.md`、`docs/brief.md`、`docs/database.md`（条件性，T-01②/③）、`docs/frontend.md`（条件性，T-05②） |
-| 阶段三 | `docs/tasks/task-{module}.md` |
-| 阶段四 | `prompt.md` |
-| 阶段五 | `src/`、`tests/`、各模块源码 |
-
-<!-- /@sync -->
----
-<!-- @sync:id=archive -->
 ## 4.1 存档指令（「存档」）
 
 **触发词**：`存档`（去除标点后精确等于这两个字）
@@ -192,105 +147,34 @@
 <!-- /@sync -->
 ---
 
-## 5.1 母库经验指令（「拉取母库」）
+## 4.2 恢复指令（「恢复」）
 
-> 本指令用于从跨项目知识母库 `agent-coding-skeleton` 获取已沉淀的经验。
-
-**触发词**：`拉取母库`、`拉取经验`、`更新经验`（去除标点后精确匹配任一）
+**触发词**：`恢复`（去除标点后精确等于这两个字）
 
 **防误触**：
-- 消息精确匹配上述任一触发词 → 执行母库经验同步流程
-- 消息包含触发词但还有其他内容 → 视为正常对话，不触发
+- 消息精确匹配「恢复」→ 执行恢复流程
+- 消息包含「恢复」但还有其他内容 → 视为正常对话，不触发
 
-**前置条件**：
-- 项目根目录存在 `scripts/pull.py`（或 `scripts/sync-knowledge.py`）
-- 项目根目录存在 `config/github-sync.json` 且 `syncFrom` 已填写
-
-**标准动作序列**：
-1. 检查 `scripts/pull.py` 是否存在
-   - 如存在 → 运行 `python scripts/pull.py`
-   - 如不存在 → 从母库下载，然后运行
-2. 读取脚本输出，汇报同步结果：
-   - 母库仓库名
-   - 拉取到的文件数
-   - 新增条目数 / 全部已存在
-3. 如有新增内容，提示用户查看 `ADR.md`、`lessons-learned.md`、`troubleshooting.md`
-
-**Git 错误处理**：无 `.git` 目录 → 跳过 Git；无变更 → 跳过 commit；push 失败 → 报错暂停。
-
-**反哺母库**：
-如本项目在开发过程中产生了新的可复用经验，可手动提交到母库仓库，供所有项目共享。
-
-> 实现细节见 `scripts/cognitive-extract.py`，AGENTS.md 不承载具体后端逻辑。
-
----
-<!-- @sync:id=phase-commands -->
-## 6. 阶段指令
-
-> 本章指令通过精确口令触发五阶段 SOP 流程。口令是启动器而非执行器：只负责「检查+说明目标+确认启动」，具体执行细节引用 `agent-coding-workflow.md` 对应章节（RULE-11）。
-
-### 通用启动流程（所有阶段口令共用）
-
-```
-Step 1: 读取 status.md，确认当前阶段和前置条件
-Step 2: 前置检查（见下方各阶段的「前置条件」）
-Step 3: 输出「阶段启动摘要」（格式见下方模板）
-Step 4: 等待用户输入 y 确认或 n 取消
-Step 5: 确认后，按 agent-coding-workflow.md 对应章节执行
-```
-
-**阶段启动摘要模板**：
-```
-【阶段X 启动摘要】
-📌 当前阶段：阶段X — [阶段名]
-✅ 前置条件：[已满足 / 未满足 + 原因]
-📝 将产出：[列出本阶段将产出的文件]
-📖 执行规范：agent-coding-workflow.md §[章节编号]
-⚠️  红线约束：[引用 RULE-xx / brief.md 中不可复议的决策]
-
-确认后开始执行。（y/n）
-```
-
-### 6.1-6.5 阶段定义
-
-| 触发词 | 阶段 | 前置条件 | 主要产出 | Spec |
-|--------|------|---------|---------|------|
-| `阶段一` | 需求讨论 | 无 | `docs/proposal.md` + T-01~T-05 | `agent-coding-workflow.md §阶段一` |
-| `阶段二` | 设计文档搭建 | proposal.md 存在 + 阶段一 ✅ | `docs/design.md`, `docs/brief.md` | `agent-coding-workflow.md §阶段二` |
-| `阶段三` | 划分任务 | design.md + brief.md + 阶段二 ✅ | `docs/tasks/task-{module}.md`, `task-progress.md` | `agent-coding-workflow.md §阶段三` |
-| `阶段四` | 生成 Prompt | task-progress.md 存在 | `prompt.md` | `agent-coding-workflow.md §阶段四` |
-| `阶段五` | 执行开发 | prompt.md 存在 | 源码 + 测试 + 集成 | `agent-coding-workflow.md §阶段五` |
-
-> 各阶段的完整目标、关键动作、完成标志见 `agent-coding-workflow.md` 对应章节。
-
-### 6.6 当前阶段（「当前阶段」）
-
-**触发词**：`当前阶段`（去除标点后精确等于，**不含别名「状态」**）
-
-**防误触**：
-- 消息精确匹配「当前阶段」→ 执行查询
-- 消息包含「当前阶段」但还有其他内容 → 视为正常对话，不触发
+**核心原则**：
+> **恢复摘要以 `status.md` 为主，`session-log.md` 为辅。**
+> **不要复述上轮历史。**
 
 **标准动作序列**：
-1. 读取 `status.md`
-2. 检查关键字段是否为占位符（[填写]、[项目名]），如是则提示用户先填空
-3. 按以下格式输出摘要：
-```
-【当前状态】
-📌 所处阶段：阶段X — [阶段名]
-✅ 已完成：[列出已完成的阶段 / 文件]
-📋 待办：[从 status.md 待办章节取前 3 条]
-🔴 阻塞项：[如有]
-📁 关键入口文件：[列出 3-5 个核心文件]
-🚀 建议下一步：[根据当前阶段给出一句建议]
-```
-4. 等待用户下一步指令
+1. **Git 同步（三层安全闸）**：
+   a. `git fetch origin`
+   b. `python scripts/pre-merge-check.py origin/main` — 预检远端文件名兼容性
+   c. 如通过（exit 0）→ `git pull`；如不通过（exit 1）→ 按 merge-tree 方案执行合并
+   d. 检查 pull 是否有变化（对比 `git rev-parse HEAD@{1}` 与 HEAD）；无变化则跳过下一步
+   e. `python scripts/check-merge-integrity.py` — 后检是否有意外丢失文件
+   f. 如丢失 → 按脚本输出恢复；如通过 → 继续
+2. 读取 `status.md`（主数据源）：阶段、进度、待办、阻塞项
+3. 读取 `session-log.md` 最后一条（辅数据源）：只取「遗留问题/下轮开始点」
+4. **分析 + 汇报**：用户有报错 → 搜索 troubleshooting；检查 status 字段有效性；综合判断后输出恢复摘要（当前状态 + 建议下一步）
+5. 等待用户下一步指令
 
 <!-- /@sync -->
-
 ---
 
-<!-- @sync:id=checkpoint -->
 ## 4.3 快照指令（「checkpoint」）
 
 > 轻量安全快照，用于改动前拍照。与「存档」互补——存档是会话结束的正式记录，checkpoint 是开发中的安全网。
@@ -430,3 +314,119 @@ Step 5: 确认后，按 agent-coding-workflow.md 对应章节执行
 
 ---
 
+## 5. 环境备忘索引
+
+> 编译命令、PATH、已知限制见 `status.md` → 环境备忘
+
+---
+
+## 5.1 母库经验指令（「拉取母库」）
+
+> 本指令用于从跨项目知识母库 `agent-coding-skeleton` 获取已沉淀的经验。
+
+**触发词**：`拉取母库`、`拉取经验`、`更新经验`（去除标点后精确匹配任一）
+
+**防误触**：
+- 消息精确匹配上述任一触发词 → 执行母库经验同步流程
+- 消息包含触发词但还有其他内容 → 视为正常对话，不触发
+
+**前置条件**：
+- 项目根目录存在 `scripts/pull.py`（或 `scripts/sync-knowledge.py`）
+- 项目根目录存在 `config/github-sync.json` 且 `syncFrom` 已填写
+
+**标准动作序列**：
+1. 检查 `scripts/pull.py` 是否存在
+   - 如存在 → 运行 `python scripts/pull.py`
+   - 如不存在 → 从母库下载，然后运行
+2. 读取脚本输出，汇报同步结果：
+   - 母库仓库名
+   - 拉取到的文件数
+   - 新增条目数 / 全部已存在
+3. 如有新增内容，提示用户查看 `ADR.md`、`lessons-learned.md`、`troubleshooting.md`
+
+**Git 错误处理**：无 `.git` 目录 → 跳过 Git；无变更 → 跳过 commit；push 失败 → 报错暂停。
+
+**反哺母库**：
+如本项目在开发过程中产生了新的可复用经验，可手动提交到母库仓库，供所有项目共享。
+
+> 实现细节见 `scripts/cognitive-extract.py`，AGENTS.md 不承载具体后端逻辑。
+
+---
+<!-- @sync:id=phase-commands -->
+## 6. 常见陷阱
+
+1. **日期时区陷阱** — `T23:59:59.999+08:00` 会导致后端多返回一天数据；必须使用 `T00:00:00+08:00`
+2. **Cookie 格式陷阱** — `requestCode` 本身不是 Cookie，必须拼接为 `jycm_open_api_token=<requestCode>`
+3. **多店 ID 类型陷阱** — `shopIds` 必须为 `List<String>`（JSON 字符串数组），禁止数字数组
+4. **Digest 方法陷阱** — `authToken.json` 必须用 **POST**，禁止用 GET
+5. **AK/SK 回写陷阱** — 刷新 token 时只更新 `jycmOpenApiCookie`，保留 AK/SK，否则后续刷新永久失败
+6. **渠道范围陷阱** — 用户说「千牛/天猫/淘宝/生意参谋」都映射到 `channelName=天猫淘宝`；其他平台明确拒绝
+
+---
+<!-- @sync:id=skeleton-protocol -->
+## 6. 阶段指令
+
+> 本章指令通过精确口令触发五阶段 SOP 流程。口令是启动器而非执行器：只负责「检查+说明目标+确认启动」，具体执行细节引用 `agent-coding-workflow.md` 对应章节（RULE-11）。
+
+### 通用启动流程（所有阶段口令共用）
+
+```
+Step 1: 读取 status.md，确认当前阶段和前置条件
+Step 2: 前置检查（见下方各阶段的「前置条件」）
+Step 3: 输出「阶段启动摘要」（格式见下方模板）
+Step 4: 等待用户输入 y 确认或 n 取消
+Step 5: 确认后，按 agent-coding-workflow.md 对应章节执行
+```
+
+**阶段启动摘要模板**：
+```
+【阶段X 启动摘要】
+📌 当前阶段：阶段X — [阶段名]
+✅ 前置条件：[已满足 / 未满足 + 原因]
+📝 将产出：[列出本阶段将产出的文件]
+📖 执行规范：agent-coding-workflow.md §[章节编号]
+⚠️  红线约束：[引用 RULE-xx / brief.md 中不可复议的决策]
+
+确认后开始执行。（y/n）
+```
+
+### 6.1-6.5 阶段定义
+
+| 触发词 | 阶段 | 前置条件 | 主要产出 | Spec |
+|--------|------|---------|---------|------|
+| `阶段一` | 需求讨论 | 无 | `docs/proposal.md` + T-01~T-05 | `agent-coding-workflow.md §阶段一` |
+| `阶段二` | 设计文档搭建 | proposal.md 存在 + 阶段一 ✅ | `docs/design.md`, `docs/brief.md` | `agent-coding-workflow.md §阶段二` |
+| `阶段三` | 划分任务 | design.md + brief.md + 阶段二 ✅ | `docs/tasks/task-{module}.md`, `task-progress.md` | `agent-coding-workflow.md §阶段三` |
+| `阶段四` | 生成 Prompt | task-progress.md 存在 | `prompt.md` | `agent-coding-workflow.md §阶段四` |
+| `阶段五` | 执行开发 | prompt.md 存在 | 源码 + 测试 + 集成 | `agent-coding-workflow.md §阶段五` |
+
+> 各阶段的完整目标、关键动作、完成标志见 `agent-coding-workflow.md` 对应章节。
+
+### 6.6 当前阶段（「当前阶段」）
+
+**触发词**：`当前阶段`（去除标点后精确等于，**不含别名「状态」**）
+
+**防误触**：
+- 消息精确匹配「当前阶段」→ 执行查询
+- 消息包含「当前阶段」但还有其他内容 → 视为正常对话，不触发
+
+**标准动作序列**：
+1. 读取 `status.md`
+2. 检查关键字段是否为占位符（[填写]、[项目名]），如是则提示用户先填空
+3. 按以下格式输出摘要：
+```
+【当前状态】
+📌 所处阶段：阶段X — [阶段名]
+✅ 已完成：[列出已完成的阶段 / 文件]
+📋 待办：[从 status.md 待办章节取前 3 条]
+🔴 阻塞项：[如有]
+📁 关键入口文件：[列出 3-5 个核心文件]
+🚀 建议下一步：[根据当前阶段给出一句建议]
+```
+4. 等待用户下一步指令
+
+<!-- /@sync -->
+
+---
+
+<!-- @sync:id=checkpoint -->

@@ -93,7 +93,7 @@ qianniu_business_analytics/
 |------|---------|
 | 2026-05-20 | 引入 Vibe Coding SOP 文档体系；创建 AGENTS.md、status.md、session-log.md、decisions.md、troubleshooting.md、lessons-learned.md、vibe-coding-sop.md |
 | 2026-05-22 | 输出代码评估报告；巩固 Excel 驱动流：抽取 constants.py、修复 subprocess→import、完善多店合并分析、补充 33 条 pytest 用例、归档空壳脚本 |
-| 2026-06-02 | 全貌评估：对比 ecommerce-report-code，确认文档缺口；解决 Git 冲突；清理 status.md 已完成待办（RULE-06）；更新 docs/brief.md/tasks/*.md 状态 |
+| 2026-06-25 | 清理管线执行；AGENTS.md 章节编号重排（0→1→2→3→4→4.x→5→5.1→6）；troubleshooting.md 去重；报告路径脱敏；新增 config/repo-ids.json；认知提取 1 条 |
 
 ---
 

@@ -662,7 +662,7 @@
 | **原因** | Windows 防火墙规则修改需要管理员权限 |
 | **解决** | 1. 以管理员身份运行一次 PowerShell 执行脚本，添加规则后后续无需管理员<br>2. 或手动在 Windows 防火墙高级设置中添加 11434 TCP 入站规则 |
 
-### Node.js 报 SyntaxError: Unexpected identifier（i18n 中文字符串） [来源:blindfold-chess @2026-05-29] [来源:blindfold-chess @2026-05-29]
+### Node.js 报 SyntaxError: Unexpected identifier（i18n 中文字符串） [来源:blindfold-chess @2026-05-29]
 
 | | 内容 |
 |---|---|
