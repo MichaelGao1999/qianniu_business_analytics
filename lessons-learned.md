@@ -208,4 +208,223 @@
 | 107 | TAG:api-design | WARNING | `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, ...]`（每页一个子数组），而非展平的单层数组。调用方需手动展平，否则 `repos[0]` 取到的是第一页列表而非第一个仓库 [母库 @2026-05-29] | sync-knowledge.py |
 | | TAG:board [来源:agent-coding-skeleton @2026-06-10] | INFO | `BoardFactory.highlight()` 需要同时支持 `data-square`（8×8 棋盘，如 `e2`）和 `data-pos`（6×6 棋盘，如 `2,3`）两种格子标识。非 8×8 棋盘调 `board.highlight('行,列', 'dot')`，8×8 棋盘调 `board.highlight('e2', 'dot')`。调用前必须先确认棋盘是什么尺寸 [blindfold-chess @2026-05-30] | guide.js + board-factory.js |
 
+| | Hermes Agent 自带完整的 Node.js 环境（`~/.hermes/node/`），安装时会通过 `~/.zshrc` 和 `~/.local/bin/` 符号链接污染用户 PATH。必须手动清理或使用 nvm 隔离 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 环境配置 |
+| | 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改。Git 合并冲突会导致 SyntaxError，且可能产生 50+ 个冲突文件。优先使用 `pipx reinstall` 更新 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 工具链配置 |
+| | nvm（Node Version Manager）是隔离 Node.js 环境的最佳方案。安装后每个项目的 Node.js 版本和全局包完全独立，互不干扰 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 环境配置 |
+| | 骨架母库的 `skeleton-manifest.json` 应始终与实际基础设施文件保持一致。新增或删除基础设施文件时，必须同步更新 manifest 的 `infrastructure.files` 数组，否则 `init-skeleton.py` 初始化的新项目会缺失文件。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | skeleton-manifest.json |
+| | 同类功能的索引脚本应统一合并，避免冗余。`build-troubleshooting-index.py` 和 `build-experience-index.py` 功能重叠时，保留覆盖范围更广的脚本，删除被覆盖的脚本。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | scripts/ |
+| | status.md 的待办清理机制：存档时先删除所有 `[x]` 已打勾的待办，再勾选本轮完成的待办，下一轮存档时这些 `[x]` 会被删除。待办列表始终保持"未完成"状态。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | status.md |
+| | status.md 的技术债务机制：技术债务 = 需要解决但暂时搁置的难题，包含问题、影响、解决路径、时间表、状态。解决后从债务表删除，追加到「已解决债务」，并记录到 lessons-learned.md。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | status.md |
+| | Figma 是传统设计工具（类似 Photoshop），需要手动绘制 UI。2026 年新增 MCP Server，让 AI agent 可以读取设计稿生成代码。适合需要设计→代码工作流的团队。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | v0 by Vercel 是 AI UI 生成工具，输入自然语言 prompt 生成 React 组件代码。输出是真实的 TypeScript + JSX + Tailwind CSS 代码，可以复制到任何项目中复用。免费版 $5 积分/月，够学习和做 2-3 个小项目。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | CodeWhale vs Reasonix：两者都是 DeepSeek 原生的终端编码 agent。CodeWhale 功能更全面（支持多 provider、Docker、VSCode 扩展），Reasonix 缓存优化更极致（99.82% 命中率）。纯 DeepSeek 用户选 Reasonix，需要灵活切换模型选 CodeWhale。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | 文档中的硬编码内网 IP（192.168.x.x）虽不可公网路由，但在公开仓库中暴露基础设施拓扑仍属不良实践。应使用占位符 `{SERVER_IP}` + 自动检测脚本替代。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-25] | llm-server/ |
+| | `starter/` 与 `templates/` 的职责分离：`templates/` 是独立模板文件（手动按需复制），`starter/` 是预组装启动包（自动化脚本一键拉取）。`init-skeleton.py` 只拉取 `starter/`，不碰 `templates/`。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-25] | scripts/init-skeleton.py |
+| | PowerShell 中 `\` 续行符与 Bash 的 `\` 不一致（PowerShell 用反引号 `` ` ``）。跨平台复制命令时必须注意，否则报错 `一元运算符"--"后面缺少表达式`。建议在 Windows 下使用环境变量法或单行命令。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-25] | 文档维护 |
+| | 调试外部接口时，先获取接口规范再读调用代码，避免对着代码猜问题。"先查规范，再查代码"的调试顺序能精确定位 payload 格式、鉴权方式等问题。 [母库 @2026-06-02] [来源:AI Workbench @2026-06-25] | scripts/cognitive-extract.py |
+| | 交互流程改进优先改文档而非新建脚本。改文档零维护成本、零分发成本，适合需要 AI 判断而非纯机械操作的工作流改进。 [母库 @2026-06-02] [来源:AI Workbench @2026-06-25] | AGENTS.md |
+| | 新增后端能力后必须同步检查所有触达点（脚本 + AGENTS.md + 所有引用命令）。`obsidian-direct` 后端已存在但用户仍报错缺少密钥，根因是 AGENTS.md 存档步骤 8 仍硬编码 `--backend obsidian-ntfy`——脚本有能力但工作流没跟上。 [母库 @2026-06-05] [来源:AI Workbench @2026-06-25] | cognitive-extract.py / AGENTS.md |
+| | 跨设备依赖环境变量的方案天然不可迁移。Windows 用户级环境变量（注册表持久化）在另一台设备上不存在。应优先使用环境检测自动回退（`auto` 后端），替代"每台设备手动设 env var"的模式。 [母库 @2026-06-05] [来源:AI Workbench @2026-06-25] | cognitive-extract.py |
+| | 平台感知配置模式：配置文件按 `sys.platform`（win32/darwin/linux）分平台配置路径，脚本运行时自动适配。比环境变量更显式（一看便知哪些项目在哪个平台有分发能力），比符号链接更可调试（明文 JSON 可 diff、可追溯）。 [母库 @2026-06-08] [来源:AI Workbench @2026-06-25] | config/downstream-projects.json |
+| | 配置模式演进时应保留旧字段作为 fallback。当 `path` 单字段→`paths` 多平台字典时，保留 `p.get("paths", {}).get(sys.platform) or p.get("path")` 的向后兼容链，零破坏性引入新能力。 [母库 @2026-06-08] [来源:AI Workbench @2026-06-25] | scripts/distribute.py |
+| | 阶段产出（stage outputs）不应在 starter/ 中预置模板。design.md、frontend.md、database.md 等高度依赖项目上下文，模板指导价值不如在 workflow 中用结构化描述定义章节标准高；模板与 workflow 描述不一致反增维护成本。仅基础设施和自检工具可放模板。 [母库 @2026-06-10] [来源:AI Workbench @2026-06-25] | starter/agent-coding-workflow.md |
+| | 防御性设计采用三层模式最有效：硬规则约束行为 + 流程关卡提供检查点 + 辅助工具提供自动化验证。RULE-12 告诉 AI"必须用占位符"，存档步骤 4 要求"写之前检查一遍"，sensitivity-check.py 是"不放心就扫一下"。缺任何一层都可能漏——规则被跳过、步骤被遗漏、工具没人用。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-25] | AGENTS.md / scripts/sensitivity-check.py |
+| | 隐私泄露的修复成本远高于预防成本。本案例事后清理：40 处替换 × 8 个项目 ≈ 80 次 git 操作 + 6 次 push 修复。事前预防：一行 RULE + 一个 ~120 行脚本。后者在时间和心智成本上低一个数量级。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-25] | scripts/sanitize-downstream.py |
+| | 新建公开仓库时应想清楚其定位：是母库本身（全量内容+规则+经验），还是纯模板（仅 starter/ 内容）。两者物理分离时，母库私有、模板公开，各自职责清晰。混在一起会导致公开库暴露内部决策和基础设施拓扑。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-25] | project-starter |
+| | 分发工具（distribute.py 知识合并）与镜像工具（sync-starter 全量替换）的合并策略不同决定了它们不能互相替代。merge 保留下游独有内容，replace 保证源和目标完全一致。选型时先确定策略，再选工具。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-25] | scripts/distribute.py / scripts/sync-starter.* |
+| | ADR 作为项目特有架构决策记录不应全量分发。跨项目 ADR 参考价值极低（决策上下文绑定具体项目），当前分发实现仅传输标题壳无决策内容，噪音大于价值。仅 lessons-learned 和 troubleshooting 参与知识分发。 [母库 @2026-06-15] [来源:AI Workbench @2026-06-25] | scripts/distribute.py / ADR.md |
+| | ❌ 已记入 `troubleshooting.md` 的具体错误修复步骤 → 那里是"急救手册"，这里是"模式总结" [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 一次性环境配置错误（如输错密码、网络临时中断） [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 过于基础的知识（如 "List 的 `add()` 是 O(1)"） [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 仅适用于本项目特定业务逻辑的 hack [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **AI 助手**：每次会话结束后执行上述评估流程，自主判断并写入 [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **人类把控者**：如发现 AI 漏记了明显有价值的经验，随时补录 [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **正确做法**：遇到"终端""同步""项目"这类横跨多层含义的词，先给两个选项让用户确认，不要默认展开分析 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **正确做法**：Side-by-side 对比源文件和目标文件的关键段落，尤其是表格、触发词、命令等不可改动的内容 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **启动**：`npm run dev`（Vite 服务器）→ 浏览器访问 `http://localhost:1420` [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **优势**：HMR 热更新、即时预览、不依赖 Rust 编译 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **限制**：IPC 调用会失败，需通过 mock 数据或调试导航面板 bypass [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **完整功能验证**：仍需本地 `cargo tauri dev` 或双击 release `.exe` [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | **优势**：零侵入 scanner 实现，不需要修改 7 个具体 scanner 的代码 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 直接把每个任务的局部 `current/total` 当作全局百分比 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | 设计文档与代码实现之间存在双向验证缺口：文档描述与代码行为不一致时，文档会逐渐变为误导性参考。正确做法是代码落地后做 doc→code + code→doc 双向检查，并优先修代码再对齐文档 [来源:ai-workbench @2026-06-16] [来源:AI Workbench @2026-06-25] | awb CLI P0 |
+| | 安全闸工具的输出不等于事实：git diff 的八进制转义（core.quotepath=true 时 \344\277\256 = 修）中的 \ 会被误判为 Windows 非法字符，导致假阳性阻塞。假阳性工具比假阴性工具危害更大——后者漏问题，前者让人在不存在的问题上浪费时间。修复方法：在路径合法性检查前先解码八进制转义序列。 [母库 @2026-06-25] [来源:AI Workbench @2026-06-25] | scripts/pre-merge-check.py / scripts/check-merge-integrity.py |
+| | ❌ 前端"只增不减"机制配合局部进度 = 轻量任务瞬间把进度锁死在 100% [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-25] |  |
+| | `.dot-hl` 子元素 `<span>` 需要通过 `document.createElement('span')` 显式创建并 `appendChild`，仅加 CSS class 不会让圆点可见。`BoardFactory` 和 `BoardRenderer` 的 highlight 实现需保持行为一致 [blindfold-chess @2026-05-30] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | board-factory.js |
+| | Hermes Agent 自带完整的 Node.js 环境（`~/.hermes/node/`），安装时会通过 `~/.zshrc` 和 `~/.local/bin/` 符号链接污染用户 PATH。必须手动清理或使用 nvm 隔离 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 环境配置 |
+| | 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改。Git 合并冲突会导致 SyntaxError，且可能产生 50+ 个冲突文件。优先使用 `pipx reinstall` 更新 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 工具链配置 |
+| | nvm（Node Version Manager）是隔离 Node.js 环境的最佳方案。安装后每个项目的 Node.js 版本和全局包完全独立，互不干扰 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 环境配置 |
+| | 骨架母库的 `skeleton-manifest.json` 应始终与实际基础设施文件保持一致。新增或删除基础设施文件时，必须同步更新 manifest 的 `infrastructure.files` 数组，否则 `init-skeleton.py` 初始化的新项目会缺失文件。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | skeleton-manifest.json |
+| | 同类功能的索引脚本应统一合并，避免冗余。`build-troubleshooting-index.py` 和 `build-experience-index.py` 功能重叠时，保留覆盖范围更广的脚本，删除被覆盖的脚本。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/ |
+| | status.md 的待办清理机制：存档时先删除所有 `[x]` 已打勾的待办，再勾选本轮完成的待办，下一轮存档时这些 `[x]` 会被删除。待办列表始终保持"未完成"状态。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | status.md |
+| | status.md 的技术债务机制：技术债务 = 需要解决但暂时搁置的难题，包含问题、影响、解决路径、时间表、状态。解决后从债务表删除，追加到「已解决债务」，并记录到 lessons-learned.md。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | status.md |
+| | Figma 是传统设计工具（类似 Photoshop），需要手动绘制 UI。2026 年新增 MCP Server，让 AI agent 可以读取设计稿生成代码。适合需要设计→代码工作流的团队。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | v0 by Vercel 是 AI UI 生成工具，输入自然语言 prompt 生成 React 组件代码。输出是真实的 TypeScript + JSX + Tailwind CSS 代码，可以复制到任何项目中复用。免费版 $5 积分/月，够学习和做 2-3 个小项目。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | CodeWhale vs Reasonix：两者都是 DeepSeek 原生的终端编码 agent。CodeWhale 功能更全面（支持多 provider、Docker、VSCode 扩展），Reasonix 缓存优化更极致（99.82% 命中率）。纯 DeepSeek 用户选 Reasonix，需要灵活切换模型选 CodeWhale。 [母库 @2026-05-30] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 工具调研 |
+| | 文档中的硬编码内网 IP（192.168.x.x）虽不可公网路由，但在公开仓库中暴露基础设施拓扑仍属不良实践。应使用占位符 `{SERVER_IP}` + 自动检测脚本替代。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | llm-server/ |
+| | `starter/` 与 `templates/` 的职责分离：`templates/` 是独立模板文件（手动按需复制），`starter/` 是预组装启动包（自动化脚本一键拉取）。`init-skeleton.py` 只拉取 `starter/`，不碰 `templates/`。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/init-skeleton.py |
+| | PowerShell 中 `\` 续行符与 Bash 的 `\` 不一致（PowerShell 用反引号 `` ` ``）。跨平台复制命令时必须注意，否则报错 `一元运算符"--"后面缺少表达式`。建议在 Windows 下使用环境变量法或单行命令。 [母库 @2026-06-01] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | 文档维护 |
+| | 调试外部接口时，先获取接口规范再读调用代码，避免对着代码猜问题。"先查规范，再查代码"的调试顺序能精确定位 payload 格式、鉴权方式等问题。 [母库 @2026-06-02] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/cognitive-extract.py |
+| | 交互流程改进优先改文档而非新建脚本。改文档零维护成本、零分发成本，适合需要 AI 判断而非纯机械操作的工作流改进。 [母库 @2026-06-02] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | AGENTS.md |
+| | 新增后端能力后必须同步检查所有触达点（脚本 + AGENTS.md + 所有引用命令）。`obsidian-direct` 后端已存在但用户仍报错缺少密钥，根因是 AGENTS.md 存档步骤 8 仍硬编码 `--backend obsidian-ntfy`——脚本有能力但工作流没跟上。 [母库 @2026-06-05] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | cognitive-extract.py / AGENTS.md |
+| | 跨设备依赖环境变量的方案天然不可迁移。Windows 用户级环境变量（注册表持久化）在另一台设备上不存在。应优先使用环境检测自动回退（`auto` 后端），替代"每台设备手动设 env var"的模式。 [母库 @2026-06-05] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | cognitive-extract.py |
+| | 平台感知配置模式：配置文件按 `sys.platform`（win32/darwin/linux）分平台配置路径，脚本运行时自动适配。比环境变量更显式（一看便知哪些项目在哪个平台有分发能力），比符号链接更可调试（明文 JSON 可 diff、可追溯）。 [母库 @2026-06-08] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | config/downstream-projects.json |
+| | 配置模式演进时应保留旧字段作为 fallback。当 `path` 单字段→`paths` 多平台字典时，保留 `p.get("paths", {}).get(sys.platform) or p.get("path")` 的向后兼容链，零破坏性引入新能力。 [母库 @2026-06-08] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/distribute.py |
+| | 阶段产出（stage outputs）不应在 starter/ 中预置模板。design.md、frontend.md、database.md 等高度依赖项目上下文，模板指导价值不如在 workflow 中用结构化描述定义章节标准高；模板与 workflow 描述不一致反增维护成本。仅基础设施和自检工具可放模板。 [母库 @2026-06-10] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | starter/agent-coding-workflow.md |
+| | 防御性设计采用三层模式最有效：硬规则约束行为 + 流程关卡提供检查点 + 辅助工具提供自动化验证。RULE-12 告诉 AI"必须用占位符"，存档步骤 4 要求"写之前检查一遍"，sensitivity-check.py 是"不放心就扫一下"。缺任何一层都可能漏——规则被跳过、步骤被遗漏、工具没人用。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | AGENTS.md / scripts/sensitivity-check.py |
+| | 隐私泄露的修复成本远高于预防成本。本案例事后清理：40 处替换 × 8 个项目 ≈ 80 次 git 操作 + 6 次 push 修复。事前预防：一行 RULE + 一个 ~120 行脚本。后者在时间和心智成本上低一个数量级。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/sanitize-downstream.py |
+| | 新建公开仓库时应想清楚其定位：是母库本身（全量内容+规则+经验），还是纯模板（仅 starter/ 内容）。两者物理分离时，母库私有、模板公开，各自职责清晰。混在一起会导致公开库暴露内部决策和基础设施拓扑。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | project-starter |
+| | 分发工具（distribute.py 知识合并）与镜像工具（sync-starter 全量替换）的合并策略不同决定了它们不能互相替代。merge 保留下游独有内容，replace 保证源和目标完全一致。选型时先确定策略，再选工具。 [母库 @2026-06-12] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/distribute.py / scripts/sync-starter.* |
+| | ADR 作为项目特有架构决策记录不应全量分发。跨项目 ADR 参考价值极低（决策上下文绑定具体项目），当前分发实现仅传输标题壳无决策内容，噪音大于价值。仅 lessons-learned 和 troubleshooting 参与知识分发。 [母库 @2026-06-15] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | scripts/distribute.py / ADR.md |
+| | ❌ 已记入 `troubleshooting.md` 的具体错误修复步骤 → 那里是"急救手册"，这里是"模式总结" [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 一次性环境配置错误（如输错密码、网络临时中断） [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 过于基础的知识（如 "List 的 `add()` 是 O(1)"） [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 仅适用于本项目特定业务逻辑的 hack [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **AI 助手**：每次会话结束后执行上述评估流程，自主判断并写入 [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **人类把控者**：如发现 AI 漏记了明显有价值的经验，随时补录 [来源:fact-swarm-v2 @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **正确做法**：遇到"终端""同步""项目"这类横跨多层含义的词，先给两个选项让用户确认，不要默认展开分析 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **正确做法**：Side-by-side 对比源文件和目标文件的关键段落，尤其是表格、触发词、命令等不可改动的内容 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **启动**：`npm run dev`（Vite 服务器）→ 浏览器访问 `http://localhost:1420` [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **优势**：HMR 热更新、即时预览、不依赖 Rust 编译 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **限制**：IPC 调用会失败，需通过 mock 数据或调试导航面板 bypass [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **完整功能验证**：仍需本地 `cargo tauri dev` 或双击 release `.exe` [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **优势**：零侵入 scanner 实现，不需要修改 7 个具体 scanner 的代码 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | ❌ 直接把每个任务的局部 `current/total` 当作全局百分比 [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 设计文档与代码实现之间存在双向验证缺口：文档描述与代码行为不一致时，文档会逐渐变为误导性参考。正确做法是代码落地后做 doc→code + code→doc 双向检查，并优先修代码再对齐文档 [来源:ai-workbench @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] | awb CLI P0 |
+| | ❌ 前端"只增不减"机制配合局部进度 = 轻量任务瞬间把进度锁死在 100% [来源:french-exit @2026-06-16] [来源:AI Workbench @2026-06-17] [来源:blindfold-chess @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `AGENTS.md` 定义触发词和行为约束，`STATE.md`（现 status.md）记录动态进度，分工明确 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `/c` 执行完关闭窗口；`/k` 保持窗口打开 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `-WindowStyle Minimized` 最小化不干扰工作 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **根因**：CSS `fixed` + `z-50` 的元素默认接收鼠标事件，即使视觉上看起来透明也会拦截点击 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **修复**：给所有非交互性的 `fixed` 装饰元素统一添加 `pointer-events-none` [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **局限**：如果 scanner 长时间不调用 `progress`（如读取超大文件），暂停会有延迟 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 测试：后端 129 测、前端 51 测全绿 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `auth.md` 中必须包含完整的 curl 参考示例，方便 Agent 直接复制执行。 [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 测试驱动开发能在手工测试无法触及的边界条件下发现 bug（如"恰好取消所有勾选"触发死循环）[来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `AGENTS.md` 定义触发词和行为约束，`status.md` 记录动态进度，两者分工明确，新会话读 2 份文件即可开工 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 涉及 7+ 文件读改测的架构重构，应新开会话执行，避免上下文压缩导致信息丢失 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `cargo check --lib` 不需要链接，可以在中文路径直接跑；`cargo test --no-run` 同理 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚本时优先用正斜杠或 `path.join` [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **信息呈现必须结论先行**：事实图谱中用户最关心的是"所以呢？"，不是逐条翻阅。图谱顶部必须用 2-3 句话直接回答原始问题，再展开详细条目 [来源:fact-swarm-v2 @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | SKILL.md S4 |
+| | **每条事实必须附带可点击的来源链接**：仅写"腾讯新闻(🟡中)"用户无法追溯和验证。URL 是信任的基础设施，禁止只写来源名不带链接 [来源:fact-swarm-v2 @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | SKILL.md S4 |
+| | **S5 PR 评估不应让用户先提供素材**：S3 搜索结果中已包含大量常见 PR 宣称（"最高标准"、"零甲醛"等），AI 应自动提取并评估，用户补充只是可选项 [来源:fact-swarm-v2 @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | SKILL.md S5 |
+| | **中文 web_search 易被百科和字典词条污染**：如"颗粒"、"E0"、"新"等常见词优先返回百度百科和字典页面，而非行业内容。搜索词需要加限定词（如"板材"、"家具"、"国家标准"）提高命中率 [来源:fact-swarm-v2 @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | FactSwarm S3 |
+| | **Skill 插件模式迭代速度远快于 CLI 工具**：SKILL.md 修改即生效，无需安装/编译/部署。对于以判断和语义理解为核心的工作流，优先选 Skill 而非写代码 [来源:fact-swarm-v2 @2026-06-07] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 架构决策 |
+| | 浏览器集成测试用 TestRunner（自定义极简框架），保持与 Node 测试同一套断言 API，降低切换成本 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | docs/tests/ |
+| | Canvas 图表渲染在浏览器中测试，Node 环境用 Mock 2D context 跳过绘制验证，各测其责 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | StatsModule |
+| | `cloneNode(true)` 替换含 SVG 的按钮会导致 SVG 渲染异常（显示不完整）；移除事件监听器应优先用 `removeEventListener` + 命名函数，避免替换 DOM 元素 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | SettingsModule |
+| | 匿名事件监听器无法被后续代码移除；需要动态解除绑定的监听器必须用命名函数（暴露到 `window` 或模块内部变量） [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | common.js / settings.js |
+| | SVG path 中密集参数（如 `a2 2 0 0 1-2.83 0`）在某些浏览器中可能解析异常，命令与参数间保留空格更稳妥 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | index.html SVG |
+| | `document` 级事件监听器若引用了某个 DOM 元素，该元素被替换后监听器仍会按旧引用判断，导致逻辑错误（如点击新按钮被误判为"点击外部"） [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | settings.js / common.js |
+| | **UI 布局/样式不要猜测用户意图**：候选走法开关经历了 5 次位置/样式反复，每次修改后用户都不满意；应在设计阶段出草图或描述供用户确认，再编码 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | BlindfoldModule UI |
+| | **引擎候选走法的调用时机决定产品逻辑正确性**：用户走完后立即 `goMultiPv` 分析的是对手局面；若要提示用户，必须在引擎执行完走法后、轮到白方时再调用 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | EngineModule / BlindfoldModule |
+| | **引擎返回 UCI（e2e4），用户界面必须用 SAN（e4）**：`goMultiPv` 回调中的 `move` 是 UCI 坐标格式，展示前需映射为 SAN，否则用户无法阅读 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | BlindfoldModule |
+| | **删除功能必须同步删除对应测试**：移除 `showHints` / `multiPvSetting` 后，相关测试会立即失败；功能清理和测试清理应视为同一任务 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 测试维护 |
+| | **JS 中的硬编码人类可读字符串是翻译遗漏的重灾区**：HTML 中的 `data-i18n` 至少能被肉眼扫描到，但 JS 逻辑里直接写的用户可见字符串没有显式标记，切换语言时完全失效 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | common.js / coordinate.js / blindfold.js |
+| | **复制粘贴是 i18n 错误的常见来源**：将中文值直接粘贴进英文字典，或反之，属于低级但高频的疏忽 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | common.js |
+| | **已删除的 JS 文件若不从 index.html 移除引用，会导致 404**：功能清理和引用清理必须是同一任务 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 代码清理 |
+| | **Node 测试不对 UI 文本做断言，无法捕获翻译错误**：只测 API 形状和数值，不检查按钮文字、提示语等人类可读内容。翻译质量必须靠人工检查或专门的 UI 测试覆盖 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 测试策略 |
+| | **配置类设置项用「弹窗选择」优于「循环切换」**：循环切换隐藏了全部选项，用户不知道有哪些风格；弹窗一次展示所有选项+预览，认知负荷更低 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | SettingsModule UI |
+| | **`cloneNode(true)` 无法移除旧事件监听器，它只是复制了 DOM 结构**：真正安全的解绑是 `removeEventListener` + 保存引用 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | settings.js |
+| | **功能入口迁移需要同步更新「正向路径」和「反向路径」**：不仅要添加新入口，还要移除旧入口，否则用户会在两个地方看到同一功能 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | WelcomeModule / index.html |
+| | **测试中断言的具体文本值是重构的敏感点**：重构前应先审计测试中的文本断言，预估需要调整的范围 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 测试维护 |
+| | **Node 测试全过 ≠ 浏览器表现正常**：必须用 headless 浏览器（playwright）才能捕获浏览器特有错误 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 测试策略 |
+| | **通用配置层设计能降低新增模式的边际成本**：新增对局模式时只需加一行 `else if` 分发逻辑，无需重复造 DOM/CSS [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 架构设计 |
+| | **向后兼容接口设计能减少重构的连锁反应**：旧接口继续工作，内部映射新参数，所有旧测试和外部调用点无需改动 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | API 设计 |
+| | Node 测试覆盖逻辑，浏览器测试覆盖 DOM 集成，两者互补 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 每批次开发完成后同步更新进度文档，避免新会话迷路 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **手工构建100条结构化数据不现实**：经典棋局的 PGN 分散在各网站，无统一免费 API；手动录入工作量巨大且易出错 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **WriteFile 不适合超大特殊字符内容**：含大量引号/换行的长文本会因 JSON 转义失败；应改用本地 Python/Node 脚本生成，或提前准备好数据文件 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **涉及 7+ 文件读改测的架构重构，应新开会话执行**：继续塞进系统性重构容易触发窗口压缩，导致信息丢失 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | GitHub Pages 国内访问需代理；unpkg CDN 加载 Stockfish 可能超时，需考虑离线备选方案 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `windows-rs` 0.61 的错误处理统一用 `.map_err( [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | e |
+| | `GetDiskFreeSpaceExW` 传 `&HSTRING` 作为路径参数，`Option<&mut u64>` 接收可用字节 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `executor/pack.rs` |
+| | CPU% 精确计算只需 `GetProcessTimes` + wall clock elapsed，不需要 `GetSystemTimes` [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `resource/controller.rs` |
+| | `FILETIME` 转 u64：`((high as u64) << 32) [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | (low as u64)`，单位是 100ns [来源:french-exit @2026-05-21] |
+| | `Arc<dyn Fn(...) + Send + Sync>` 是 Rust 中给同步结构体注入回调的标准方式 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `executor/pack.rs` |
+| | Tauri 前端用 vitest + jsdom 测试时，必须在 `setup.ts` 中 `vi.mock()` 所有 `@tauri-apps/api/*` 模块 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `src/test/setup.ts` |
+| | 若 `@tauri-apps/api/xxx` 模块不存在（如 v2 移除了 `fs`），用 **vite alias** 指向本地 mock，而非试图安装 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `vite.config.ts` |
+| | Controlled checkbox 的测试用 `@testing-library/user-event` 的 `user.click()`，不要用 `fireEvent.click()` [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `ResultsPage.test.tsx` |
+| | `tokio::sync::mpsc::Sender::try_send()` 适合非阻塞的进度回调，避免 Scanner 被 channel 阻塞 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `orchestrator/mod.rs` |
+| | `useEffect` 依赖 `state.xxx.size === 0` 作为触发条件时，容易形成死循环（用户操作 → size 变 0 → effect 重设 → 又变回来） [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `ResultsPage.tsx` |
+| | `useRef` 作为"只执行一次"的标志，比依赖数组更可靠，尤其涉及批量初始化逻辑时 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | `ResultsPage.tsx` |
+| | **测试驱动暴露 Bug**：ResultsPage 的默认勾选死循环是在写单元测试时发现的，手工测试几乎不可能复现（需要恰好取消所有勾选） [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **结论**：前端状态管理类的 bug，单元测试是最有效的发现手段，远超手工测试 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `prompt-next-session.md` 的问题：每次都要重写环境初始化、模块速查表等**不变内容** [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **改进**：`status.md`（活文档，只记录变化）+ `AGENTS.md`（固定规则） [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **收益**：新会话读 2 份文件即可开工，维护成本降低 80% [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **横跨工具层和应用层的词汇必须确认语境**。用户问"一个项目多个终端能否实现同步处理进度"——"终端"可以指并行 executor、Kimi CLI 多窗口、或多会话。默认跳到代码层面分析可能完全偏题 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **从 SOP 模板采纳更新时，必须逐字核对关键字段，不要凭记忆改写**。触发词「存档」错误抄写为「存储」，原因是未逐字比对就按直觉填写 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **`0xc0000139` 不一定是 UCRT/MinGW 兼容性 issue**。先跑一个**最简单 lib 测试**（空 crate + `cargo test --lib`），如果能过，就说明工具链没问题，问题在项目的特定代码中 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **`cargo test --bin` 能过、`cargo test --lib` 崩溃** → 问题出在**仅被 lib 测试链接的代码**中（bin 测试做了死代码消除，没链接到问题代码）。这是极强的定位信号 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **定位代码的最快方法**：清空 `lib.rs` 只保留一个空测试，逐步 `pub mod` 添加模块，直到崩溃复现。比分析 PE 导入表快 10 倍 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `useRef` + `mousedown` 监听实现点击外部关闭 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | CSS `@keyframes dropdownIn` 实现淡入+位移动画 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 年月日联动限制（如今年只显示到当前月） [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `cargo tauri dev` 必须在**交互式 Windows 桌面会话**中运行，无法通过远程/后台任务启动（WebView2 需要 GUI 上下文） [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **替代方案**：`npm run dev` 启动 Vite 服务器 → 浏览器访问 `http://localhost:1420` → 可实时预览前端 UI（HMR 热更新），但 IPC 调用会失败 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **完整功能验证**：仍需本地运行 `cargo tauri dev` 或双击 release `.exe` [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **根因链**：默认勾选 × deselectAll 只清当前页 × ConfirmPage 遍历 scanResults（分页未加载完整）= 三重 bug 叠加 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **原实现**：`deselectAll` 只遍历 `searchedItems`（当前页数据），从 `selectedIds` 中移除 → 其他分页的选中状态仍保留 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **修复**：`deselectAll` 清空 `selectedIds` 为 `new Set()`，同时 `dispatch({ type: "SET_DECISIONS", payload: new Map() })` 清空全部 decisions [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **教训**：跨分页操作时，"取消"必须与"全选"的对称——全选影响多大范围，取消就必须影响多大范围 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **原实现**：ConfirmPage 遍历 `state.scanResults`，过滤出选中的项 → 分页未加载的项完全丢失 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **修复**：遍历 `state.decisions`，每项在 `scanResults` 中查找详细信息，找不到时用 `name: id` 兜底 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **教训**：在分页/懒加载架构中，**用户操作集合（decisions）是主数据源，展示数据（scanResults）是从属数据源**。确认/汇总逻辑必须基于操作集合 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Git for Windows 的 bash `/tmp` 与 PowerShell `$env:TEMP` 指向同一物理目录（`C:\Users\<user>\AppData\Local\Temp`），跨 shell 操作文件无需移动 [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 环境兼容 |
+| | 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的 fallback（后者可能 404 或同步延迟） [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 网络诊断 |
+| | Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule` 会失败，但 `llama-server` 本身可正常启动；首次运行需提升权限 [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | 环境兼容 |
+| | `/c` 执行完关闭窗口；`/k` 保持窗口打开 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `-WindowStyle Minimized` 最小化不干扰工作 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 测试：后端 129 测、前端 51 测全绿 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **shopIds 类型陷阱**：后端要求 `List<String>`（JSON 字符串数组），传入数字数组会导致参数校验失败 [来源:qianniu_business_analytics @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | jycm_fetch_sycm_shop.py |
+| | **Markdown 一源多用**：对话交付和钉钉推送使用同一套 Markdown 正文，避免"对话一版、钉钉一版"的信息不一致 [来源:qianniu_business_analytics @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | report-analyze.md |
+| | Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 [来源:qianniu_business_analytics @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `auth.md` 中必须包含完整的 curl 参考示例，方便 Agent 直接复制执行。 [来源:qianniu_business_analytics @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `gh api --paginate --slurp` 返回嵌套数组 `[page1, page2, ...]`（每页一个子数组），而非展平的单层数组。调用方需手动展平，否则 `repos[0]` 取到的是第一页列表而非第一个仓库 [母库 @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:fact-swarm-v2 @2026-06-18] [来源:AI Workbench @2026-06-25] | sync-knowledge.py |
+| | 手写 IIFE 模块时，用 `window.ModuleName = Module` 暴露 API，内部私有变量用下划线前缀，避免全局泄漏 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | 所有 js/*.js |
+| | PGN 解析器对空/无效输入返回 `[]`（空数组）而非 `null`，调用方需区分"无走法"和"解析失败" [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | ReplayModule |
+| | 屏幕切换导航不能只隐藏上一个屏幕，必须遍历 `.screen` 全部隐藏后再显示目标，否则多层屏幕重叠 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | 全局导航 |
+| | 项目文档结构会随时间进化，"存档"或"恢复"操作前应先 `ls`/`glob` 确认当前文件系统现状，避免按历史路径写入已不存在的文件 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | 文档维护 |
+| | **i18n 分散架构必然导致翻译遗漏**：当项目同时存在"全局字典 + 模块私有字典 + 硬编码"三种翻译方式时，新增功能几乎必然漏掉其中一种或多种。唯一可持续的方案是"单一字典源" [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | 全站 i18n |
+| | **模块内部字典若从不主动更新 DOM，则纯属冗余**：welcome.js 有 `_i18n` 和 `_t()`，但从不调用，完全依赖 common.js 的 `updateTexts()`。这种"假私有字典"不仅没用，还会给维护者造成"这里已经翻译了"的错觉 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | welcome.js |
+| | **settings.js 的独立字典与 common.js 的全局扫描存在竞争**：settings panel 的元素带 `data-i18n`，settings.js 自己 `_updateAllTexts()` 会覆盖，但 common.js 的 `updateTexts()` 也会扫到，如果 common.js 缺键，用户会看到 key 名闪一下才被正确文本覆盖 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | settings.js / common.js |
+| | **playwright 是定位浏览器特有 bug 的有效手段**：通过 `page.add_init_script` 注入错误监听器 + `page.on('pageerror')`，可以精确定位到出错的文件、行号和列号 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | 调试工具 |
+| | 浏览器集成测试阶段发现 welcome.js / replay.js / stats.js 的 DOM 事件绑定遗漏 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Node 测试覆盖逻辑，浏览器测试覆盖 DOM 集成，两者互补 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 每批次开发完成后同步更新进度文档，避免新会话迷路 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **Shell here-document 在 Windows git bash 中不可靠**：含引号的多行复杂脚本会被截断或解析错误；应先 `WriteFile` 写脚本，再 `Shell` 执行 [来源:blindfold-chess @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **UI 风格不一致的根因通常是「硬编码颜色」**：引入统一的「棋盘风格配置源」后，所有棋盘自动同步，消除不一致的根因 [来源:blindfold-chess @2026-05-21] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | BoardRenderer / coordinate.js |
+| | 测试驱动开发能在手工测试无法触及的边界条件下发现 bug（如"恰好取消所有勾选"触发死循环）[来源:french-exit @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `AGENTS.md` 定义触发词和行为约束，`status.md` 记录动态进度，两者分工明确，新会话读 2 份文件即可开工 [来源:french-exit @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 涉及 7+ 文件读改测的架构重构，应新开会话执行，避免上下文压缩导致信息丢失 [来源:blindfold-chess @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:french-exit @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `cargo check --lib` 不需要链接，可以在中文路径直接跑；`cargo test --no-run` 同理 [来源:french-exit @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚本时优先用正斜杠或 `path.join` [来源:blindfold-chess @2026-05-21] [来源:vibe-coding-project-sop @2026-05-22] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 适用场景 [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 最小安装包，用户联网时自动下载 [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Windows 7 兼容性更好 [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 完全离线环境 [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 锁定特定 WebView2 版本 [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 [来源:vibe-coding-project-sop @2026-06-02] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | `auth.md` 中必须包含完整的 curl 参考示例，方便 Agent 直接复制执行。 [来源:vibe-coding-project-sop @2026-06-02] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **UI 风格不一致的根因通常是「硬编码颜色」**：引入统一的「棋盘风格配置源」后，所有棋盘自动同步，消除不一致的根因。**更关键的是：新增模块前必须搜索项目中是否有可复用的同类组件**（如 `BoardRenderer`），禁止手写已有功能 [来源:blindfold-chess @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] | BoardRenderer / coordinate.js |
+| | **工具硬性限制不要绕圈分析可行性**。Kimi CLI 多窗口无 IPC、无共享内存、无实时同步——回答应直接给结论 + 风险 + 替代方案，省掉技术可行性分析 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **`tauri::AppHandle` 出现在 `async fn` 签名中 + MinGW = `STATUS_ENTRYPOINT_NOT_FOUND`**。workaround：把这些函数拆到子模块，用 `#[cfg(not(test))]` 条件编译，测试模式下不链接 [来源:french-exit @2026-05-21] [来源:agent-coding-skeleton @2026-06-16] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **根因**：CSS `fixed` + `z-50` 的元素默认接收鼠标事件，即使视觉上看起来透明也会拦截点击 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **修复**：给所有非交互性的 `fixed` 装饰元素统一添加 `pointer-events-none` [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **教训**：任何使用 `fixed`/`absolute` + 高 `z-index` 的纯展示元素，必须默认视为点击拦截器 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **教训**：E2E 测试不是写一次就完，它是前端契约测试。UI 迭代时必须同步评估对 selector、交互流程、状态断言的影响 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **局限**：如果 scanner 长时间不调用 `progress`（如读取超大文件），暂停会有延迟 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **教训**：对于已成型的大型 trait 实现体系，优先在调度层（registry）而非实现层（scanner）插入横切关注点 [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | 7 个 Scanner 并行，权重分配：fs 50% + browser 15% + system 15% + 其他各 5% [来源:french-exit @2026-05-29] [来源:AI Workbench @2026-06-17] [来源:french-exit @2026-06-18] [来源:AI Workbench @2026-06-25] |  |
+| | **信任优先原则**：用户直接告知的内容（行号范围、文件摘要、决策信息等），AI 应直接信任并消化，不得再去读取源文件「验证」。用户一次给出的多条信息应一次性全收，不得拆成零碎重复提问。用户跳过/划掉的问题标记待定，不再追回。 [open-personality @2026-06-09] [来源:open-personality @2026-06-18] [来源:AI Workbench @2026-06-25] | AGENTS.md / 交互规范 |
+| | **设计文档交付后应主动邀请用户逐节评审**。本轮用户检查 design.md 发现 5 个不一致问题（事务保护、命名对齐、数据模型等），如果直接进阶段三编码，这些会在实现阶段暴露为返工。设计评审的成本远低于编码后改 bug。 [open-personality @2026-06-09] [来源:open-personality @2026-06-18] [来源:AI Workbench @2026-06-25] | docs/design.md |
+| | **GitHub 上 Fetch 的 SKILL.md 不能只看内容不看场景**。用户发来 `github.com/anthropics/skills/blob/main/skills/brand-guidelines/SKILL.md`，内按内容（Anthropic 品牌色/字体）判断"与本项目几乎无关"。但用户意图是将其作为前端设计的风格参考母版（front design），而非直接输出 Anthropic 风格内容。先问"你想怎么用这个"再评估。 [open-personality @2026-06-10] [来源:open-personality @2026-06-18] [来源:AI Workbench @2026-06-25] | 前端设计 |
+| | `transition: all` 是前端性能陷阱。浏览器无法预测哪些属性会变化，每帧都执行 layout 检查。应始终指定精确属性名（如 `transform 0.3s, opacity 0.3s`），即使当前只打算动一个属性 [open-personality @2026-06-18] [来源:open-personality @2026-06-18] [来源:AI Workbench @2026-06-25] | HomePage.vue / 全项目审计 |
+| | **零 layout 动画三板斧**：①元素始终占位（不用 `v-if`/`v-show` 插入 DOM）；②视觉展开用 `transform: scaleX()`（GPU compositor）；③周围元素位移用 `transform: translateY()`（GPU compositor）而非 `margin`/`top`。三者全走 compositor 层，浏览器主线程零负担 [open-personality @2026-06-18] [来源:open-personality @2026-06-18] [来源:AI Workbench @2026-06-25] | HomePage.vue 胶囊动画 |
+| | **项目半路转平台不可行**：项目开发大半后才想切换目标平台（如 Xcode/iOS → 微信小程序），发现两套工具链、API、部署方式完全不兼容，大量代码需要重写。项目立项时必须把"目标平台确认"作为需求阶段第一条 check，确定后再做技术选型，中途不可切换。 [母库 @2026-06-24] [来源:AI Workbench @2026-06-25] | 项目管理 / 需求阶段 |
+
 >>>>>>> a42c4631445d398afbe7fa82a415d6ca5f444186

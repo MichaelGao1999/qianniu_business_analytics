@@ -16,7 +16,6 @@ sensitivity-check.py — 敏感信息扫描工具
     python scripts/sensitivity-check.py --dir path/to/project
 """
 
-import os
 import re
 import sys
 from pathlib import Path
@@ -36,9 +35,7 @@ CATEGORIES = {
     "本地路径 (Unix)": re.compile(
         r"(?:/home|/Users|/tmp|/var|/etc|/opt|/root)/[^\s\"'<>|]*"
     ),
-    "本地路径 (混合)": re.compile(
-        r"[A-Za-z]:/工作文件/[^\s\"'<>|]*"
-    ),
+    "本地路径 (混合)": re.compile(r"[A-Za-z]:/工作文件/[^\s\"'<>|]*"),
     "邮箱地址": re.compile(
         r"(?<!git@)\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
     ),
@@ -59,13 +56,15 @@ def scan_text(text: str, filename: str = "<text>") -> list:
             # 截断过长的上下文
             if len(context) > 60:
                 context = context[:28] + "..." + context[-28:]
-            findings.append({
-                "file": filename,
-                "line": text[: m.start()].count("\n") + 1,
-                "category": category,
-                "match": m.group(),
-                "context": context.strip(),
-            })
+            findings.append(
+                {
+                    "file": filename,
+                    "line": text[: m.start()].count("\n") + 1,
+                    "category": category,
+                    "match": m.group(),
+                    "context": context.strip(),
+                }
+            )
     return findings
 
 
@@ -78,14 +77,18 @@ def report(findings: list) -> None:
     print(f"[sensitivity-check] 发现 {len(findings)} 处潜在敏感信息：")
     print()
     # 按类别分组
-    by_cat = {}
+    by_cat: dict[str, list[dict]] = {}
     for f in findings:
         by_cat.setdefault(f["category"], []).append(f)
 
     for cat, items in by_cat.items():
         print(f"  [{cat}] {len(items)} 处")
         for item in items:
-            loc = f"{item['file']}:{item['line']}" if item['file'] != "<text>" else f"第 {item['line']} 行"
+            loc = (
+                f"{item['file']}:{item['line']}"
+                if item["file"] != "<text>"
+                else f"第 {item['line']} 行"
+            )
             print(f"    - {loc}: {item['context']}")
     print()
 
@@ -101,8 +104,8 @@ def main():
             report(findings)
             return
         print("用法:")
-        print("  python scripts/sensitivity-check.py \"要检查的文本\"")
-        print("  echo \"文本\" | python scripts/sensitivity-check.py")
+        print('  python scripts/sensitivity-check.py "要检查的文本"')
+        print('  echo "文本" | python scripts/sensitivity-check.py')
         print("  python scripts/sensitivity-check.py --file path/to/file.md")
         print("  python scripts/sensitivity-check.py --dir path/to/project")
         return

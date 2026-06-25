@@ -15,7 +15,12 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Optional, Tuple
+
+from markdown_parser import (
+    parse_adr,
+    parse_lessons,
+    parse_troubleshooting as mp_parse_troubleshooting,
+)
 
 
 TROUBLE_FILE = "troubleshooting.md"
@@ -25,38 +30,105 @@ INDEX_FILE = "experience-index.md"
 
 TECH_STACK_KEYWORDS: dict[str, list[str]] = {
     "Rust / Tauri": [
-        "rust", "cargo", "tauri", "rustc", "crate", "webview2",
-        "filetime", "getdiskfreespaceexw", "mingw", "ucrt", "dll",
-        "0xc0000139", "0xc0000005", "status_entrypoint",
+        "rust",
+        "cargo",
+        "tauri",
+        "rustc",
+        "crate",
+        "webview2",
+        "filetime",
+        "getdiskfreespaceexw",
+        "mingw",
+        "ucrt",
+        "dll",
+        "0xc0000139",
+        "0xc0000005",
+        "status_entrypoint",
     ],
     "JavaScript / React / Vitest": [
-        "javascript", "react", "jsx", "node", "npm", "vitest", "vite",
-        "jest", "dom", "chess.js", "canvas", "svg", "queryselector",
-        "queryselectorall", "addeventlistener", "event",
-        "unexpected identifier", "cannot update",
+        "javascript",
+        "react",
+        "jsx",
+        "node",
+        "npm",
+        "vitest",
+        "vite",
+        "jest",
+        "dom",
+        "chess.js",
+        "canvas",
+        "svg",
+        "queryselector",
+        "queryselectorall",
+        "addeventlistener",
+        "event",
+        "unexpected identifier",
+        "cannot update",
     ],
     "Python": ["python", "pip", "pytest"],
     "网络 / 环境 / 权限": [
-        "网络", "cdn", "dns", "代理", "proxy", "timeout", "连接超时",
-        "防火墙", "firewall", "path", "编码", "utf", "权限",
-        "中文路径", "huggingface", "modelscope", "github pages",
+        "网络",
+        "cdn",
+        "dns",
+        "代理",
+        "proxy",
+        "timeout",
+        "连接超时",
+        "防火墙",
+        "firewall",
+        "path",
+        "编码",
+        "utf",
+        "权限",
+        "中文路径",
+        "huggingface",
+        "modelscope",
+        "github pages",
         "access is denied",
     ],
     "AI 工具链 / LLM": [
-        "llm", "ollama", "llama", "llama-server", "model",
-        "deepseek", "qwen", "gguf", "modelscope", "huggingface",
+        "llm",
+        "ollama",
+        "llama",
+        "llama-server",
+        "model",
+        "deepseek",
+        "qwen",
+        "gguf",
+        "modelscope",
+        "huggingface",
     ],
     "Git / GitHub": [
-        "git", "github", "ssh", "push", "pull", "commit", "merge",
-        "gh auth", "permission denied",
+        "git",
+        "github",
+        "ssh",
+        "push",
+        "pull",
+        "commit",
+        "merge",
+        "gh auth",
+        "permission denied",
     ],
     "Windows / PowerShell": [
-        "powershell", "windows", "ucrt", "dll", "mingw", "exe",
-        "unexpectedtoken", "bom", "防火墙",
+        "powershell",
+        "windows",
+        "ucrt",
+        "dll",
+        "mingw",
+        "exe",
+        "unexpectedtoken",
+        "bom",
+        "防火墙",
     ],
     "Chess / 引擎": [
-        "stockfish", "chess", "uci", "pgn", "engine",
-        "gomultipv", "candidate", "move",
+        "stockfish",
+        "chess",
+        "uci",
+        "pgn",
+        "engine",
+        "gomultipv",
+        "candidate",
+        "move",
     ],
 }
 
@@ -93,57 +165,22 @@ def infer_domain(source: str, tags: list[str], category: str = "") -> str:
         return "general"
     # french-exit → rust-tauri 或 frontend
     if "french-exit" in s or "tauri" in s or "rust" in tags_lower:
-        if any(t in tags_lower for t in
-               ["cross-platform", "state-management", "pagination", "security"]):
+        if any(
+            t in tags_lower
+            for t in ["cross-platform", "state-management", "pagination", "security"]
+        ):
             return "rust-tauri"
         if "dom" in tags_lower or "ux" in tags_lower:
             return "frontend"
         return "general"
     # 母库/无来源/骨架自身 → infra 或 general
-    if not source or s.startswith("母库") or "agent-coding-skeleton" in s:
-        if any(t in tags_lower for t in
-               ["project-structure", "indexing", "performance"]):
+    if not source or s.startswith("母库") or "AI Workbench" in s:
+        if any(
+            t in tags_lower for t in ["project-structure", "indexing", "performance"]
+        ):
             return "infra"
         return "general"
     return "general"
-
-
-# ── Troubleshooting 解析 ──
-
-def extract_source_tag(text: str) -> tuple[str, str]:
-    """
-    从文本中提取 [来源:xxx] 或 [母库 @date] 标签（支持多个）。
-    返回 (清洁正文, 来源字符串)。
-    保持与旧版输出格式一致（来源字符串不含 \"来源:\" 前缀）。
-    """
-    # 提取 [来源:xxx] 和 [母库 @date] 标签
-    source_tags = re.findall(r"\[来源:([^\]]+)\]", text)
-    mother_tags = re.findall(r"\[母库[^\]]*\]", text)
-
-    # 清洗正文：去掉 [来源:xxx] 和 [母库 @date]
-    clean = re.sub(r"\s*\[来源:[^\]]+\]", "", text)
-    clean = re.sub(r"\s*\[母库[^\]]*\]", "", clean).strip()
-
-    # 来源字符串：保留旧格式（无 "来源:" 前缀，保留 [] 标记）
-    all_sources = [t.strip() for t in source_tags] + [m.strip("[]") for m in mother_tags]
-    source_str = " | ".join(all_sources) if all_sources else ""
-    return clean, source_str
-
-
-def parse_table_row(line: str) -> Optional[Tuple[str, str]]:
-    """解析 Markdown 表格行"""
-    if not line.startswith("|"):
-        return None
-    if re.match(r"^\|[-\s|:]+\|$", line):
-        return None
-    cells = [c.strip() for c in line.split("|")[1:-1]]
-    if len(cells) < 2:
-        return None
-    field_name = re.sub(r"\*\*", "", cells[0]).strip()
-    field_value = cells[1]
-    if not field_name:
-        return None
-    return field_name, field_value
 
 
 def normalize_status(raw: str) -> str:
@@ -180,66 +217,41 @@ def normalize_status(raw: str) -> str:
 
 
 def parse_troubleshooting(path: str) -> list[dict]:
-    """解析 troubleshooting.md"""
+    """解析 troubleshooting.md（使用 markdown_parser 统一解析器）"""
+    text = Path(path).read_text(encoding="utf-8")
+    raw_entries = mp_parse_troubleshooting(text)
+
     entries: list[dict] = []
-    current_category = ""
-    current_entry: Optional[dict] = None
-
-    with open(path, "r", encoding="utf-8") as f:
-        for line_no, raw in enumerate(f, start=1):
-            line = raw.rstrip("\n")
-
-            if line.startswith("## ") and not line.startswith("### "):
-                current_category = line[3:].strip()
-                continue
-
-            if line.startswith("### "):
-                if current_entry:
-                    entries.append(current_entry)
-                title_line = line[4:].strip()
-                title, source = extract_source_tag(title_line)
-                current_entry = {
-                    "type": "问题",
-                    "category": current_category,
-                    "title": title,
-                    "source": source,
-                    "domain": infer_domain(source, [], current_category),
-                    "status": None,
-                    "symptom": None,
-                    "cause": None,
-                    "solution": None,
-                    "tags": [],
-                    "module": "",
-                    "line_start": line_no,
-                    "file": TROUBLE_FILE,
-                }
-                continue
-
-            if current_entry is None:
-                continue
-
-            parsed = parse_table_row(line)
-            if parsed:
-                field_name, field_value = parsed
-                mapping = {
-                    "状态": "status",
-                    "现象": "symptom",
-                    "原因": "cause",
-                    "解决": "solution",
-                }
-                key = mapping.get(field_name)
-                if key and current_entry.get(key) is None:
-                    val = field_value
-                    if key == "status":
-                        val = normalize_status(field_value)
-                    current_entry[key] = val
-
-        if current_entry:
-            entries.append(current_entry)
+    for e in raw_entries:
+        source_str = " | ".join(e.get("sources", []))
+        domain = infer_domain(source_str, [], e.get("category", ""))
+        entries.append(
+            {
+                "type": "问题",
+                "category": e.get("category", ""),
+                "title": e.get("keyword", ""),
+                "source": source_str,
+                "domain": domain,
+                "status": normalize_status(e.get("status", "")),
+                "symptom": e.get("symptom", ""),
+                "cause": e.get("cause", ""),
+                "solution": e.get("solution", ""),
+                "tags": [],
+                "module": "",
+                "line_start": e.get("line_start", 0),
+                "file": TROUBLE_FILE,
+            }
+        )
 
     # 去重：相同标题（去来源标签后）保留 resolved/promoted 超过 pending/wont_fix
     best: dict[str, dict] = {}
-    RESOLVED_PRIORITY = {"resolved": 3, "promoted": 2, "known_limitation": 1, "pending": 0, "wont_fix": 0}
+    RESOLVED_PRIORITY = {
+        "resolved": 3,
+        "promoted": 2,
+        "known_limitation": 1,
+        "pending": 0,
+        "wont_fix": 0,
+    }
     for e in entries:
         key = e["title"].lower().strip()
         if key not in best:
@@ -257,89 +269,37 @@ def parse_troubleshooting(path: str) -> list[dict]:
 
 # ── Lessons-learned 解析 ──
 
+
 def parse_lessons_learned(path: str) -> list[dict]:
-    """解析 lessons-learned.md"""
+    """解析 lessons-learned.md（使用 markdown_parser 统一解析器）"""
+    text = Path(path).read_text(encoding="utf-8")
+    raw_entries = parse_lessons(text)
+
     entries: list[dict] = []
+    for e in raw_entries:
+        desc = e.get("description", "")
+        sources = e.get("sources", [])
+        source_str = " | ".join(sources)
 
-    # 按 | 数量选择对应的列数：4列(5个|) / 5列(6个|) / 6列(7个|)
-    # P0: 5列标准 — | num | TAG:xxx | INFO/WARNING/CRITICAL | desc | module |
-    P0_REGEX = r"^\|\s*(\d+)\s*\|\s*(TAG:\S+(?:\s+TAG:\S+)*)\s*\|\s*(INFO|WARNING|CRITICAL|TIP)\s*\|\s*(.+?)\s*\|\s*(.*?)\s*\|$"
-    # P1: 6列 — | num | TAG:xxx | 严重度 | desc | category | source |
-    P1_REGEX = r"^\|\s*(\d+)\s*\|\s*(TAG:\S+(?:\s+TAG:\S+)*)\s*\|\s*(INFO|WARNING|CRITICAL|TIP)\s*\|\s*(.+?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|$"
-    # P2: 4列（无 TAG/severity）— | num | desc | category | source |
-    P2_REGEX = r"^\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*\[来源:([^\]]+)\].*?\|$"
+        tags_str = e.get("tags", "").strip()
+        tags = re.findall(r"TAG:(\S+)", tags_str) if tags_str else []
+        severity = e.get("severity", "INFO").strip()
+        module = e.get("module", "").strip()
 
-    with open(path, "r", encoding="utf-8") as f:
-        for line_no, raw in enumerate(f, start=1):
-            line = raw.rstrip("\n")
-
-            pipe_count = line.count("|")
-            m = None
-            matched_pattern = None
-
-            if pipe_count == 6:
-                m = re.match(P0_REGEX, line)
-                matched_pattern = 0 if m else None
-            elif pipe_count == 7:
-                m = re.match(P1_REGEX, line)
-                matched_pattern = 1 if m else None
-            elif pipe_count == 5:
-                m = re.match(P2_REGEX, line)
-                matched_pattern = 2 if m else None
-
-            if not m:
-                if pipe_count in (3, 4) and line.startswith("|") and not re.match(r"^\|[\s\-:|]+\|$", line):
-                    log(f"  skipped {pipe_count}-column row at line {line_no} (fragment/duplicate)")
-                continue
-
-            num = m.group(1)
-            desc = module = ""
-            tags_str = ""
-            severity = "INFO"
-            tags: list[str] = []
-
-            if matched_pattern == 0:
-                # 5列标准格式
-                tags_str = m.group(2).strip()
-                severity = m.group(3).strip()
-                desc = m.group(4).strip()
-                module = m.group(5).strip()
-                tags = re.findall(r"TAG:(\S+)", tags_str)
-            elif matched_pattern == 1:
-                # 6列（有 extra category + source 列）
-                tags_str = m.group(2).strip()
-                severity = m.group(3).strip()
-                desc = m.group(4).strip()
-                category = m.group(5).strip()
-                source_col = m.group(6).strip()
-                module = f"{category} / {source_col}" if category else source_col
-                if source_col.startswith("[来源:") or source_col.startswith("[母库"):
-                    desc = f"{desc} {source_col}"
-                elif source_col:
-                    desc = f"{desc} [来源:{source_col}]"
-                tags = re.findall(r"TAG:(\S+)", tags_str)
-            elif matched_pattern == 2:
-                # 4列（无 TAG/severity）
-                desc = m.group(2).strip()
-                module = m.group(3).strip()
-                # 重建来源标签，供 extract_source_tag 提取
-                desc = f"{desc} [来源:{m.group(4).strip()}]"
-
-            # 提取来源（从 desc 中提取 [来源:xxx] 标签）
-            title_clean, source = extract_source_tag(desc)
-
-            entries.append({
+        entries.append(
+            {
                 "type": "经验",
                 "category": " / ".join(tags) if tags else "未分类",
-                "title": title_clean[:80] + ("..." if len(title_clean) > 80 else ""),
-                "source": source,
-                "domain": infer_domain(source, tags),
+                "title": desc[:80] + ("..." if len(desc) > 80 else ""),
+                "source": source_str,
+                "domain": infer_domain(source_str, tags),
                 "status": severity,
                 "tags": tags,
                 "module": module,
-                "line_start": line_no,
+                "line_start": e.get("line_start", 0),
                 "file": LESSONS_FILE,
-            })
+            }
+        )
 
     log(f"Parsed {len(entries)} entries from {LESSONS_FILE}")
     return entries
@@ -347,41 +307,38 @@ def parse_lessons_learned(path: str) -> list[dict]:
 
 # ── Decisions 解析 ──
 
+
 def parse_decisions(path: str) -> list[dict]:
-    """解析 ADR.md"""
+    """解析 ADR.md（使用 markdown_parser 统一解析器）"""
+    text = Path(path).read_text(encoding="utf-8")
+    raw_entries = parse_adr(text)
+
     entries: list[dict] = []
+    for e in raw_entries:
+        adr_id = e.get("adr_id", "")
+        adr_title = e.get("title", "")
+        source_str = " | ".join(e.get("sources", []))
 
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # 匹配 ## ADR-xxx: 标题 [来源:...] 或 ### ADR-xxx: 标题 [来源:...]
-    # 兼容项目分组下的三级标题结构（## 项目: xxx / ### ADR-xxx）
-    # 匹配 ### repo_XXXXX/ADR-NNN：标题 [来源:...]（新格式）或 ## ADR-NNN：标题 [来源:...]（旧格式）
-    pattern = r"^#{2,3}\s+((?:repo_\d+/)?ADR-\d+[:：]\s*.+?)(?:\s*\[来源:([^\]]+)\])?\s*\n"
-    for m in re.finditer(pattern, content, re.MULTILINE):
-        adr_title = m.group(1).strip()
-        source = m.group(2).strip() if m.group(2) else ""
-
-        # 计算行号
-        line_start = content[: m.start()].count("\n") + 1
-
-        entries.append({
-            "type": "决策",
-            "category": "架构决策",
-            "title": adr_title,
-            "source": source,
-            "domain": infer_domain(source, []),
-            "status": "—",
-            "tags": [],
-            "module": "",
-            "line_start": line_start,
-            "file": DECISIONS_FILE,
-        })
+        entries.append(
+            {
+                "type": "决策",
+                "category": "架构决策",
+                "title": f"{adr_id}: {adr_title}",
+                "source": source_str,
+                "domain": infer_domain(source_str, []),
+                "status": "—",
+                "tags": [],
+                "module": "",
+                "line_start": e.get("line_start", 0),
+                "file": DECISIONS_FILE,
+            }
+        )
 
     return entries
 
 
 # ── 索引生成 ──
+
 
 def generate_index(
     trouble_entries: list[dict],
@@ -420,15 +377,17 @@ def generate_index(
         )
 
     # ── 按技术栈分组 ──
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 按技术栈分组",
-        "",
-        "> 一个条目可能同时属于多个技术栈。",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## 按技术栈分组",
+            "",
+            "> 一个条目可能同时属于多个技术栈。",
+            "",
+        ]
+    )
 
     stack_map: dict[str, list[dict]] = {}
     for e in all_entries:
@@ -457,7 +416,9 @@ def generate_index(
         lines.append("")
         for e in stack_map[stack]:
             category = e["category"] or "未分类"
-            lines.append(f"- [{e['type']}] {e['title'][:50]} — `{category}` → {e['file']}#L{e['line_start']}")
+            lines.append(
+                f"- [{e['type']}] {e['title'][:50]} — `{category}` → {e['file']}#L{e['line_start']}"
+            )
         lines.append("")
 
     # ── 按状态分组（troubleshooting 专用） ──
@@ -467,14 +428,23 @@ def generate_index(
         trouble_by_status.setdefault(status, []).append(e)
 
     if trouble_by_status:
-        lines.extend([
-            "",
-            "---",
-            "",
-            "## 按状态分组（troubleshooting）",
-            "",
-        ])
-        status_order = ["pending", "resolved", "promoted", "wont_fix", "known_limitation", "—"]
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "## 按状态分组（troubleshooting）",
+                "",
+            ]
+        )
+        status_order = [
+            "pending",
+            "resolved",
+            "promoted",
+            "wont_fix",
+            "known_limitation",
+            "—",
+        ]
         for status in status_order:
             items = trouble_by_status.get(status, [])
             if not items:
@@ -489,12 +459,14 @@ def generate_index(
             lines.append("")
 
     # ── 按类型分组 ──
-    lines.extend([
-        "---",
-        "",
-        "## 按类型分组",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## 按类型分组",
+            "",
+        ]
+    )
 
     type_map: dict[str, list[dict]] = {}
     for e in all_entries:
@@ -518,7 +490,9 @@ def generate_index(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build unified experience index")
-    parser.add_argument("--check", action="store_true", help="Check if index is up-to-date")
+    parser.add_argument(
+        "--check", action="store_true", help="Check if index is up-to-date"
+    )
     args = parser.parse_args()
 
     files = {

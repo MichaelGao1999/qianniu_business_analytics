@@ -15,11 +15,11 @@
 
 import argparse
 import json
-import os
 import re
 import sys
 from datetime import date
 from pathlib import Path
+from typing import Any, Callable
 
 
 DEFAULT_BACKEND = "markdown"
@@ -77,13 +77,15 @@ def parse_entries(text: str) -> list[dict]:
     """Parse existing entries from cognitive-log.md."""
     entries = []
     for m in ENTRY_RE.finditer(text):
-        entries.append({
-            "title": m.group(1).strip(),
-            "category": m.group(2).strip(),
-            "date": m.group(3).strip(),
-            "tags": (m.group(4) or "").strip(),
-            "body": m.group(5).strip(),
-        })
+        entries.append(
+            {
+                "title": m.group(1).strip(),
+                "category": m.group(2).strip(),
+                "date": m.group(3).strip(),
+                "tags": (m.group(4) or "").strip(),
+                "body": m.group(5).strip(),
+            }
+        )
     return entries
 
 
@@ -158,9 +160,17 @@ def send_markdown(entries: list[dict]) -> bool:
     return True
 
 
-SENDERS = {
+SenderFunc = Callable[[list[dict[str, Any]]], bool]
+
+
+def _send_none(entries: list[dict[str, Any]]) -> bool:
+    log(f"模拟模式: 将发送 {len(entries)} 条")
+    return True
+
+
+SENDERS: dict[str, SenderFunc] = {
     "markdown": send_markdown,
-    "none": lambda entries: (log(f"模拟模式: 将发送 {len(entries)} 条"), True),
+    "none": _send_none,
 }
 
 
@@ -196,16 +206,26 @@ def rebuild_index() -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="认知提取 — 将认知收获保存到 cognitive-log.md")
-    parser.add_argument("--backend", choices=BACKENDS, default=DEFAULT_BACKEND,
-                        help=f"后端（默认: {DEFAULT_BACKEND}）")
+    parser = argparse.ArgumentParser(
+        description="认知提取 — 将认知收获保存到 cognitive-log.md"
+    )
+    parser.add_argument(
+        "--backend",
+        choices=BACKENDS,
+        default=DEFAULT_BACKEND,
+        help=f"后端（默认: {DEFAULT_BACKEND}）",
+    )
     parser.add_argument("--title", help="条目标题")
     parser.add_argument("--body", help="条目正文")
     parser.add_argument("--category", help="分类（默认: 认知）")
     parser.add_argument("--tags", help="标签，逗号分隔（如: 架构, 设计）")
     parser.add_argument("--date", help="日期，ISO 格式（默认: 今天）")
     parser.add_argument("--file", help="JSON 文件路径（包含条目列表或单条目）")
-    parser.add_argument("--rebuild-index", action="store_true", help="仅重建现有 cognitive-log.md 的索引")
+    parser.add_argument(
+        "--rebuild-index",
+        action="store_true",
+        help="仅重建现有 cognitive-log.md 的索引",
+    )
     args = parser.parse_args()
 
     if args.rebuild_index:
@@ -217,6 +237,9 @@ def main() -> int:
     log(f"后端: {backend}, 条目数: {len(entries)}")
 
     sender = SENDERS.get(backend)
+    if sender is None:
+        result(False, f"不支持的后端: {backend}")
+        return 2
     ok = sender(entries)
 
     if ok:

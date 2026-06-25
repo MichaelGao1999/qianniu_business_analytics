@@ -1421,4 +1421,29 @@ pending → resolved → promoted
 
 **用户说「存储」时**，AI 应回顾本轮会话内容，评估是否有新的具体报错需要记入本文件。有则按模板追加；没有则跳过。
 ---
+---
 
+### CC 拼接 apiKeyHelper 命令碎片导致 /login [来源:AI Workbench @2026-06-25]
+
+| | 内容 |
+|---|---|
+| **状态** | 已修复 |
+| **现象** | CC 弹 /login 页，无法获取 API key；settings.json 中 apiKeyHelper 命令为 `bash -c.echo $DEEPSEEK_API_KEY.cat ~/.cc-connect/.deepseek_key.`（exit 127）；hooks 残留未清理 |
+| **原因** | CC 在同一轮交互中处理两个非连续意图时（意图 A: `echo $DEEPSEEK_API_KEY`，意图 B: `cat ~/.cc-connect/.deepseek_key`），将命令碎片拼接为一个无效命令，同时 hooks 写入未完全清除 |
+| **解决** | 1. apiKeyHelper 恢复为 `echo $DEEPSEEK_API_KEY`<br>2. 移除残留 hooks<br>3. 验证 settings.json JSON 语法合法性<br>4. 清理残留进程 |
+| **预防** | 1. hooks/apiKeyHelper 操作后立即验证 settings.json 语法和功能（`claude settings` 或直接 cat 检查）<br>2. 同一轮交互中避免让 CC 交叉处理多个非连续的配置意图 |
+
+---
+
+*新增条目时复制上方模板，填写后追加到文件末尾。*
+---
+
+### Vue 3 `<script setup>` `_ctx.t is not a function` [来源:AI Workbench @2026-06-25]
+
+| | 内容 |
+|---|---|
+| **状态** | resolved |
+| **现象** | 页面只显示背景渐变装饰，无任何内容。控制台报错 `Uncaught (in promise) TypeError: _ctx.t is not a function at Proxy._sfc_render (LanguageSwitch.vue:8:10)` |
+| **原因** | `<script setup>` 中 `const { lang, setLang } = useI18n()` 仅解构了 `lang` 和 `setLang`，但模板中使用了 `t('common.chinese')`。`t` 未被解构到当前作用域，Vue 模板编译为 `_ctx.t` 时找不到该函数。 |
+| **解决** | 在解构中添加 `t`：`const { t, lang, setLang } = useI18n()`。同时确保 i18n JSON 文件中有对应的 key（如 `common.chinese`）。 |
+| **预防** | `useI18n()` 或其他 composable 返回的所有在模板中使用的函数/变量，必须在 `<script setup>` 中全部解构，否则 Vue 模板编译后无法访问。 |
