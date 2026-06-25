@@ -31,7 +31,7 @@
 - [ ] 评估移植 `ecommerce-report-code` 的快照/仪表盘/Excel 报表模块
 
 ### 优先级 3 — 优化与文档
-- [ ] 重写 `docs/design.md`（现有版本描述已归档的 API 驱动架构，需改为 Excel 驱动流）
+- [x] 重写 `docs/design.md`（现有版本描述已归档的 API 驱动架构，需改为 Excel 驱动流）
 - [ ] 生成 `prompt.md`（阶段四产出）
 - [ ] 更新 `docs/tasks/task-progress.md`（滞后于当前状态）
 - [ ] 代码注释与类型提示补齐
