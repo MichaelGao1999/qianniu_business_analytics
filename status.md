@@ -61,8 +61,6 @@ qianniu_business_analytics/
 │   ├── dingtalk_send_markdown.py         # 钉钉推送
 │   ├── feishu_send_markdown.py           # 飞书推送
 │   ├── constants.py                      # 公共常量（时区/指标关键词/阈值）
-│   ├── qianniu_analytics_orchestrator.py # 【已归档】API 驱动编排占位代码
-│   └── jycm_fetch_sycm_shop.py           # 【已归档】旧版 API 取数（A→G 接口链）
 ├── auth/                                  # 凭证目录（auth/jycm.json）
 ├── data/                                  # 原始数据目录（Excel 下载）
 └── reports/                               # 分析报告目录（Markdown）

@@ -126,7 +126,6 @@ metadata:
 | `scripts/analyze_excel_report.py` | **Excel 分析 → Markdown 报告生成（核心）** |
 | `scripts/jycm_auto_report.py` | 自动化全流程（扫描 Excel → 分析 → 飞书推送） |
 | `scripts/feishu_send_markdown.py` | 飞书 Markdown 推送工具 |
-| `scripts/jycm_fetch_sycm_shop.py` | ~~旧版 API 取数脚本（已归档）~~ |
 
 ---
 
@@ -154,7 +153,7 @@ qianniu_business_analytics/
 │   ├── analyze_excel_report.py       # Excel分析 → Markdown报告（核心）
 │   ├── jycm_auto_report.py           # 自动化全流程
 │   ├── feishu_send_markdown.py       # 飞书推送
-│   └── jycm_fetch_sycm_shop.py       # ~~旧版 API 取数（已归档）~~
+│   └── feishu_send_markdown.py       # 飞书推送
 ├── data/                             # 用户上传的生意参谋Excel
 └── reports/                          # 生成的分析报告目录
 ```

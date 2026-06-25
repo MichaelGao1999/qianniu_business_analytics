@@ -1,7 +1,8 @@
-# M02 淘系取数引擎 — 子任务清单
+# M02 淘系取数引擎 — ~~子任务清单~~（已废弃）
 
-> 负责执行 JYCM OpenAPI A→G 接口链，获取生意参谋数据并下载 Excel。
-> 关联文件：`fetch-data.md`、`fetch-data-api.md`、`scripts/jycm_fetch_sycm_shop.py`
+> ~~负责执行 JYCM OpenAPI A→G 接口链，获取生意参谋数据并下载 Excel。~~
+> **2026-06-25 废弃**：API 取数路线已确认放弃，当前为 Excel 驱动模式。取数脚本 `jycm_fetch_sycm_shop.py` 已删除。
+> 保留此文件供历史参考，所有子任务标记为不适用。
 
 ---
 

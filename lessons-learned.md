@@ -170,7 +170,7 @@
 | 7 | **subprocess → direct import 重构**：`subprocess.run` 调用同目录脚本虽然解耦，但 stdout 解析脆弱、异常传递困难。改为 `sys.path.insert(0, SCRIPT_DIR) + import module` 后直接调用函数，错误栈清晰且可测试 | jycm_auto_report.py |
 | 8 | **多店 DataFrame 合并模式**：为每个店铺 DataFrame 添加内部标识列（如 `_shop_name`），再用 `pd.concat` 合并，可使单店/多店共用同一套分析函数，只需在报告生成层判断 `is_multi_shop` 切换展示逻辑 | analyze_excel_report.py |
 | 9 | **pytest stdin 捕获陷阱**：pytest 默认捕获 stdout/stderr，也会替换 `sys.stdin` 为 `DontReadFromInput`。测试 CLI 脚本中从 stdin 读取的逻辑时，必须用 `-f` 参数或 mock `sys.stdin.read` | test_dingtalk_send_markdown.py |
-| 10 | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档」+ `main()` 抛 `NotImplementedError`，既防止误用又保留未来重建的参考 | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py |
+| 10 | ~~归档而非删除空壳代码~~ → **已逆转**：2026-06-25 经确认空壳代码无实际价值后直接 `git rm`；关键接口知识已提取到其他经验条目(如 shopIds 类型陷阱、日期时区处理)，接口结构图留存在 ADR.md 中的历史决策记录。判断标准：如果代码 90%+ 是 TODO/Mock 且无任何可运行路径，直接删除比归档更干净 | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py |
 | 104 | TAG:build-env | INFO | Git for Windows 的 bash `/tmp` 与 PowerShell `$env:TEMP` 指向同一物理目录（`C:\Users\<user>\AppData\Local\Temp`），跨 shell 操作文件无需移动 | 环境兼容 | [来源:vibe-coding-project-sop @2026-05-24] |
 | 105 | TAG:build-env | INFO | 国内下载 HuggingFace 模型时，ModelScope 是比 hf-mirror 更可靠的 fallback（后者可能 404 或同步延迟） | 网络诊断 | [来源:vibe-coding-project-sop @2026-05-24] |
 | 106 | TAG:build-env | WARNING | Windows 非管理员运行 PowerShell 脚本时，`New-NetFirewallRule` 会失败，但 `llama-server` 本身可正常启动；首次运行需提升权限 | 环境兼容 | [来源:vibe-coding-project-sop @2026-05-24] |
@@ -195,7 +195,7 @@
 | | **subprocess → direct import 重构**：`subprocess.run` 调用同目录脚本虽然解耦，但 stdout 解析脆弱、异常传递困难。改为 `sys.path.insert(0, SCRIPT_DIR) + import module` 后直接调用函数，错误栈清晰且可测试 [来源:qianniu_business_analytics @2026-05-29] | jycm_auto_report.py |
 | | **多店 DataFrame 合并模式**：为每个店铺 DataFrame 添加内部标识列（如 `_shop_name`），再用 `pd.concat` 合并，可使单店/多店共用同一套分析函数，只需在报告生成层判断 `is_multi_shop` 切换展示逻辑 [来源:qianniu_business_analytics @2026-05-29] | analyze_excel_report.py |
 | | **pytest stdin 捕获陷阱**：pytest 默认捕获 stdout/stderr，也会替换 `sys.stdin` 为 `DontReadFromInput`。测试 CLI 脚本中从 stdin 读取的逻辑时，必须用 `-f` 参数或 mock `sys.stdin.read` [来源:qianniu_business_analytics @2026-05-29] | test_dingtalk_send_markdown.py |
-| | **归档而非删除空壳代码**：对于含大量 TODO 和模拟数据的脚本，直接删除会丢失已有接口设计；改为文件头标记「已归档」+ `main()` 抛 `NotImplementedError`，既防止误用又保留未来重建的参考 [来源:qianniu_business_analytics @2026-05-29] | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py |
+| | ~~归档而非删除空壳代码~~ → **已逆转**：2026-06-25 经确认空壳代码无实际价值后直接 `git rm`；关键接口知识已提取到其他经验条目（如 shopIds 类型陷阱、日期时区处理）。判断标准：如果代码 90%+ 是 TODO/Mock 且无可运行路径，直接删除比归档更干净 [来源:qianniu_business_analytics @2026-05-29] [2026-06-25 更新: 逆转] | qianniu_analytics_orchestrator.py / jycm_fetch_sycm_shop.py |
 | | 日期区间多一天的问题是通过**后端实测**发现的（请求 4/20-4/26 返回了 4/27），而非文档说明。API 对接时文档与实际行为可能有偏差，应以实测为准。 [来源:qianniu_business_analytics @2026-05-29] |  |
 | | Cookie 活性检测与订购检查**复用同一接口**（`product.json`），避免冗余调用。 [来源:qianniu_business_analytics @2026-05-29] |  |
 | | 技能包的核心约束（如时区规则、渠道范围）应在 `SKILL.md` 和 `AGENTS.md` 中**双重声明**：`SKILL.md` 面向功能执行，`AGENTS.md` 面向开发维护，确保不同场景下都不会遗忘。 [来源:qianniu_business_analytics @2026-05-29] |  |

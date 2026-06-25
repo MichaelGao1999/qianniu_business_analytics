@@ -1,7 +1,7 @@
 # M05 自动化编排 — 子任务清单
 
 > 负责 CLI 入口、定时任务支持、全流程自动化编排。
-> 关联文件：`scripts/jycm_auto_report.py`、`scripts/qianniu_analytics_orchestrator.py`
+> 关联文件：`scripts/jycm_auto_report.py`
 
 ---
 
@@ -10,7 +10,7 @@
 - [x] O-01: 实现 `jycm_auto_report.py` CLI 参数解析（--days, --start, --end, --shops, --dingtalk）
 - [x] O-02: 实现日期范围自动计算（默认上周自然周）
 - [x] O-03: 实现全流程编排调用（取数→分析→推送）
-- [x] O-04: 实现 `qianniu_analytics_orchestrator.py` 类编排接口
+- [x] O-04: ~~实现 `qianniu_analytics_orchestrator.py` 类编排接口~~（2026-06-25 该脚本已删除，此任务完成供历史参考）
 
 ---
 

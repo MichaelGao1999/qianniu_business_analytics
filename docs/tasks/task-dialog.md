@@ -1,7 +1,7 @@
 # M06 对话编排 — 子任务清单
 
 > 负责 Agent 对话流程控制，按 SKILL.md 规范响应用户自然语言请求。
-> 关联文件：`SKILL.md`、`scripts/qianniu_analytics_orchestrator.py`
+> 关联文件：`SKILL.md`
 
 ---
 
