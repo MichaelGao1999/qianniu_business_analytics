@@ -3,7 +3,7 @@
 > 本文件由 `scripts/build-experience-index.py` 自动生成。
 > 覆盖 troubleshooting / lessons-learned / ADR，统一搜索入口。
 
-> 当前收录 **488** 条记录（问题 49 + 经验 398 + 决策 41）。
+> 当前收录 **455** 条记录（问题 49 + 经验 398 + 决策 8）。
 
 ---
 
@@ -458,47 +458,14 @@
 | general | 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:french-exit @... | 经验 | 未分类 | [来源:french-exit | INFO | lessons-learned.md#L121 |
 | general | `cargo check --lib` 不需要链接，可以在中文路径直接跑；`cargo test --no-run` 同... | 经验 | 未分类 | [来源:french-exit | INFO | lessons-learned.md#L122 |
 | general | Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚本时优先用正斜杠或 ... | 经验 | 未分类 | [来源:blindfold-chess | INFO | lessons-learned.md#L123 |
-| general | ADR-001: 前端技术栈选型 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L8 |
-| general | ADR-002: 测试框架选型 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L22 |
-| general | ADR-003: AI 开发方式与批次划分 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L36 |
-| general | ADR-004: 棋盘渲染与棋子方案 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L50 |
-| general | ADR-005: 数据持久化方案 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L64 |
-| general | ADR-006: 通用对局配置层设计 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L78 |
-| general | ADR-007: 难度选择从离散按钮改为连续滑块 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L92 |
-| general | ADR-008: 棋盘风格设置交互方案 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L106 |
-| general | ADR-009: 盲棋复盘入口位置 | 决策 | 架构决策 | [来源:blindfold-chess | — | ADR.md#L120 |
-| general | ADR-017: GitHub 认证从 SSH 切换到 GitHub CLI + HTTPS | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L132 |
-| general | ADR-001: 为什么用 Tauri（Rust + WebView2）而非 Electron？ | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L147 |
-| general | ADR-002: 为什么前端用 React（而非 Vue/Svelte）？ | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L160 |
-| general | ADR-003: 为什么 CPU% 用 `GetProcessTimes` 而非 `sysinfo` crate？ | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L174 |
-| general | ADR-004: 为什么 Scanner 进度用 `mpsc::channel` 而非 `tokio::sync::wa... | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L188 |
-| general | ADR-005: 为什么加密文件回调用同步 `Fn` 而非 `async`？ | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L202 |
-| general | ADR-006: 为什么用 `status.md` + `session-log.md` 替代 `prompt-next... | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L216 |
-| general | ADR-007: WebView2 分发策略——放弃 NSIS bootstrapper，改用携带 DLL | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L228 |
-| general | ADR-008: 默认深色主题而非跟随系统 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L240 |
-| general | ADR-009: 全选全部功能的技术方案 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L252 |
-| general | ADR-010: 路径交互设计 — 文本可点击 vs 独立按钮 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L264 |
-| general | ADR-011: 删除策略从 DoD 安全擦除改为普通删除 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L276 |
-| general | ADR-012: 扫描范围从 Desktop/Downloads 扩展为全盘扫描 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L288 |
-| general | ADR-013: 移除 ResultsPage 默认自动勾选 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L300 |
-| general | ADR-014: 同步脚本优先使用仓库 default_branch | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L314 |
-| general | ADR-015: syncFrom 配置实现聚合/分发双模式 | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L326 |
-| general | ADR-016: 母库 AGENTS 与其他项目 AGENTS 物理分离 | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L338 |
-| general | ADR-009: Troubleshooting 索引采用独立文件 + 行号链接 | 决策 | 架构决策 |  | — | ADR.md#L392 |
-| general | ADR-017: init-skeleton.py 保持 Python 3.9 兼容 | 决策 | 架构决策 |  | — | ADR.md#L416 |
-| general | ADR-017: 假删除模式通过环境变量 `FRENCH_EXIT_DRY_RUN` 控制 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L442 |
-| general | ADR-017: 扫描进度条采用后端全局加权进度计算 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L458 |
-| general | ADR-018: 个人目录全量扫描 + 文件类型分类 | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L473 |
-| general | ADR-018: WebView2 安装模式选择 downloadBootstrapper | 决策 | 架构决策 | [来源:french-exit | — | ADR.md#L491 |
-| python-data | ADR-001: 技术栈选型（Python 3 + requests） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L510 |
-| python-data | ADR-002: 渠道范围限定（仅淘系生意参谋） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L524 |
-| python-data | ADR-003: Cookie 刷新策略（Digest 自动刷新，不问用户） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L538 |
-| python-data | ADR-004: 日期时间格式（T00:00:00+08:00，禁用 23:59:59） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L552 |
-| python-data | ADR-005: 报告形态（Markdown 四段式，单店/多店统一） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L566 |
-| python-data | ADR-017: 聚焦 Excel 驱动流，API 驱动流暂不投入 | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L584 |
-| general | ADR-019: Node.js 环境隔离方案（nvm + 双 Node.js） [母库 @2026-05-30] | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L598 |
-| general | ADR-020: 状态文档机制重构（待办清理 + 技术债务表格化） [母库 @2026-05-30] | 决策 | 架构决策 | [来源:vibe-coding-project-sop | — | ADR.md#L612 |
-| python-data | ADR-022: 保持 `qianniu_business_analytics` 与 `ecommerce-report... | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L626 |
+| general | ADR-009: Troubleshooting 索引采用独立文件 + 行号链接 | 决策 | 架构决策 |  | — | ADR.md#L44 |
+| general | ADR-017: init-skeleton.py 保持 Python 3.9 兼容 | 决策 | 架构决策 |  | — | ADR.md#L68 |
+| python-data | ADR-001: 技术栈选型（Python 3 + requests） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L95 |
+| python-data | ADR-002: 渠道范围限定（仅淘系生意参谋） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L109 |
+| python-data | ADR-003: Cookie 刷新策略（Digest 自动刷新，不问用户） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L123 |
+| python-data | ADR-004: 日期时间格式（T00:00:00+08:00，禁用 23:59:59） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L137 |
+| python-data | ADR-005: 报告形态（Markdown 四段式，单店/多店统一） | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L151 |
+| python-data | ADR-022: 保持 `qianniu_business_analytics` 与 `ecommerce-report... | 决策 | 架构决策 | [来源:qianniu_business_analytics | — | ADR.md#L165 |
 
 ---
 
@@ -551,10 +518,6 @@
 - [经验] **`tauri::AppHandle` 出现在 `async fn` 签名中 + MinGW =  — `未分类` → lessons-learned.md#L415
 - [经验] 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:fre — `未分类` → lessons-learned.md#L121
 - [经验] `cargo check --lib` 不需要链接，可以在中文路径直接跑；`cargo test - — `未分类` → lessons-learned.md#L122
-- [决策] ADR-001: 为什么用 Tauri（Rust + WebView2）而非 Electron？ — `架构决策` → ADR.md#L147
-- [决策] ADR-003: 为什么 CPU% 用 `GetProcessTimes` 而非 `sysinfo` — `架构决策` → ADR.md#L174
-- [决策] ADR-007: WebView2 分发策略——放弃 NSIS bootstrapper，改用携带  — `架构决策` → ADR.md#L228
-- [决策] ADR-018: WebView2 安装模式选择 downloadBootstrapper — `架构决策` → ADR.md#L491
 
 ### JavaScript / React / Vitest
 
@@ -636,8 +599,6 @@
 - [经验] **零 layout 动画三板斧**：①元素始终占位（不用 `v-if`/`v-show` 插入 D — `未分类` → lessons-learned.md#L427
 - [经验] 注册表 WOW6432Node 是 32 位视图的逻辑别名，不是物理路径。用 64 位工具写 WOW — `未分类` → lessons-learned.md#L433
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L123
-- [决策] ADR-002: 为什么前端用 React（而非 Vue/Svelte）？ — `架构决策` → ADR.md#L160
-- [决策] ADR-019: Node.js 环境隔离方案（nvm + 双 Node.js） [母库 @2026 — `架构决策` → ADR.md#L598
 
 ### Python
 
@@ -648,8 +609,8 @@
 - [经验] 不要在 pipx 安装的 Python 包源码目录中执行 `git pull`，除非确认没有本地修改 — `未分类` → lessons-learned.md#L255
 - [经验] **WriteFile 不适合超大特殊字符内容**：含大量引号/换行的长文本会因 JSON 转义失败 — `未分类` → lessons-learned.md#L339
 - [经验] 被沙箱禁掉 reg.exe、PowerShell Set-ItemProperty、反射 Assem — `未分类` → lessons-learned.md#L434
-- [决策] ADR-017: init-skeleton.py 保持 Python 3.9 兼容 — `架构决策` → ADR.md#L416
-- [决策] ADR-001: 技术栈选型（Python 3 + requests） — `架构决策` → ADR.md#L510
+- [决策] ADR-017: init-skeleton.py 保持 Python 3.9 兼容 — `架构决策` → ADR.md#L68
+- [决策] ADR-001: 技术栈选型（Python 3 + requests） — `架构决策` → ADR.md#L95
 
 ### AI 工具链 / LLM
 
@@ -688,7 +649,6 @@
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L405
 - [经验] **GitHub 上 Fetch 的 SKILL.md 不能只看内容不看场景**。用户发来 `git — `未分类` → lessons-learned.md#L425
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L123
-- [决策] ADR-017: GitHub 认证从 SSH 切换到 GitHub CLI + HTTPS — `架构决策` → ADR.md#L132
 
 ### 网络 / 环境 / 权限
 
@@ -796,7 +756,6 @@
 - [经验] 被沙箱禁掉 reg.exe、PowerShell Set-ItemProperty、反射 Assem — `未分类` → lessons-learned.md#L434
 - [经验] 中文路径 + MinGW = 链接器失败。解决方案：复制到纯 ASCII 路径后编译 [来源:fre — `未分类` → lessons-learned.md#L121
 - [经验] Windows 路径在 git bash / Node.js / cmd 中转义规则不同，写跨平台脚 — `未分类` → lessons-learned.md#L123
-- [决策] ADR-007: WebView2 分发策略——放弃 NSIS bootstrapper，改用携带  — `架构决策` → ADR.md#L228
 
 ### Chess / 引擎
 
@@ -1083,38 +1042,12 @@
 - [经验] 调用链是分层传递的，WebChannel 桥接后 JS 拦不住 Native。通达OA 点击图片走  — `未分类` → lessons-learned.md#L431
 - [经验] 测试驱动开发能在手工测试无法触及的边界条件下发现 bug（如"恰好取消所有勾选"触发死循环）[来源: — `未分类` → lessons-learned.md#L114
 - [经验] `AGENTS.md` 定义触发词和行为约束，`status.md` 记录动态进度，两者分工明确，新 — `未分类` → lessons-learned.md#L117
-- [决策] ADR-001: 前端技术栈选型 — `架构决策` → ADR.md#L8
-- [决策] ADR-002: 测试框架选型 — `架构决策` → ADR.md#L22
-- [决策] ADR-003: AI 开发方式与批次划分 — `架构决策` → ADR.md#L36
-- [决策] ADR-004: 棋盘渲染与棋子方案 — `架构决策` → ADR.md#L50
-- [决策] ADR-005: 数据持久化方案 — `架构决策` → ADR.md#L64
-- [决策] ADR-006: 通用对局配置层设计 — `架构决策` → ADR.md#L78
-- [决策] ADR-007: 难度选择从离散按钮改为连续滑块 — `架构决策` → ADR.md#L92
-- [决策] ADR-008: 棋盘风格设置交互方案 — `架构决策` → ADR.md#L106
-- [决策] ADR-009: 盲棋复盘入口位置 — `架构决策` → ADR.md#L120
-- [决策] ADR-004: 为什么 Scanner 进度用 `mpsc::channel` 而非 `tokio — `架构决策` → ADR.md#L188
-- [决策] ADR-005: 为什么加密文件回调用同步 `Fn` 而非 `async`？ — `架构决策` → ADR.md#L202
-- [决策] ADR-006: 为什么用 `status.md` + `session-log.md` 替代 `p — `架构决策` → ADR.md#L216
-- [决策] ADR-008: 默认深色主题而非跟随系统 — `架构决策` → ADR.md#L240
-- [决策] ADR-009: 全选全部功能的技术方案 — `架构决策` → ADR.md#L252
-- [决策] ADR-010: 路径交互设计 — 文本可点击 vs 独立按钮 — `架构决策` → ADR.md#L264
-- [决策] ADR-011: 删除策略从 DoD 安全擦除改为普通删除 — `架构决策` → ADR.md#L276
-- [决策] ADR-012: 扫描范围从 Desktop/Downloads 扩展为全盘扫描 — `架构决策` → ADR.md#L288
-- [决策] ADR-013: 移除 ResultsPage 默认自动勾选 — `架构决策` → ADR.md#L300
-- [决策] ADR-014: 同步脚本优先使用仓库 default_branch — `架构决策` → ADR.md#L314
-- [决策] ADR-015: syncFrom 配置实现聚合/分发双模式 — `架构决策` → ADR.md#L326
-- [决策] ADR-016: 母库 AGENTS 与其他项目 AGENTS 物理分离 — `架构决策` → ADR.md#L338
-- [决策] ADR-009: Troubleshooting 索引采用独立文件 + 行号链接 — `架构决策` → ADR.md#L392
-- [决策] ADR-017: 假删除模式通过环境变量 `FRENCH_EXIT_DRY_RUN` 控制 — `架构决策` → ADR.md#L442
-- [决策] ADR-017: 扫描进度条采用后端全局加权进度计算 — `架构决策` → ADR.md#L458
-- [决策] ADR-018: 个人目录全量扫描 + 文件类型分类 — `架构决策` → ADR.md#L473
-- [决策] ADR-002: 渠道范围限定（仅淘系生意参谋） — `架构决策` → ADR.md#L524
-- [决策] ADR-003: Cookie 刷新策略（Digest 自动刷新，不问用户） — `架构决策` → ADR.md#L538
-- [决策] ADR-004: 日期时间格式（T00:00:00+08:00，禁用 23:59:59） — `架构决策` → ADR.md#L552
-- [决策] ADR-005: 报告形态（Markdown 四段式，单店/多店统一） — `架构决策` → ADR.md#L566
-- [决策] ADR-017: 聚焦 Excel 驱动流，API 驱动流暂不投入 — `架构决策` → ADR.md#L584
-- [决策] ADR-020: 状态文档机制重构（待办清理 + 技术债务表格化） [母库 @2026-05-30] — `架构决策` → ADR.md#L612
-- [决策] ADR-022: 保持 `qianniu_business_analytics` 与 `ecomme — `架构决策` → ADR.md#L626
+- [决策] ADR-009: Troubleshooting 索引采用独立文件 + 行号链接 — `架构决策` → ADR.md#L44
+- [决策] ADR-002: 渠道范围限定（仅淘系生意参谋） — `架构决策` → ADR.md#L109
+- [决策] ADR-003: Cookie 刷新策略（Digest 自动刷新，不问用户） — `架构决策` → ADR.md#L123
+- [决策] ADR-004: 日期时间格式（T00:00:00+08:00，禁用 23:59:59） — `架构决策` → ADR.md#L137
+- [决策] ADR-005: 报告形态（Markdown 四段式，单店/多店统一） — `架构决策` → ADR.md#L151
+- [决策] ADR-022: 保持 `qianniu_business_analytics` 与 `ecomme — `架构决策` → ADR.md#L165
 
 
 ---
@@ -1237,26 +1170,13 @@
 - **复制粘贴是 i18n 错误的常见来源**：将中文值直接粘贴进英文字典，或反之，属于低级但高频的疏忽 [来源... → lessons-learned.md#L33
 - ... 还有 378 条
 
-### 决策（41 条）
+### 决策（8 条）
 
-- ADR-001: 前端技术栈选型 → ADR.md#L8
-- ADR-002: 测试框架选型 → ADR.md#L22
-- ADR-003: AI 开发方式与批次划分 → ADR.md#L36
-- ADR-004: 棋盘渲染与棋子方案 → ADR.md#L50
-- ADR-005: 数据持久化方案 → ADR.md#L64
-- ADR-006: 通用对局配置层设计 → ADR.md#L78
-- ADR-007: 难度选择从离散按钮改为连续滑块 → ADR.md#L92
-- ADR-008: 棋盘风格设置交互方案 → ADR.md#L106
-- ADR-009: 盲棋复盘入口位置 → ADR.md#L120
-- ADR-017: GitHub 认证从 SSH 切换到 GitHub CLI + HTTPS → ADR.md#L132
-- ADR-001: 为什么用 Tauri（Rust + WebView2）而非 Electron？ → ADR.md#L147
-- ADR-002: 为什么前端用 React（而非 Vue/Svelte）？ → ADR.md#L160
-- ADR-003: 为什么 CPU% 用 `GetProcessTimes` 而非 `sysinfo` crat... → ADR.md#L174
-- ADR-004: 为什么 Scanner 进度用 `mpsc::channel` 而非 `tokio::syn... → ADR.md#L188
-- ADR-005: 为什么加密文件回调用同步 `Fn` 而非 `async`？ → ADR.md#L202
-- ADR-006: 为什么用 `status.md` + `session-log.md` 替代 `prompt... → ADR.md#L216
-- ADR-007: WebView2 分发策略——放弃 NSIS bootstrapper，改用携带 DLL → ADR.md#L228
-- ADR-008: 默认深色主题而非跟随系统 → ADR.md#L240
-- ADR-009: 全选全部功能的技术方案 → ADR.md#L252
-- ADR-010: 路径交互设计 — 文本可点击 vs 独立按钮 → ADR.md#L264
-- ... 还有 21 条
+- ADR-009: Troubleshooting 索引采用独立文件 + 行号链接 → ADR.md#L44
+- ADR-017: init-skeleton.py 保持 Python 3.9 兼容 → ADR.md#L68
+- ADR-001: 技术栈选型（Python 3 + requests） → ADR.md#L95
+- ADR-002: 渠道范围限定（仅淘系生意参谋） → ADR.md#L109
+- ADR-003: Cookie 刷新策略（Digest 自动刷新，不问用户） → ADR.md#L123
+- ADR-004: 日期时间格式（T00:00:00+08:00，禁用 23:59:59） → ADR.md#L137
+- ADR-005: 报告形态（Markdown 四段式，单店/多店统一） → ADR.md#L151
+- ADR-022: 保持 `qianniu_business_analytics` 与 `ecommerce-r... → ADR.md#L165

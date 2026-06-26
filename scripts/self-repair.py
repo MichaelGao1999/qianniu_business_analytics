@@ -86,7 +86,12 @@ def _plain_heading(s: str) -> str:
 # ═══════════════════════════════════════════════════════════════
 
 def _parse_sync_blocks_from_starter() -> list[dict]:
-    """解析 starter/AGENTS.md 中的 @sync 标记区段。"""
+    """解析 starter/AGENTS.md 中的 @sync 标记区段。
+    
+    下游项目无 starter/ 目录，返回空列表跳过。
+    """
+    if not STARTER_AGENTS.exists():
+        return []
     text = STARTER_AGENTS.read_text(encoding="utf-8")
     blocks = []
     pattern = re.compile(r'<!-- @sync:id=(\S+) -->\n(.+?)\n<!-- /@sync -->', re.DOTALL)
