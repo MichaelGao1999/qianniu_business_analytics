@@ -24,7 +24,7 @@ import subprocess
 import sys
 from datetime import date, timedelta
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 from urllib.parse import quote
 
 # ── 路径 ──────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ DATE_PATTERN = re.compile(r"^## (\d{4}-\d{2}-\d{2})")
 
 # ── GitHub raw 缓存 ───────────────────────────────────────────
 
-_raw_cache: dict = {}
+_raw_cache: dict[str, Optional[str]] = {}
 
 
 # ── 自然语言日期解析 ──────────────────────────────────────────
@@ -143,7 +143,7 @@ def _load_username() -> Optional[str]:
     try:
         with open(GITHUB_SYNC_CONFIG, "r", encoding="utf-8") as f:
             cfg = json.load(f)
-        return cfg.get("username")
+        return cast(Optional[str], cfg.get("username"))
     except (json.JSONDecodeError, IOError, KeyError):
         return None
 

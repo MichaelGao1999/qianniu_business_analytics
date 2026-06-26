@@ -420,6 +420,13 @@ def verify(text: str) -> list[str]:
         for n, c in dupes.items():
             issues.append(f"编号冲突：ADR-{n:03d} 出现 {c} 次")
 
+    # 2b. 编号连续性
+    sorted_nums = sorted(set(nums))
+    for i in range(1, len(sorted_nums)):
+        if sorted_nums[i] - sorted_nums[i - 1] > 1:
+            for missing in range(sorted_nums[i - 1] + 1, sorted_nums[i]):
+                issues.append(f"编号跳号：缺少 ADR-{missing:03d}（在 {sorted_nums[i - 1]:03d} 与 {sorted_nums[i]:03d} 之间）")
+
     # 3. 来源标签检查
     entry_headers = [
         line for line in lines if re.match(r"^###\s+repo_\d+/ADR-\d+", line)

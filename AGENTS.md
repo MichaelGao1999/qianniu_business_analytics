@@ -37,69 +37,6 @@
 <!-- /@sync -->
 ---
 <!-- @sync:id=archive -->
-## 1. 项目定位
-
- 淘系（天猫 / 淘宝 → 生意参谋）店铺经营数据分析技能。支持单店或多家淘系店铺合并分析（多店横向对比 + 排行）。
-
-- **形态**：Python CLI 技能包（自包含技能）
-- **技术栈**：Python 3.8+，requests，urllib
-- **目标用户**：AI Agent / 电商运营人员
-
-> 环境详情见 `status.md`「环境备忘」。
-
----
-
-## 2. 必读上下文（按顺序，5 分钟）
-
-1. `AGENTS.md` — 本文件（硬规则）
-2. `status.md` — 当前进度、待办清单、环境备忘
-3. `session-log.md` — 前几轮怎么走到这里的
-4. `SKILL.md` — 技能主入口（执行流程、强约束、触发条件）
-5. `docs/design.md` — 概要设计（如需改架构或接口）
-
-> **新项目启动时额外阅读**：`vibe-coding-sop.md` — 五阶段 Vibe Coding 工作流 SOP。
-
-**禁止**：在未阅读 `status.md` 和 `SKILL.md` 前直接写代码。
-
-> 各文件职责边界见 `README.md` → 目录结构。
-
----
-<!-- @sync:id=core-constraints -->
-## 3. 核心约束（硬规则，不可违反）
-
-| 规则 ID | 规则内容 | 违反后果 |
-|---------|---------|---------|
-| **RULE-01** | **必须先建立基础设施层，再按阶段创建产出层** | 过程无记录、状态不可追踪 |
-| **ARCHIVE-01** | **用户说「存档」时，执行标准存档流程** | 文档与 Git 状态不一致 |
-| **ARCHIVE-02** | **「存档」触发后必须先输出确认清单** | 误触导致非预期提交 |
-| **RULE-04** | **禁止向工作区以外的系统关键目录写入文件（如 C:\Windows、/System、/etc 等）；用户明确授权时可例外** | 系统文件被污染 |
-| **RULE-06** | **`status.md` 中已完成的待办项应在存档时删除；历史完成记录由「更新记录」章节承担，待办清单只保留未完成项。** | 待办清单膨胀、恢复时噪音过大、重点模糊 |
-| **RULE-08** | **新增模块或组件前，必须先搜索项目中是否有可复用的同类代码（grep 关键词 / 搜索 `experience-index.md` / 检查现有组件）。禁止在已有组件可用时手写重复逻辑。** | 代码膨胀、维护成本翻倍、风格不一致 |
-| **RULE-09** | **技术债务解决后，必须从 `status.md` 债务表删除，追加到「已解决债务」，并记录到 `lessons-learned.md`（标注 TAG:debt）** | 债务与经验脱节、重复犯错、无法追溯解决过程 |
-| **RULE-10** | **阶段口令触发后，必须先做前置条件检查（status.md + 前置文件确认），不通过则禁止启动该阶段** | 跳步导致产出无上下文、接口缺失依赖 |
-| **RULE-11** | **阶段口令是启动器而非执行器：口令只负责「检查+说明目标+确认启动」，具体执行细节严格引用 agent-coding-workflow.md 对应章节，禁止在口令逻辑中重写执行规范** | 规则在两处维护导致版本分歧 |
-| **RULE-12** | **写入 `troubleshooting.md` / `lessons-learned.md` / `ADR.md` 时，所有 IP 地址、本地文件路径、邮箱等敏感信息必须使用占位符替代（如 `{SERVER_IP}`、`{PROJECT_PATH}`）；仅在问题重现必须精确信息时才保留，同时写入备注说明** | 经验文档聚合后泄露个人/基础设施信息；下游项目分发后无法逐一清理 |
-| **RULE-13** | **禁止在最终输出中出现占位符（`[...]`、`<...>`、`TBD`、`TODO`、`待补充`）；信息不足时使用通用表述替代，宁可放宽粒度不可留空洞** | 下游 agent 无法消费输出、内容不可用、需人工返工 |
-| **RULE-14** | **所有文件 I/O 和 `subprocess.run()` 必须显式传入 `encoding` 参数** | Windows GBK 环境下不指定会导致 UnicodeDecodeError |
-| **RULE-15** | **`git merge` 因文件系统不兼容失败时，禁止使用 `-s ours` / `-X ours`。必须改用 `git merge-tree --write-tree` 在对象空间完成合并，仅排除无法在当前文件系统创建的文件（`scripts/pre-merge-check.py` 预检 + `scripts/check-merge-integrity.py` 后检）** | 丢弃远端变更导致跨平台同步数据静默丢失 |
-| **RULE-16** | **审查/审计类操作输出报告后，禁止自行修复。必须将报告呈现给用户，等待用户明确审批后再动手修。** | Agent 绕过用户直接修改代码，用户失去对改动的知情和控制 |
-
-<!-- /@sync -->
----
-<!-- @sync:id=recovery -->
-## 4. 模块速查表
-
-| ID | 模块名 | 职责 | 技术要点 |
-|----|--------|------|---------|
-| M01 | 认证管理 | Cookie 获取/刷新/凭证管理 | HTTP Digest 认证，`auth/jycm.json` 三字段完整存储 |
-| M02 | 淘系取数 | 生意参谋 A→G 接口链调用 | `channelName=天猫淘宝` 固定锚点，`shopIds: List<String>` |
-| M03 | 报告分析 | Excel 读取 → Markdown 四段式报告 | openpyxl，四段式（整体/趋势/排行/总结）|
-| M04 | 钉钉推送 | Markdown 推送钉钉机器人 | `DINGTALK_WEBHOOK` 环境变量，18000 字符截断 |
-| M05 | 自动化编排 | CLI 入口，定时任务支持 | `jycm_auto_report.py` `--days` `--dingtalk` |
-| M06 | 对话编排 | Agent 对话流程控制 | 预检 → 取数 → 报告 → 推送 四步严格顺序 |
-
----
-
 ## 4.1 存档指令（「存档」）
 
 **触发词**：`存档`（去除标点后精确等于这两个字）
@@ -123,12 +60,20 @@
    - 序号选择（如 `1,3` 或 `1-3`）→ 仅处理选中的候选
    - `redo` → 重新提炼候选
 3. **更新文档**：
+   - **前置获取**：
+     `git fetch origin`
+     - 远程有超前提交 → 本地脏则 `git stash`，然后 `git pull --rebase`，有 stash 则 `git stash pop`；本地干净则直接 `git pull --rebase`
+     - 远程无超前提交 → 跳过 pull
+     （目的：确保读到最新 session-log.md，防止后续追加基于过时文件）
    - `status.md`：对照 `git diff --stat` 逐条核销待办，已完成的打勾，未触及的说明原因；新增待办、更新记录；技术债务解决时同步到 `lessons-learned.md`
+     - ⚠️ **若 `git diff --stat` 为空**（工作区无代码变更，本会话仅产生文档）：**跳过文件对照核销**，仅基于 session-log 内容更新待办勾选 + 新增待办 + 更新记录表
    - **`docs/tasks/task-progress.md` + `docs/tasks/task-{module}.md`**：基于步1 回顾结果，扫描各模块任务文件的 `[ ]` checkbox，勾选本轮已完成的子任务（`[ ]` → `[x]`），更新模块进度表。此步不做任务-代码自动映射，由 AI 人工复查
    - **知识文件**：有报错 → 追加 `troubleshooting.md`；有经验 → 追加 `lessons-learned.md`；有关键决策 → 追加 `ADR.md`
-4. **定稿 + 审查**：定稿 `session-log.md`；运行 `sensitivity-check.py` 扫描拟写入内容；有认知候选时运行 `cognitive-extract.py`
+4. **定稿 + 审查**：定稿 `session-log.md`（**追加模式**：读取现有文件 → 在文件头部插入本轮新条目 → 写回，禁止全量覆盖）；运行 `sensitivity-check.py` 扫描拟写入内容；有认知候选时运行 `cognitive-extract.py`
    > **辅助工具**：`python scripts/error-detector.py` 可检测命令输出中的常见错误模式
 5. Git 全量提交：`git add -A` → `git commit -m "[session] 摘要"` → `git push`
+   - ⚠️ **提交前检查**：确认 `session-log.md` 已在本步修改（`git diff --stat session-log.md` 非空），如未修改则报错：「session-log.md 未变更，存档中止」
+   - ⚠️ **push 结果不强制要求在会话内等待**：`git push` 可能因网络/权限延迟，启动后继续汇报。如失败则提示用户手动 push
 6. 汇报完成
 
 **Git 错误处理**：无 `.git` 目录 → 跳过 Git；无变更 → 跳过 commit；push 失败 → 报错暂停。
@@ -143,6 +88,34 @@
 - ❌ 不提炼：具体错误修复步骤（→ troubleshooting.md）、项目架构决策（→ ADR.md）、工程经验方法（→ lessons-learned.md）、纯操作流水
 
 > **一句话判断**：三个月后不碰这个项目了，再看这条还能让你「啊对，当时就是这么理解的」——就值得记。
+
+<!-- /@sync -->
+---
+<!-- @sync:id=recovery -->
+## 4.2 恢复指令（「恢复」）
+
+**触发词**：`恢复`（去除标点后精确等于这两个字）
+
+**防误触**：
+- 消息精确匹配「恢复」→ 执行恢复流程
+- 消息包含「恢复」但还有其他内容 → 视为正常对话，不触发
+
+**核心原则**：
+> **恢复摘要以 `status.md` 为主，`session-log.md` 为辅。**
+> **不要复述上轮历史。**
+
+**标准动作序列**：
+1. **Git 同步（三层安全闸）**：
+   a. `git fetch origin`
+   b. `python scripts/pre-merge-check.py origin/main` — 预检远端文件名兼容性
+   c. 如通过（exit 0）→ `git pull`；如不通过（exit 1）→ 按 merge-tree 方案执行合并
+   d. 检查 pull 是否有变化（对比 `git rev-parse HEAD@{1}` 与 HEAD）；无变化则跳过下一步
+   e. `python scripts/check-merge-integrity.py` — 后检是否有意外丢失文件
+   f. 如丢失 → 按脚本输出恢复；如通过 → 继续
+2. 读取 `status.md`（主数据源）：阶段、进度、待办、阻塞项
+3. 读取 `session-log.md` 最后一条（辅数据源）：只取「遗留问题/下轮开始点」
+4. **分析 + 汇报**：用户有报错 → 搜索 troubleshooting；检查 status 字段有效性；综合判断后输出恢复摘要（当前状态 + 建议下一步）
+5. 等待用户下一步指令
 
 <!-- /@sync -->
 ---
@@ -174,7 +147,7 @@
 
 <!-- /@sync -->
 ---
-
+<!-- @sync:id=checkpoint -->
 ## 4.3 快照指令（「checkpoint」）
 
 > 轻量安全快照，用于改动前拍照。与「存档」互补——存档是会话结束的正式记录，checkpoint 是开发中的安全网。
@@ -211,33 +184,31 @@
 
 
 
+
+
+
 ---
 
-<!-- @sync:id=cleanup -->
-## 4.4 清理指令（「清理」）
+<!-- @sync:id=project-review -->
+## 4.6 项目审查（「项目审查」）
 
-**触发词**：`清理`（去除标点后精确等于这两个字）
+> 对项目进行六维度架构审查：目录树扫描 / 核心模块清单 / 依赖图 / 循环依赖 / 重复实现 / 过度耦合。
+
+**触发词**：`项目审查`（去除标点后精确等于这两个字）
 
 **防误触**：
-- 消息精确匹配「清理」→ 执行清理流程
-- 消息包含「清理」但还有其他内容 → 视为正常对话，不触发
+- 消息精确匹配「项目审查」→ 执行审查流程
+- 消息包含「项目审查」但还有其他内容 → 视为正常对话，不触发
 
-**作用范围**：本项目的知识文件（`troubleshooting.md`、`lessons-learned.md`、`ADR.md`）和 `AGENTS.md` 结构。
+**标准动作序列**：
+1. 运行 `python scripts/arch-review.py --dir . --summary` 输出摘要报告
+2. 输出审查结果
+3. 等待用户下一步指令
 
-**5 步管线**：
+**可选扩展**：
+- 若用户回复 `详细` → 执行完整六维报告（去掉 `--summary`）
+- 若用户回复 `scripts/` → 只审查 scripts/ 目录（默认行为）
 
-| 步 | 检查项 | 命令 |
-|----|--------|------|
-| 1 | ADR 重复/冲突分析 + AI 语义复查 | `analyze-duplicates.py` |
-| 2 | ADR 结构校验 | `adr-restructure.py --verify` |
-| 3 | 索引新鲜度 + 重建 | `self-repair index [--dry-run]` |
-| 4 | 敏感信息扫描 | `sensitivity-check.py --dir .` |
-| 5 | **全量自修复**（章节 / 知识文件 / 索引） | `self-repair all [--dry-run]` |
-
-- 先输出检查清单，等待用户 `y` 确认
-- 每步完成后输出可视化报告，全部完成后输出审核决策面板
-- **限制**：不自动合并/修改/操作 Git，索引重建需二次确认
-- 步 5 支持 `--dry-run`（仅报告不修改），执行前自动备份 `.backup/`
 <!-- /@sync -->---
 
 <!-- @sync:id=todo-rules -->
@@ -270,29 +241,19 @@
 **用户否决**：`撤销` / `不算` → 删除；`合并到 #N` → 合并；不回复 → 保留。存档检查点统一展示待确认。
 <!-- /@sync -->---
 
-<!-- @sync:id=project-review -->
-## 4.6 项目审查（「项目审查」）
+<!-- @sync:id=cleanup -->
+## 4.4 清理指令（「清理」）
 
-> 对项目进行六维度架构审查：目录树扫描 / 核心模块清单 / 依赖图 / 循环依赖 / 重复实现 / 过度耦合。
-
-**触发词**：`项目审查`（去除标点后精确等于这两个字）
+**触发词**：`清理`（去除标点后精确等于这两个字）
 
 **防误触**：
-- 消息精确匹配「项目审查」→ 执行审查流程
-- 消息包含「项目审查」但还有其他内容 → 视为正常对话，不触发
+- 消息精确匹配「清理」→ 执行清理流程
+- 消息包含「清理」但还有其他内容 → 视为正常对话，不触发
 
-**标准动作序列**：
-1. 运行 `python scripts/arch-review.py --dir . --summary` 输出摘要报告
-2. 输出审查结果
-3. 等待用户下一步指令
+**作用范围**：本项目的知识文件（`troubleshooting.md`、`lessons-learned.md`、`ADR.md`）和 `AGENTS.md` 结构。
 
-**可选扩展**：
-- 若用户回复 `详细` → 执行完整六维报告（去掉 `--summary`）
-- 若用户回复 `scripts/` → 只审查 scripts/ 目录（默认行为）
-
-<!-- /@sync -->
-
----
+**执行流程**：见 `docs/workflows/cleanup.md`
+<!-- /@sync -->---
 
 <!-- @sync:id=lightweight-dev -->
 ## 4.7 轻量立项指令（「立项」）
@@ -353,17 +314,6 @@
 
 ---
 <!-- @sync:id=phase-commands -->
-## 6. 常见陷阱
-
-1. **日期时区陷阱** — `T23:59:59.999+08:00` 会导致后端多返回一天数据；必须使用 `T00:00:00+08:00`
-2. **Cookie 格式陷阱** — `requestCode` 本身不是 Cookie，必须拼接为 `jycm_open_api_token=<requestCode>`
-3. **多店 ID 类型陷阱** — `shopIds` 必须为 `List<String>`（JSON 字符串数组），禁止数字数组
-4. **Digest 方法陷阱** — `authToken.json` 必须用 **POST**，禁止用 GET
-5. **AK/SK 回写陷阱** — 刷新 token 时只更新 `jycmOpenApiCookie`，保留 AK/SK，否则后续刷新永久失败
-6. **渠道范围陷阱** — 用户说「千牛/天猫/淘宝/生意参谋」都映射到 `channelName=天猫淘宝`；其他平台明确拒绝
-
----
-<!-- @sync:id=skeleton-protocol -->
 ## 6. 阶段指令
 
 > 本章指令通过精确口令触发五阶段 SOP 流程。口令是启动器而非执行器：只负责「检查+说明目标+确认启动」，具体执行细节引用 `agent-coding-workflow.md` 对应章节（RULE-11）。

@@ -39,7 +39,6 @@ BACKUP_DIR = PROJECT_DIR / ".backup"
 
 # ── 脚本路径 ──
 SCRIPTS_DIR = PROJECT_DIR / "scripts"
-ANALYZE_DUP = SCRIPTS_DIR / "analyze-duplicates.py"
 BUILD_INDEX = SCRIPTS_DIR / "build-experience-index.py"
 
 
@@ -359,59 +358,7 @@ def run_knowledge(dry_run: bool, verbose: bool) -> int:
         gaps = _check_numbering_gaps(lessons, "lessons-learned", "num")
         issues.extend(gaps)
 
-    if ADR_MD.exists():
-        # ADR 编号检查（从标题中提取 ADR-NNN）
-        adr = parse_adr(ADR_MD.read_text(encoding="utf-8"))
-        adr_nums = []
-        for e in adr:
-            m = re.search(r"ADR[-\s]*(\d+)", e.get("title", ""))
-            if m:
-                adr_nums.append((int(m.group(1)), e.get("line_start", 0)))
-        adr_nums.sort()
-        for i in range(1, len(adr_nums)):
-            if adr_nums[i][0] - adr_nums[i - 1][0] > 1:
-                for missing in range(adr_nums[i - 1][0] + 1, adr_nums[i][0]):
-                    issues.append(
-                        f"ADR: ADR-{adr_nums[i - 1][0]}（行{adr_nums[i - 1][1]}）→ "
-                        f"ADR-{adr_nums[i][0]}（行{adr_nums[i][1]}）之间缺少 ADR-{missing}"
-                    )
 
-    # ── 检查 4: 调用 analyze-duplicates.py（跨文件去重） ──
-    try:
-        r = subprocess.run(
-            [sys.executable, str(ANALYZE_DUP), "--json", "--threshold", "0.85"],
-            capture_output=True, text=True, timeout=30, encoding="utf-8",
-        )
-        # 提取 >>>JSON_START>>> ... <<<JSON_END<<< 之间的内容
-        stdout = r.stdout
-        start_m = stdout.find(">>>JSON_START>>>")
-        end_m = stdout.find("<<<JSON_END<<<")
-        if start_m >= 0 and end_m > start_m:
-            json_str = stdout[start_m + len(">>>JSON_START>>>"):end_m].strip()
-            if json_str:
-                dup_data = json.loads(json_str)
-                total = dup_data.get("total_candidates", 0)
-                for key, label in [("adr_candidates", "ADR"),
-                                   ("lessons_candidates", "lessons-learned"),
-                                   ("troubleshooting_candidates", "troubleshooting")]:
-                    candidates = dup_data.get(key, [])
-                    if candidates:
-                        issues.append(f"{label}: {len(candidates)} 个相似候选对")
-                        for d in candidates[:3]:
-                            sim = d.get("sim", "?")
-                            a = d.get("a", {})
-                            b = d.get("b", {})
-                            issues.append(
-                                f"  sim={sim:.4f}: 行{a.get('line','?')}({a.get('id','')}) ↔ 行{b.get('line','?')}({b.get('id','')})"
-                            )
-                        if len(candidates) > 3:
-                            issues.append(f"  ... 还有 {len(candidates)-3} 对")
-                if total == 0:
-                    uprint("analyze-duplicates: 未发现重复")
-    except FileNotFoundError:
-        issues.append("analyze-duplicates.py 未找到，跳过去重检查")
-    except (subprocess.TimeoutExpired, json.JSONDecodeError):
-        pass
 
     # ── 输出报告 ──
     uprint(f"\n===== knowledge: 检查完成 =====")

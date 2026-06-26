@@ -217,3 +217,4 @@
 | 2026-06-23 | 日报聚合脚本 | ✅ docs/archived/aggregate-sessions.md |
 | 2026-06-23 | Xcode 编译错误自动抓取与修复 | ✅ docs/archived/xcode-build-logs.md |
 | 2026-06-25 | agent-loop CLI 真自循环 Agent 编排器 | 📝 docs/agent-loop.md |
+| 2026-06-26 | Scope 机制强化 | 📝 docs/scope-hardening.md |
