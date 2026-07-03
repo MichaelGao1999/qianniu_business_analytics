@@ -10,7 +10,7 @@
 ### 基础设施层
 
 | 文件 | 职责 |
-|---|------|
+|------|------|
 | `AGENTS.md` | 项目硬规则 + 模块速查 |
 | `docs/workflows/agent-coding-workflow.md` | 五阶段 workflow 参考 |
 | `status.md` | 当前进度、待办清单 |
