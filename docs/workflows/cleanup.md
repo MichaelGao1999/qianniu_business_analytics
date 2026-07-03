@@ -23,14 +23,14 @@
 
 ### 管线总览
 
-| 步 | 检查项 | 命令 | 修复策略 |
-|----|--------|------|---------|
-| 1 | ADR 结构校验 | `python scripts/adr-restructure.py --verify` | 只读报告（标题格式 / 编号冲突 / 编号跳号 / 来源标签） |
-| 2 | 跨文件相似度去重检测 | `python scripts/analyze-duplicates.py` | 只读报告 + AI 语义复查 |
-| 3 | 知识文件健康检查 | `python scripts/self-repair.py knowledge --dry-run` | 乱码可修复（确认后执行），其余只读报告 |
-| 4 | 经验索引新鲜度 | `python scripts/self-repair.py index --dry-run` | 过期时询问 → `python scripts/build-experience-index.py` 重建 |
-| 5 | 敏感信息扫描 | `python scripts/sensitivity-check.py --dir .` | 只读报告 |
-| 6 | 全量自修复（可选） | `python scripts/self-repair.py all --dry-run` | 备份 → 报告 → 确认 → 修复 |
+| 步 | 检查项 | 命令 | 修复策略 | Exit Condition | Decision Type |
+|----|--------|------|---------|---------------|---------------|
+| 1 | ADR 结构校验 | `python scripts/adr-restructure.py --verify` | 只读报告（标题格式 / 编号冲突 / 编号跳号 / 来源标签） | 报告已输出，无未决项 → 进入下一步 | Deterministic |
+| 2 | 跨文件相似度去重检测 | `python scripts/analyze-duplicates.py` | 只读报告 + AI 语义复查 | AI 语义复查完成，候选报告已输出 → 进入下一步 | Deterministic + LLM |
+| 3 | 知识文件健康检查 | `python scripts/self-repair.py knowledge --dry-run` | 乱码可修复（确认后执行），其余只读报告 | 用户已决策（修复/跳过），报告已输出 → 进入下一步 | Deterministic + Human Gate |
+| 4 | 经验索引新鲜度 | `python scripts/self-repair.py index --dry-run` | 过期时询问 → `python scripts/build-experience-index.py` 重建 | 索引已最新或用户确认重建完成 → 进入下一步 | Deterministic + Human Gate |
+| 5 | 敏感信息扫描 | `python scripts/sensitivity-check.py --dir .` | 只读报告 | 报告已输出 → 进入下一步 | Deterministic |
+| 6 | 全量自修复（可选） | `python scripts/self-repair.py all --dry-run` | 备份 → 报告 → 确认 → 修复 | 用户已决策（执行/跳过），修复完成或跳过 → 流程结束 | Deterministic + Human Gate |
 
 ### 步 1 — ADR 结构校验
 
@@ -168,6 +168,19 @@
   - [ ] TS-84 vs TS-92 → 非重复，跳过
   回复：执行合并 / 执行删除 / 全部跳过
 ```
+
+---
+
+## ✅ 完成确认清单
+
+在宣布清理流程完成前，确认以下全部成立：
+
+- [ ] 步 1~5 全部执行完毕，每步 Exit Condition 已满足
+- [ ] 步 6（如执行）已完成或用户明确跳过
+- [ ] 所有只读报告已输出给用户
+- [ ] 所有需要用户决策的项（乱码修复、索引重建、修复执行）均已获得用户确认
+- [ ] 已告知用户「清理完成」，输出汇总决策面板
+- [ ] 不擅自执行不属于清理流程的动作（不分发、不 Git 提交、不修改敏感信息）
 
 ---
 

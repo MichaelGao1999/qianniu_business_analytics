@@ -5,25 +5,66 @@
 >
 > 本项目为 **自包含技能包**，自包含认证、取数、分析、报告生成、钉钉推送全流程。
 <!-- @sync:id=skeleton-protocol -->
-## 0. ⚠️ 骨架消费协议（硬规则）
-
-**本骨架不是静态模板，禁止无脑全盘复制。**
-
-> **目录结构**：根目录只保留规则文件（`AGENTS.md`、`README.md`）。所有模板文件在 `starter/` 子目录下，消费时按需复制，禁止直接复制整个目录。
+## 0. 项目基础设施
 
 ### 基础设施层
 
 | 文件 | 职责 |
-|------|------|
+|---|------|
 | `AGENTS.md` | 项目硬规则 + 模块速查 |
-| `agent-coding-workflow.md` | 五阶段 workflow 参考 |
-| `status.md` | 当前进度、待办清单 | AI 发现遗留事项时主动写入 `- [ ]` 待办；存档时清理并补遗 |
+| `docs/workflows/agent-coding-workflow.md` | 五阶段 workflow 参考 |
+| `status.md` | 当前进度、待办清单 |
 | `session-log.md` | 会话历史记录 |
 | `ADR.md` | 关键决策记录 |
 | `troubleshooting.md` | 问题索引 |
 | `lessons-learned.md` | 跨项目经验沉淀 |
 | `.gitattributes` | 统一换行符(LF) + 标记二进制文件 |
 | `config/github-sync.json` | 跨项目知识同步配置 |
+
+### 技能（Skills）
+
+项目自带一组 AI 助手技能（路径：`.claude/skills/`），覆盖代码审查、调试、归档等场景。技能文件为 markdown 指令，由 AI 助手按需加载。
+
+**激活方式**：运行分发脚本同步，或在 `.claude/skills/` 下为需要的技能创建符号链接：
+
+```bash
+ln -s {技能源路径} .claude/skills/{技能名}
+```
+
+**当前可用技能**（来源：`starter/.agents/skills/`，`init-skeleton.py` 或 `distribute.py` 自动安装）：
+
+> ⚙️ 同步门禁：母库新增通用技能后，`awb health` 的「Starter 技能同步」检查和 `distribute.py` 的 sync-check 会报警提示补充到 `starter/.agents/skills/`。
+
+| 技能 | 说明 |
+|------|------|
+| `checkpoint` | 轻量 git 快照：add → commit → push |
+| `design-an-interface` | 设计新接口或 API 的流程、类型定义和边界 |
+| `diagnose` | 结构化诊断硬 bug 和性能退化 |
+| `edit-article` | 编辑和润色文章 |
+| `git-guardrails-claude-code` | Git 安全操作护栏 |
+| `grill-me` | 对设计方案持续追问直到达成共识 |
+| `grill-with-docs` | 参考文档进行深入追问 |
+| `handoff` | 任务交接，生成接力上下文 |
+| `improve-codebase-architecture` | 代码架构改进建议 |
+| `migrate-to-shoehorn` | 渐进式迁移到新架构模式 |
+| `prototype` | 快速原型开发 |
+| `python-code-quality` | Python 静态分析（ruff + mypy） |
+| `qa` | 质量保证检查 |
+| `request-refactor-plan` | 请求重构方案设计 |
+| `review` | 审查变更（标准轴 + 规格轴） |
+| `scaffold-exercises` | 脚手架练习生成 |
+| `setup-pre-commit` | 配置 pre-commit 钩子 |
+| `tdd` | 测试驱动开发流程 |
+| `teach` | 教授用户新的技能或概念 |
+| `to-issues` | 将内容转化为 Issue |
+| `to-prd` | 将内容转化为 PRD |
+| `triage` | 问题分类和优先级评估 |
+| `ubiquitous-language` | DDD 通用语言术语表提取 |
+| `write-a-skill` | 创建新的 AI skill |
+| `writing-beats` | 写作节奏控制 |
+| `writing-fragments` | 写作片段管理 |
+| `writing-shape` | 写作结构设计 |
+| `zoom-out` | 提供更广阔的上下文或高层视角 |
 
 ### 阶段产出层（按 SOP 五阶段逐步创建）
 
@@ -37,63 +78,13 @@
 
 <!-- /@sync -->
 
-
-
-
 ---
 
 <!-- @sync:id=archive -->
 ## 4.1 存档指令（「存档」）
 
-**触发词**：`存档`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「存档」→ 进入存档确认流程
-- 消息包含「存档」但还有其他内容 → 视为正常对话，不触发
-
-**确认流程**：输出存档确认清单（列明将更新的文档和 Git 操作），等待用户输入 `y` 确认或 `n` 取消。
-
-**标准动作序列**（用户确认后执行）：
-1. **回顾 + 生成草稿**：回顾本轮内容，生成 session-log 草稿；同时从认知角度提炼 0-5 条候选条目
-2a. **草稿确认**：输出 session-log 草稿 + status 修改预览，等待确认
-   - `y` → 草稿无误，继续
-   - 修改意见 → AI 修正后重新输出
-   - `n` → 取消存档，退出
-
-2b. **认知候选选择**：如有认知候选（0-5 条），输出候选清单；如无候选则跳过
-   - `y` → 全选所有候选，继续
-   - `n` → 跳过认知提取，继续存档
-   - 序号选择（如 `1,3` 或 `1-3`）→ 仅处理选中的候选
-   - `redo` → 重新提炼候选
-3. **更新文档**：
-   - **前置获取**：
-     `git fetch origin`
-     - 远程有超前提交 → 本地脏则 `git stash`，然后 `git pull --rebase`，有 stash 则 `git stash pop`；本地干净则直接 `git pull --rebase`
-     - 远程无超前提交 → 跳过 pull
-     （目的：确保读到最新 session-log.md，防止后续追加基于过时文件）
-   - `status.md`：对照 `git diff --stat` 逐条核销待办，已完成的打勾，未触及的说明原因；新增待办、更新记录；技术债务解决时同步到 `lessons-learned.md`
-     - ⚠️ **若 `git diff --stat` 为空**（工作区无代码变更，本会话仅产生文档）：**跳过文件对照核销**，仅基于 session-log 内容更新待办勾选 + 新增待办 + 更新记录表
-   - **`docs/tasks/task-progress.md` + `docs/tasks/task-{module}.md`**：基于步1 回顾结果，扫描各模块任务文件的 `[ ]` checkbox，勾选本轮已完成的子任务（`[ ]` → `[x]`），更新模块进度表。此步不做任务-代码自动映射，由 AI 人工复查
-   - **知识文件**：有报错 → 追加 `troubleshooting.md`；有经验 → 追加 `lessons-learned.md`；有关键决策 → 追加 `ADR.md`
-4. **定稿 + 审查**：定稿 `session-log.md`（**追加模式**：读取现有文件 → 在文件头部插入本轮新条目 → 写回，禁止全量覆盖）；运行 `sensitivity-check.py` 扫描拟写入内容；有认知候选时运行 `cognitive-extract.py`
-   > **辅助工具**：`python scripts/error-detector.py` 可检测命令输出中的常见错误模式
-5. Git 全量提交：`git add -A` → `git commit -m "[session] 摘要"` → `git push`
-   - ⚠️ **提交前检查**：确认 `session-log.md` 已在本步修改（`git diff --stat session-log.md` 非空），如未修改则报错：「session-log.md 未变更，存档中止」
-   - ⚠️ **push 结果不强制要求在会话内等待**：`git push` 可能因网络/权限延迟，启动后继续汇报。如失败则提示用户手动 push
-6. 汇报完成
-
-**Git 错误处理**：无 `.git` 目录 → 跳过 Git；无变更 → 跳过 commit；push 失败 → 报错暂停。
-
-### 认知提取（可选）
-
-> 本功能仅在 `scripts/cognitive-extract.py` 存在时启用。
-> 存档时将个人认知收获保存到 `cognitive-log.md`，与项目知识分离。
-
-**提炼标准**：
-- ✅ 可提炼：概念顿悟、决策逻辑、思维模型、踩坑教训、工具心智
-- ❌ 不提炼：具体错误修复步骤（→ troubleshooting.md）、项目架构决策（→ ADR.md）、工程经验方法（→ lessons-learned.md）、纯操作流水
-
-> **一句话判断**：三个月后不碰这个项目了，再看这条还能让你「啊对，当时就是这么理解的」——就值得记。
+> 完整流程见 `docs/workflows/archive.md`（7 步线性：快照→回顾→确认→选认知→更新文档→定稿→提交）。
+> 待办写入规则见 `docs/workflows/todo-rules.md`。
 
 <!-- /@sync -->---
 
@@ -103,46 +94,23 @@
 | 规则 ID | 规则内容 | 违反后果 |
 |---------|---------|---------|
 | **RULE-01** | **必须先建立基础设施层，再按阶段创建产出层** | 过程无记录、状态不可追踪 |
-| **ARCHIVE-01** | **用户说「存档」时，执行标准存档流程** | 文档与 Git 状态不一致 |
-| **ARCHIVE-02** | **「存档」触发后必须先输出确认清单** | 误触导致非预期提交 |
 | **RULE-04** | **禁止向工作区以外的系统关键目录写入文件（如 C:\Windows、/System、/etc 等）；用户明确授权时可例外** | 系统文件被污染 |
-| **RULE-06** | **`status.md` 中已完成的待办项应在存档时删除；历史完成记录由「更新记录」章节承担，待办清单只保留未完成项。** | 待办清单膨胀、恢复时噪音过大、重点模糊 |
-| **RULE-08** | **新增模块或组件前，必须先搜索项目中是否有可复用的同类代码（grep 关键词 / 搜索 `experience-index.md` / 检查现有组件）。禁止在已有组件可用时手写重复逻辑。** | 代码膨胀、维护成本翻倍、风格不一致 |
+| **ARCHIVE-01** | **存档时执行标准流程：先输出确认清单等待确认 → 确认后执行存档 → 删除已完成待办项，追加更新记录。历史完成记录由「更新记录」承担，待办清单只保留未完成项。** | 误触发导致非预期提交；文档与 Git 状态不一致；待办清单膨胀、重点模糊 |
+| **RULE-05** | **跨项目知识同步时先备份母库文件，合并后标注来源（按规则去重）；`experience-index.md` 由脚本自动生成，禁止手动编辑索引文件。** | 母库内容来源不清、重复堆积；索引与源文件不同步 |
 | **RULE-09** | **技术债务解决后，必须从 `status.md` 债务表删除，追加到「已解决债务」，并记录到 `lessons-learned.md`（标注 TAG:debt）** | 债务与经验脱节、重复犯错、无法追溯解决过程 |
-| **RULE-10** | **阶段口令触发后，必须先做前置条件检查（status.md + 前置文件确认），不通过则禁止启动该阶段** | 跳步导致产出无上下文、接口缺失依赖 |
-| **RULE-11** | **阶段口令是启动器而非执行器：口令只负责「检查+说明目标+确认启动」，具体执行细节严格引用 agent-coding-workflow.md 对应章节，禁止在口令逻辑中重写执行规范** | 规则在两处维护导致版本分歧 |
-| **RULE-12** | **写入 `troubleshooting.md` / `lessons-learned.md` / `ADR.md` 时，所有 IP 地址、本地文件路径、邮箱等敏感信息必须使用占位符替代（如 `{SERVER_IP}`、`{PROJECT_PATH}`）；仅在问题重现必须精确信息时才保留，同时写入备注说明** | 经验文档聚合后泄露个人/基础设施信息；下游项目分发后无法逐一清理 |
-| **RULE-13** | **禁止在最终输出中出现占位符（`[...]`、`<...>`、`TBD`、`TODO`、`待补充`）；信息不足时使用通用表述替代，宁可放宽粒度不可留空洞** | 下游 agent 无法消费输出、内容不可用、需人工返工 |
+| **RULE-11** | **阶段口令是启动器而非执行器：口令只负责检查前置条件、说明目标、确认启动，不通过则禁止启动该阶段。具体执行细节严格引用 `docs/workflows/agent-coding-workflow.md` 对应章节，禁止在口令逻辑中重写执行规范。** | 跳步导致产出无上下文；规则在两处维护导致版本分歧 |
+| **RULE-12** | **写入 `troubleshooting.md` / `lessons-learned.md` / `ADR.md` 时，所有 IP 地址、本地文件路径、邮箱等敏感信息必须使用占位符替代；仅在问题重现必须精确信息时才保留，同时写入备注说明** | 经验文档聚合后泄露个人/基础设施信息 |
+| **RULE-13** | **禁止在最终输出中出现占位符（`[...]`、`<...>`、`TBD`、`TODO`、`待补充`）；信息不足时使用通用表述替代，宁可放宽粒度不可留空洞** | 下游 agent 无法消费输出、内容不可用 |
 | **RULE-14** | **所有文件 I/O 和 `subprocess.run()` 必须显式传入 `encoding` 参数** | Windows GBK 环境下不指定会导致 UnicodeDecodeError |
 | **RULE-15** | **`git merge` 因文件系统不兼容失败时，禁止使用 `-s ours` / `-X ours`。必须改用 `git merge-tree --write-tree` 在对象空间完成合并，仅排除无法在当前文件系统创建的文件（`scripts/pre-merge-check.py` 预检 + `scripts/check-merge-integrity.py` 后检）** | 丢弃远端变更导致跨平台同步数据静默丢失 |
-| **RULE-16** | **审查/审计类操作输出报告后，禁止自行修复。必须将报告呈现给用户，等待用户明确审批后再动手修。** | Agent 绕过用户直接修改代码，用户失去对改动的知情和控制 |
+| **RULE-17** | **职责边界变动前必须输出 scope 声明表并等候用户确认。** 触发条件：新增/删除触发词、`RULE`、分发条目或改动 `CLAUDE.md` 入口结构。不触发：`@sync:id` 同步、workflow 内容更新、单文件修 bug。 | 单知多改、遗漏同步、下游无声不一致 |
+| **RULE-18** | **方案分析、风险评估、决策确认时，必须运用 `adversarial-think` 方法论进行深度审查，输出固定格式报告。** 适用场景：方案定稿 / 技术选型 / 存档前变更审查 / 清理发现处置 / 新增模块前复用检查（搜索现有代码，禁止重复造轮子）。报告输出后禁止自行修复，必须等待用户审批。 | 分析泛化停留在表面；代码膨胀、重复造轮子；Agent 绕过用户直接修改代码 |
 
 <!-- /@sync -->---
 <!-- @sync:id=recovery -->
 ## 4.2 恢复指令（「恢复」）
 
-**触发词**：`恢复`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「恢复」→ 执行恢复流程
-- 消息包含「恢复」但还有其他内容 → 视为正常对话，不触发
-
-**核心原则**：
-> **恢复摘要以 `status.md` 为主，`session-log.md` 为辅。**
-> **不要复述上轮历史。**
-
-**标准动作序列**：
-1. **Git 同步（三层安全闸）**：
-   a. `git fetch origin`
-   b. `python scripts/pre-merge-check.py origin/main` — 预检远端文件名兼容性
-   c. 如通过（exit 0）→ `git pull`；如不通过（exit 1）→ 按 merge-tree 方案执行合并
-   d. 检查 pull 是否有变化（对比 `git rev-parse HEAD@{1}` 与 HEAD）；无变化则跳过下一步
-   e. `python scripts/check-merge-integrity.py` — 后检是否有意外丢失文件
-   f. 如丢失 → 按脚本输出恢复；如通过 → 继续
-2. 读取 `status.md`（主数据源）：阶段、进度、待办、阻塞项
-3. 读取 `session-log.md` 最后一条（辅数据源）：只取「遗留问题/下轮开始点」
-4. **分析 + 汇报**：用户有报错 → 搜索 troubleshooting；检查 status 字段有效性；综合判断后输出恢复摘要（当前状态 + 建议下一步）
-5. 等待用户下一步指令
+> 完整流程见 `docs/workflows/resume.md`（6 步线性：分支确认 → 工作区检查 → Git 同步 → 读取状态 → 记忆同步 → 汇报）。
 
 <!-- /@sync -->
 ---
@@ -174,130 +142,31 @@
 
 <!-- /@sync -->
 ---
-<!-- @sync:id=checkpoint -->
-## 4.3 快照指令（「checkpoint」）
-
-> 轻量安全快照，用于改动前拍照。与「存档」互补——存档是会话结束的正式记录，checkpoint 是开发中的安全网。
-
-**触发词**：`checkpoint`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配 `checkpoint` → 执行快照流程
-- 消息包含 checkpoint 但还有其他内容 → 视为正常对话，不触发
-
-**标准动作序列**：
-1. `git add -A` 暂存所有改动
-2. `git commit -m "checkpoint: {本轮改动摘要}"` 提交
-3. `git push` 推送
-4. 汇报完成，附带回滚提示
-
-**回滚方式**（快照后如改坏，可精准回滚这一步）：
-- 撤销整个快照：`git revert HEAD`
-- 只恢复某个文件：`git checkout HEAD~1 -- 文件名`
-- 查看快照历史：`git log --oneline | grep checkpoint`
-
-**与「存档」的区别**：
-
-| 特性 | 存档 | checkpoint |
-|------|------|-----------|
-| 触发词 | 存档 | checkpoint |
-| 时机 | 会话结束 | 改动前 |
-| 更新 session-log | ✅ | ❌ |
-| 更新 status.md | ✅ | ❌ |
-| 认知提取 | ✅ | ❌ |
-| 定位 | 正式存档 | 轻量安全快照 |
-
-<!-- /@sync -->
-
-
-
-
-
 
 ---
 
 <!-- @sync:id=project-review -->
 ## 4.6 项目审查（「项目审查」）
 
-> 对项目进行六维度架构审查：目录树扫描 / 核心模块清单 / 依赖图 / 循环依赖 / 重复实现 / 过度耦合。
-
-**触发词**：`项目审查`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「项目审查」→ 执行审查流程
-- 消息包含「项目审查」但还有其他内容 → 视为正常对话，不触发
-
-**标准动作序列**：
-1. 运行 `python scripts/arch-review.py --dir . --summary` 输出摘要报告
-2. 输出审查结果
-3. 等待用户下一步指令
-
-**可选扩展**：
-- 若用户回复 `详细` → 执行完整六维报告（去掉 `--summary`）
-- 若用户回复 `scripts/` → 只审查 scripts/ 目录（默认行为）
-
+> 完整流程见 `docs/workflows/project-review.md`（六维度架构审查：目录树 / 模块清单 / 依赖图 / 循环依赖 / 重复实现 / 过度耦合）。
 <!-- /@sync -->---
 
 <!-- @sync:id=todo-rules -->
-## 4.5 待办写入规则（「计入待办」）
+## 4.5 待办写入规则
 
-> **核心机制**：AI 在会话期间发现遗留事项时，**主动写入** status.md 待办清单，不等待存档或用户触发词。
-> 存档时执行已有的清理逻辑（删除 `[x]`、勾选完成、补充遗漏）。
-
-### 写入时机
-
-- **阶段性完成点**：一个 task/subtask 完成时，顺带检查是否有未竟事项
-- **用户明确指示**：说"计入待办" / "加到清单" / "后面做" / "下一轮" / "回头处理"时立即写入
-- **记忆捕获重叠**：符合存档指令中记忆捕获触发条件的内容，优先写入记忆系统；但如果同时包含待办性质（"后面做"），**两者都写**——待办进 status.md，记忆进自有记忆系统
-- **不在代码编辑中间插入**，避免打断主任务流
-
-### 写入格式
-
-```
-- [ ] 简短描述（一行说清"不处理会怎样"）
-```
-
-写入后输出声明：`[已计入待办] XXX`
-
-### 写入判断表
-
-**✅ 该写**（满足 >=1 条）：功能缺失 / 阻塞后续步骤 / 技术债务 / 用户明确指示 / 用户说"计入待办"
-
-**❌ 不该写**（满足 >=1 条）：风格改进 / 可在当前任务顺手完成 / 猜测性 TODO / 已在待办清单中
-
-**用户否决**：`撤销` / `不算` → 删除；`合并到 #N` → 合并；不回复 → 保留。存档检查点统一展示待确认。
+> 完整规则见 `docs/workflows/todo-rules.md`（写入时机、格式、判断表）。
 <!-- /@sync -->---
 
 <!-- @sync:id=cleanup -->
 ## 4.4 清理指令（「清理」）
 
-**触发词**：`清理`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「清理」→ 执行清理流程
-- 消息包含「清理」但还有其他内容 → 视为正常对话，不触发
-
-**作用范围**：本项目的知识文件（`troubleshooting.md`、`lessons-learned.md`、`ADR.md`）和 `AGENTS.md` 结构。
-
-**执行流程**：见 `docs/workflows/cleanup.md`
+> 完整流程见 `docs/workflows/cleanup.md`（作用范围：知识文件 + AGENTS.md 结构）。
 <!-- /@sync -->---
 
 <!-- @sync:id=lightweight-dev -->
 ## 4.7 轻量立项指令（「立项」）
 
-**触发词**：`立项`（去除标点后精确等于这两个字）
-
-**防误触**：
-- 消息精确匹配「立项」→ 进入轻量立项流程
-- 消息包含「立项」但还有其他内容 → 视为正常对话，不触发
-
-**核心原则**：
-> 适用于中小型功能的轻量开发流。讨论 → 方案 → 执行 → 归档，不固定会话边界。
-
-**标准动作序列**：
-1. 读取 `status.md` 确认当前项目状态
-2. 按 `docs/workflows/lightweight-dev.md` 完整流程执行
-3. 各步骤完成后更新方案文档和 status.md
+> 完整流程见 `docs/workflows/lightweight-dev.md`（讨论 → 方案 → 执行 → 归档，不固定会话边界）。
 <!-- /@sync -->
 
 ---
@@ -343,64 +212,23 @@
 <!-- @sync:id=phase-commands -->
 ## 6. 阶段指令
 
-> 本章指令通过精确口令触发五阶段 SOP 流程。口令是启动器而非执行器：只负责「检查+说明目标+确认启动」，具体执行细节引用 `agent-coding-workflow.md` 对应章节（RULE-11）。
-
-### 通用启动流程（所有阶段口令共用）
-
-```
-Step 1: 读取 status.md，确认当前阶段和前置条件
-Step 2: 前置检查（见下方各阶段的「前置条件」）
-Step 3: 输出「阶段启动摘要」（格式见下方模板）
-Step 4: 等待用户输入 y 确认或 n 取消
-Step 5: 确认后，按 agent-coding-workflow.md 对应章节执行
-```
-
-**阶段启动摘要模板**：
-```
-【阶段X 启动摘要】
-📌 当前阶段：阶段X — [阶段名]
-✅ 前置条件：[已满足 / 未满足 + 原因]
-📝 将产出：[列出本阶段将产出的文件]
-📖 执行规范：agent-coding-workflow.md §[章节编号]
-⚠️  红线约束：[引用 RULE-xx / brief.md 中不可复议的决策]
-
-确认后开始执行。（y/n）
-```
+> 启动机制和阶段定义详见 `docs/workflows/agent-coding-workflow.md` §阶段启动机制（通用启动流程、摘要模板、阶段定义速查）。口令是启动器而非执行器（RULE-11）。
 
 ### 6.1-6.5 阶段定义
 
 | 触发词 | 阶段 | 前置条件 | 主要产出 | Spec |
 |--------|------|---------|---------|------|
-| `阶段一` | 需求讨论 | 无 | `docs/proposal.md` + T-01~T-05 | `agent-coding-workflow.md §阶段一` |
-| `阶段二` | 设计文档搭建 | proposal.md 存在 + 阶段一 ✅ | `docs/design.md`, `docs/brief.md` | `agent-coding-workflow.md §阶段二` |
-| `阶段三` | 划分任务 | design.md + brief.md + 阶段二 ✅ | `docs/tasks/task-{module}.md`, `task-progress.md` | `agent-coding-workflow.md §阶段三` |
-| `阶段四` | 生成 Prompt | task-progress.md 存在 | `prompt.md` | `agent-coding-workflow.md §阶段四` |
-| `阶段五` | 执行开发 | prompt.md 存在 | 源码 + 测试 + 集成 | `agent-coding-workflow.md §阶段五` |
+| `阶段一` | 需求讨论 | 无 | `docs/proposal.md` + T-01~T-05 | `docs/workflows/agent-coding-workflow.md §阶段一` |
+| `阶段二` | 设计文档搭建 | proposal.md 存在 + 阶段一 ✅ | `docs/design.md`, `docs/brief.md` | `docs/workflows/agent-coding-workflow.md §阶段二` |
+| `阶段三` | 划分任务 | design.md + brief.md + 阶段二 ✅ | `docs/tasks/task-{module}.md`, `task-progress.md` | `docs/workflows/agent-coding-workflow.md §阶段三` |
+| `阶段四` | 生成 Prompt | task-progress.md 存在 | `prompt.md` | `docs/workflows/agent-coding-workflow.md §阶段四` |
+| `阶段五` | 执行开发 | prompt.md 存在 | 源码 + 测试 + 集成 | `docs/workflows/agent-coding-workflow.md §阶段五` |
 
-> 各阶段的完整目标、关键动作、完成标志见 `agent-coding-workflow.md` 对应章节。
+> 各阶段的完整目标、关键动作、完成标志见 `docs/workflows/agent-coding-workflow.md` 对应章节。
 
 ### 6.6 当前阶段（「当前阶段」）
 
-**触发词**：`当前阶段`（去除标点后精确等于，**不含别名「状态」**）
-
-**防误触**：
-- 消息精确匹配「当前阶段」→ 执行查询
-- 消息包含「当前阶段」但还有其他内容 → 视为正常对话，不触发
-
-**标准动作序列**：
-1. 读取 `status.md`
-2. 检查关键字段是否为占位符（[填写]、[项目名]），如是则提示用户先填空
-3. 按以下格式输出摘要：
-```
-【当前状态】
-📌 所处阶段：阶段X — [阶段名]
-✅ 已完成：[列出已完成的阶段 / 文件]
-📋 待办：[从 status.md 待办章节取前 3 条]
-🔴 阻塞项：[如有]
-📁 关键入口文件：[列出 3-5 个核心文件]
-🚀 建议下一步：[根据当前阶段给出一句建议]
-```
-4. 等待用户下一步指令
+> 完整执行流程见 `docs/workflows/current-phase.md`。
 
 <!-- /@sync -->
 

@@ -67,6 +67,16 @@
 ④ 标注 + 归档 ── 执行完毕后更新状态，移入 docs/archived/
 ```
 
+### 管线总览
+
+| 步 | 阶段 | 动作 | 产出物/状态 | Exit Condition | Decision Type | 用户交互 |
+|----|------|------|------------|---------------|---------------|---------|
+| ① | 立项讨论 | 提问摸清需求，确认必问项 | 方案方向摘要 | 必问项全部得到明确回答 | LLM Reasoning + Human Gate | ✅ 讨论交互 |
+| ② | 定方案 | 写入 docs/\<方案名\>.md，更新 status.md | 方案文档 (📝 活跃) | 用户 `y` 确认 → 进入 ③；`n` → 保持 📝 等待 | LLM Reasoning + Human Gate | ✅ |
+| ③ | 执行 | 按执行步骤逐项实施，阻塞通知用户 | 执行步骤全部 [x] | 验收标准全部通过 + 执行步骤全部勾选 | Deterministic + LLM | ⚠️ 阻塞时 |
+| ④ | 归档 | 更新状态，移入 docs/archived/ | 已归档方案 (✅) | 用户 `y` 确认归档 | Deterministic | ✅ |
+| ⏸ | 搁置 | 更新状态为 ⏸，移入 archived | 搁置方案 (⏸) | 用户明确说"搁置"/"不做了" | Deterministic | ✅ 用户直接表态 |
+
 ### ① 立项讨论
 
 参考 `agent-coding-workflow.md` 阶段一的交互模式，但省略 T-01~T-05 技术需求确认（那是 SOP 阶段二的输入条件）：
@@ -134,6 +144,19 @@
 
 ---
 
+## ✅ 完成确认清单
+
+在宣布立项流程完成前，确认以下全部成立：
+
+- [ ] ①②③④ 四步全流程结束，或 ⏸ 搁置已执行
+- [ ] 方案文档已写入 `docs/`，执行状态标记正确（📝/✅/⏸）
+- [ ] 执行步骤全部 `[x]` 或明确标记为搁置
+- [ ] `status.md` 已更新（轻量方案字段 + 更新记录）
+- [ ] 已告知用户「立项完成」或「已归档」
+- [ ] 不擅自推进后续阶段（轻量立项不固定会话边界，但当前流程应自然终止）
+
+---
+
 ## 方案文档模板
 
 > 此模板用于 `docs/<方案名>.md`（方案文档），状态标记含义见下方「状态标记说明」。
@@ -189,7 +212,7 @@
 
 | 标记 | 含义 | 位置 |
 |------|------|------|
-| `📝 活跃` | 方案已定稿，待执行 | `docs/` |
+| `📝 活跃` | 方案已定稿，待执行 | `docs/lightweight-dev/` |
 | `⏸ 搁置` | 不做了，保留存档 | `docs/archived/` |
 | `✅ 已落地（日期）` | 执行完毕 | `docs/archived/` |
 | `📦 参考已归档` | 参考性文档，不涉及执行 | `docs/archived/` |
@@ -216,6 +239,8 @@
 |------|------|------|
 | 2026-06-23 | 日报聚合脚本 | ✅ docs/archived/aggregate-sessions.md |
 | 2026-06-23 | Xcode 编译错误自动抓取与修复 | ✅ docs/archived/xcode-build-logs.md |
-| 2026-06-25 | agent-loop CLI 真自循环 Agent 编排器 | 📝 docs/agent-loop.md |
-| 2026-06-26 | Scope 机制强化 | 📝 docs/scope-hardening.md |
-| 2026-06-26 | 下游项目 ADR 噪音清理 | 📝 docs/clean-downstream-adr.md |
+| 2026-06-25 | agent-loop CLI 真自循环 Agent 编排器 | ✅ 2026-06-30 docs/archived/agent-loop.md |
+| 2026-06-26 | Scope 机制强化 | ✅ 2026-06-30 docs/archived/scope-hardening.md |
+| 2026-06-26 | 下游项目 ADR 噪音清理 | ✅ 2026-06-30 docs/archived/clean-downstream-adr.md |
+| 2026-06-26 | CDP 桥接架构（备用方案归档） | 📦 docs/reference/cdp-bridge-architecture.md |
+| 2026-06-27 | 日记 Hermes Skill 封装 | ✅ docs/archived/diary-hermes-skill.md |
