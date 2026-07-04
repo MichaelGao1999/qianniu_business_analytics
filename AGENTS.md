@@ -41,6 +41,7 @@ ln -s {技能源路径} .claude/skills/{技能名}
 | `design-an-interface` | 设计新接口或 API 的流程、类型定义和边界 |
 | `diagnose` | 结构化诊断硬 bug 和性能退化 |
 | `edit-article` | 编辑和润色文章 |
+| `externalize` | 技能外挂化 — 将 auto-loaded skill 转为按需触发词模式 |
 | `git-guardrails-claude-code` | Git 安全操作护栏 |
 | `grill-me` | 对设计方案持续追问直到达成共识 |
 | `grill-with-docs` | 参考文档进行深入追问 |

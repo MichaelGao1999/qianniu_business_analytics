@@ -27,7 +27,7 @@ BACKENDS = ("markdown", "none")
 
 ENTRY_RE = re.compile(
     r"(?:^|\n\n)---\n\n"
-    r"## (.+?)\n\n"
+    r"## (?:\d{4}-\d{2}-\d{2}\s*—\s*)?(.+?)\n\n"
     r"- \*\*分类\*\*:\s*(.+?)\n"
     r"- \*\*时间\*\*:\s*(.+?)\n"
     r"(?:- \*\*标签\*\*:\s*(.+?)\n)?"
@@ -88,19 +88,12 @@ def parse_entries(text: str) -> list[dict]:
 
 
 def build_index(entries: list[dict]) -> list[str]:
-    lines = ["## 索引", ""]
-    lines.append("| 时间 | 分类 | 标题 | 标签 |")
-    lines.append("|------|------|------|------|")
-    for e in entries:
-        title = e["title"].replace("|", "\\|")
-        tags = e["tags"].replace("|", "\\|")
-        lines.append(f"| {e['date']} | {e['category']} | {title} | {tags} |")
-    lines.append("")
-    return lines
+    """已废弃——索引表格格式太脆弱，不再生成。保留函数避免引用断裂。"""
+    return []
 
 
 def build_entry_block(entry: dict) -> list[str]:
-    lines = ["---", "", f"## {entry['title']}", ""]
+    lines = ["---", "", f"## {entry['date']} — {entry['title']}", ""]
     lines.append(f"- **分类**: {entry['category']}")
     lines.append(f"- **时间**: {entry['date']}")
     if entry["tags"]:
@@ -205,7 +198,7 @@ def main() -> int:
     parser.add_argument("--tags", help="标签，逗号分隔（如: 架构, 设计）")
     parser.add_argument("--date", help="日期，ISO 格式（默认: 今天）")
     parser.add_argument("--file", help="JSON 文件路径（包含条目列表或单条目）")
-    parser.add_argument("--rebuild-index", action="store_true", help="仅重建现有 cognitive-log.md 的索引")
+    parser.add_argument("--rebuild-index", action="store_true", help="重写 cognitive-log.md（不含索引表，索引表已废弃——仅保留条目列表）")
     args = parser.parse_args()
 
     if args.rebuild_index:
