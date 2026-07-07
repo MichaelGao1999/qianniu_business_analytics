@@ -117,7 +117,7 @@ Step 5: 确认后，按对应章节执行
 
 **输入**：
 - `docs/proposal.md`
-- `anti-patterns-checklist.md`（启动时从母库复制，设计前完成反模式检查）
+- `anti-patterns-checklist.md`（启动时复制到项目中，设计前完成反模式检查）
 
 **输出**：
 - `docs/design.md`（技术设计文档：架构总览、模块划分；条件性接口契约章节（T-02②/③）、条件性安全设计章节（T-04②/③）；数据流）
@@ -401,7 +401,7 @@ Step 4: 如果又超时，重复 Step 1~3
 ## 附录 B：跨项目知识同步 SOP
 
 > 当用户说「聚合」时执行本流程。
-> 目标：将用户 GitHub 所有项目中的 `ADR.md`、`lessons-learned.md`、`troubleshooting.md` 聚合到本项目，形成跨项目知识母库。
+> 目标：将用户 GitHub 所有项目中的 `ADR.md`、`lessons-learned.md`、`troubleshooting.md` 聚合到本项目，形成跨项目知识库。
 
 ### 配置初始化（首次执行）
 
@@ -422,14 +422,14 @@ Step 4: 如果又超时，重复 Step 1~3
 pip install requests
 
 # 2. 运行同步脚本
-python scripts/sync-knowledge.py
+python scripts/sync-knowledge.py  # 如脚本存在（非全部骨架项目预装，需从上游分发）
 ```
 
 脚本会自动完成：
 - 调用 GitHub API 获取仓库列表
 - 拉取每个仓库的目标文件
 - 解析、去重、标注来源
-- 合并到本项目的母库文件
+- 合并到本项目的本地聚合文件
 - 输出同步报告
 
 ### 执行方式 B：AI 原生手动流程（Fallback）
@@ -451,7 +451,7 @@ python scripts/sync-knowledge.py
   - `https://raw.githubusercontent.com/{username}/{repo}/{branch}/troubleshooting.md`
 - 404 则跳过（该仓库无此文件）
 
-**Step 4 — 备份母库**
+**Step 4 — 备份本地知识库**
 - 将本项目的 `ADR.md`、`lessons-learned.md`、`troubleshooting.md` 复制到 `.backup/` 目录，命名带时间戳
 
 **Step 5 — 解析与去重**
@@ -464,10 +464,10 @@ python scripts/sync-knowledge.py
 
 **Step 6 — 标注来源**
 - 所有并入的内容追加来源标签：`[来源:仓库名 @YYYY-MM-DD]`
-- 本项目原有内容标记为 `[母库]`
+- 本项目原有内容标记为 `[本地知识库]`
 
 **Step 7 — 合并写入**
-- 使用 `WriteFile`/`StrReplaceFile` 将合并后的内容写回母库文件
+- 使用 `WriteFile`/`StrReplaceFile` 将合并后的内容写回本地聚合文件
 - 保持原有 Markdown 结构，新内容追加到对应章节末尾
 
 **Step 8 — 输出报告**
@@ -497,7 +497,7 @@ python scripts/sync-knowledge.py
    - `lessons-learned` → 按描述去重，相同经验合并来源
    - `troubleshooting` → 按关键词去重，不同场景的解决方案并列保留
    - `ADR` → 不去重，ADR 上下文差异可能很大
-4. **母库优先**：本项目原有内容优先保留，新内容追加
+4. **本地知识库优先**：本项目原有内容优先保留，新内容追加
 5. **空文件跳过**：源文件为空或为模板占位符时跳过
 
 ### 验证清单
